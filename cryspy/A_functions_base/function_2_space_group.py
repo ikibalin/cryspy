@@ -157,7 +157,7 @@ def get_crystal_system_by_it_number(it_number: int) -> str:
 ACCESIBLE_IT_NUMBER_TRICLINIC_SYSTEM = tuple(range(1, 3))
 ACCESIBLE_IT_NUMBER_MONOCLINIC_SYSTEM = tuple(range(3, 16))
 ACCESIBLE_IT_NUMBER_ORTHORHOMBIC_SYSTEM = tuple(range(16, 75))
-ACCESIBLE_IT_NUMBER_TETRAGONAL_SYSTEM = tuple(range(7, 143))
+ACCESIBLE_IT_NUMBER_TETRAGONAL_SYSTEM = tuple(range(75, 143))
 ACCESIBLE_IT_NUMBER_TRIGONAL_SYSTEM = tuple(range(143, 168))
 ACCESIBLE_IT_NUMBER_HEXAGONAL_SYSTEM = tuple(range(168, 195))
 ACCESIBLE_IT_NUMBER_CUBIC_SYSTEM = tuple(range(195, 231))
@@ -759,6 +759,346 @@ def get_name_hm_extended_by_it_number_it_coordinate_system_code(it_number: int, 
     return name_hm_extended
 
 
+
+# Old Hermann-Mauguin symbols of the space groups 39, 41, 64, 67 and 68,
+# written before the glide plane "e" was introduced (ITA, 5th edition, 2002,
+# Section 1.2.3 and Table 4.3.2.1), e.g. "C m c a" and "B m a b" for "C m c e".
+REFERENCE_TABLE_IT_NUMBER_IT_COORDINATE_SYSTEM_CODE_NAME_HM_OLD = (
+    (39, "abc", "A b m 2"), (39, "ba-c", "B m a 2"), (39, "cab", "B 2 c m"),
+    (39, "-cba", "C 2 m b"), (39, "bca", "C m 2 a"), (39, "a-cb", "A c 2 m"),
+    (41, "abc", "A b a 2"), (41, "ba-c", "B b a 2"), (41, "cab", "B 2 c b"),
+    (41, "-cba", "C 2 c b"), (41, "bca", "C c 2 a"), (41, "a-cb", "A c 2 a"),
+    (64, "abc", "C m c a"), (64, "ba-c", "C c m b"), (64, "cab", "A b m a"),
+    (64, "-cba", "A c a m"), (64, "bca", "B b c m"), (64, "a-cb", "B m a b"),
+    (67, "abc", "C m m a"), (67, "ba-c", "C m m b"), (67, "cab", "A b m m"),
+    (67, "-cba", "A c m m"), (67, "bca", "B m c m"), (67, "a-cb", "B m a m"),
+    (68, "2abc", "C c c a"), (68, "2ba-c", "C c c b"), (68, "2cab", "A b a a"),
+    (68, "2-cba", "A c a a"), (68, "2bca", "B b c b"), (68, "2a-cb", "B b a b"),
+    (68, "1abc", "C c c a"), (68, "1ba-c", "C c c b"), (68, "1cab", "A b a a"),
+    (68, "1-cba", "A c a a"), (68, "1bca", "B b c b"), (68, "1a-cb", "B b a b"))
+
+# Hall symbols of the 530 settings of International Tables A, Table 4.3.2.1
+# (S. R. Hall, Acta Cryst. A37, 517 (1981); International Tables B,
+# Table A1.4.2.7). The default setting of every space group comes first.
+REFERENCE_TABLE_IT_NUMBER_IT_COORDINATE_SYSTEM_CODE_NAME_HALL = (
+    (1, None, "P 1"), (2, None, "-P 1"), (3, 'b1', "P 2y"),
+    (3, 'c1', "P 2"), (3, 'a1', "P 2x"), (4, 'b1', "P 2yb"),
+    (4, 'c1', "P 2c"), (4, 'a1', "P 2xa"), (5, 'b1', "C 2y"),
+    (5, 'b2', "A 2y"), (5, 'b3', "I 2y"), (5, 'c1', "A 2"),
+    (5, 'c2', "B 2"), (5, 'c3', "I 2"), (5, 'a1', "B 2x"),
+    (5, 'a2', "C 2x"), (5, 'a3', "I 2x"), (6, 'b1', "P -2y"),
+    (6, 'c1', "P -2"), (6, 'a1', "P -2x"), (7, 'b1', "P -2yc"),
+    (7, 'b2', "P -2yac"), (7, 'b3', "P -2ya"), (7, 'c1', "P -2a"),
+    (7, 'c2', "P -2ab"), (7, 'c3', "P -2b"), (7, 'a1', "P -2xb"),
+    (7, 'a2', "P -2xbc"), (7, 'a3', "P -2xc"), (8, 'b1', "C -2y"),
+    (8, 'b2', "A -2y"), (8, 'b3', "I -2y"), (8, 'c1', "A -2"),
+    (8, 'c2', "B -2"), (8, 'c3', "I -2"), (8, 'a1', "B -2x"),
+    (8, 'a2', "C -2x"), (8, 'a3', "I -2x"), (9, 'b1', "C -2yc"),
+    (9, 'b2', "A -2yab"), (9, 'b3', "I -2ya"), (9, '-b1', "A -2ya"),
+    (9, '-b2', "C -2yac"), (9, '-b3', "I -2yc"), (9, 'c1', "A -2a"),
+    (9, 'c2', "B -2ab"), (9, 'c3', "I -2b"), (9, '-c1', "B -2b"),
+    (9, '-c2', "A -2ab"), (9, '-c3', "I -2a"), (9, 'a1', "B -2xb"),
+    (9, 'a2', "C -2xac"), (9, 'a3', "I -2xc"), (9, '-a1', "C -2xc"),
+    (9, '-a2', "B -2xab"), (9, '-a3', "I -2xb"), (10, 'b1', "-P 2y"),
+    (10, 'c1', "-P 2"), (10, 'a1', "-P 2x"), (11, 'b1', "-P 2yb"),
+    (11, 'c1', "-P 2c"), (11, 'a1', "-P 2xa"), (12, 'b1', "-C 2y"),
+    (12, 'b2', "-A 2y"), (12, 'b3', "-I 2y"), (12, 'c1', "-A 2"),
+    (12, 'c2', "-B 2"), (12, 'c3', "-I 2"), (12, 'a1', "-B 2x"),
+    (12, 'a2', "-C 2x"), (12, 'a3', "-I 2x"), (13, 'b1', "-P 2yc"),
+    (13, 'b2', "-P 2yac"), (13, 'b3', "-P 2ya"), (13, 'c1', "-P 2a"),
+    (13, 'c2', "-P 2ab"), (13, 'c3', "-P 2b"), (13, 'a1', "-P 2xb"),
+    (13, 'a2', "-P 2xbc"), (13, 'a3', "-P 2xc"), (14, 'b1', "-P 2ybc"),
+    (14, 'b2', "-P 2yn"), (14, 'b3', "-P 2yab"), (14, 'c1', "-P 2ac"),
+    (14, 'c2', "-P 2n"), (14, 'c3', "-P 2bc"), (14, 'a1', "-P 2xab"),
+    (14, 'a2', "-P 2xn"), (14, 'a3', "-P 2xac"), (15, 'b1', "-C 2yc"),
+    (15, 'b2', "-A 2yab"), (15, 'b3', "-I 2ya"), (15, '-b1', "-A 2ya"),
+    (15, '-b2', "-C 2yac"), (15, '-b3', "-I 2yc"), (15, 'c1', "-A 2a"),
+    (15, 'c2', "-B 2ab"), (15, 'c3', "-I 2b"), (15, '-c1', "-B 2b"),
+    (15, '-c2', "-A 2ab"), (15, '-c3', "-I 2a"), (15, 'a1', "-B 2xb"),
+    (15, 'a2', "-C 2xac"), (15, 'a3', "-I 2xc"), (15, '-a1', "-C 2xc"),
+    (15, '-a2', "-B 2xab"), (15, '-a3', "-I 2xb"), (16, 'abc', "P 2 2"),
+    (17, 'abc', "P 2c 2"), (17, 'cab', "P 2a 2a"), (17, 'bca', "P 2 2b"),
+    (18, 'abc', "P 2 2ab"), (18, 'cab', "P 2bc 2"), (18, 'bca', "P 2ac 2ac"),
+    (19, 'abc', "P 2ac 2ab"), (20, 'abc', "C 2c 2"), (20, 'cab', "A 2a 2a"),
+    (20, 'bca', "B 2 2b"), (21, 'abc', "C 2 2"), (21, 'cab', "A 2 2"),
+    (21, 'bca', "B 2 2"), (22, 'abc', "F 2 2"), (23, 'abc', "I 2 2"),
+    (24, 'abc', "I 2b 2c"), (25, 'abc', "P 2 -2"), (25, 'cab', "P -2 2"),
+    (25, 'bca', "P -2 -2"), (26, 'abc', "P 2c -2"), (26, 'ba-c', "P 2c -2c"),
+    (26, 'cab', "P -2a 2a"), (26, '-cba', "P -2 2a"), (26, 'bca', "P -2 -2b"),
+    (26, 'a-cb', "P -2b -2"), (27, 'abc', "P 2 -2c"), (27, 'cab', "P -2a 2"),
+    (27, 'bca', "P -2b -2b"), (28, 'abc', "P 2 -2a"), (28, 'ba-c', "P 2 -2b"),
+    (28, 'cab', "P -2b 2"), (28, '-cba', "P -2c 2"), (28, 'bca', "P -2c -2c"),
+    (28, 'a-cb', "P -2a -2a"), (29, 'abc', "P 2c -2ac"), (29, 'ba-c', "P 2c -2b"),
+    (29, 'cab', "P -2b 2a"), (29, '-cba', "P -2ac 2a"), (29, 'bca', "P -2bc -2c"),
+    (29, 'a-cb', "P -2a -2ab"), (30, 'abc', "P 2 -2bc"), (30, 'ba-c', "P 2 -2ac"),
+    (30, 'cab', "P -2ac 2"), (30, '-cba', "P -2ab 2"), (30, 'bca', "P -2ab -2ab"),
+    (30, 'a-cb', "P -2bc -2bc"), (31, 'abc', "P 2ac -2"), (31, 'ba-c', "P 2bc -2bc"),
+    (31, 'cab', "P -2ab 2ab"), (31, '-cba', "P -2 2ac"), (31, 'bca', "P -2 -2bc"),
+    (31, 'a-cb', "P -2ab -2"), (32, 'abc', "P 2 -2ab"), (32, 'cab', "P -2bc 2"),
+    (32, 'bca', "P -2ac -2ac"), (33, 'abc', "P 2c -2n"), (33, 'ba-c', "P 2c -2ab"),
+    (33, 'cab', "P -2bc 2a"), (33, '-cba', "P -2n 2a"), (33, 'bca', "P -2n -2ac"),
+    (33, 'a-cb', "P -2ac -2n"), (34, 'abc', "P 2 -2n"), (34, 'cab', "P -2n 2"),
+    (34, 'bca', "P -2n -2n"), (35, 'abc', "C 2 -2"), (35, 'cab', "A -2 2"),
+    (35, 'bca', "B -2 -2"), (36, 'abc', "C 2c -2"), (36, 'ba-c', "C 2c -2c"),
+    (36, 'cab', "A -2a 2a"), (36, '-cba', "A -2 2a"), (36, 'bca', "B -2 -2b"),
+    (36, 'a-cb', "B -2b -2"), (37, 'abc', "C 2 -2c"), (37, 'cab', "A -2a 2"),
+    (37, 'bca', "B -2b -2b"), (38, 'abc', "A 2 -2"), (38, 'ba-c', "B 2 -2"),
+    (38, 'cab', "B -2 2"), (38, '-cba', "C -2 2"), (38, 'bca', "C -2 -2"),
+    (38, 'a-cb', "A -2 -2"), (39, 'abc', "A 2 -2b"), (39, 'ba-c', "B 2 -2a"),
+    (39, 'cab', "B -2a 2"), (39, '-cba', "C -2a 2"), (39, 'bca', "C -2a -2a"),
+    (39, 'a-cb', "A -2b -2b"), (40, 'abc', "A 2 -2a"), (40, 'ba-c', "B 2 -2b"),
+    (40, 'cab', "B -2b 2"), (40, '-cba', "C -2c 2"), (40, 'bca', "C -2c -2c"),
+    (40, 'a-cb', "A -2a -2a"), (41, 'abc', "A 2 -2ab"), (41, 'ba-c', "B 2 -2ab"),
+    (41, 'cab', "B -2ab 2"), (41, '-cba', "C -2ac 2"), (41, 'bca', "C -2ac -2ac"),
+    (41, 'a-cb', "A -2ab -2ab"), (42, 'abc', "F 2 -2"), (42, 'cab', "F -2 2"),
+    (42, 'bca', "F -2 -2"), (43, 'abc', "F 2 -2d"), (43, 'cab', "F -2d 2"),
+    (43, 'bca', "F -2d -2d"), (44, 'abc', "I 2 -2"), (44, 'cab', "I -2 2"),
+    (44, 'bca', "I -2 -2"), (45, 'abc', "I 2 -2c"), (45, 'cab', "I -2a 2"),
+    (45, 'bca', "I -2b -2b"), (46, 'abc', "I 2 -2a"), (46, 'ba-c', "I 2 -2b"),
+    (46, 'cab', "I -2b 2"), (46, '-cba', "I -2c 2"), (46, 'bca', "I -2c -2c"),
+    (46, 'a-cb', "I -2a -2a"), (47, 'abc', "-P 2 2"), (48, '1abc', "P 2 2 -1n"),
+    (48, '2abc', "-P 2ab 2bc"), (49, 'abc', "-P 2 2c"), (49, 'cab', "-P 2a 2"),
+    (49, 'bca', "-P 2b 2b"), (50, '1abc', "P 2 2 -1ab"), (50, '2abc', "-P 2ab 2b"),
+    (50, '1cab', "P 2 2 -1bc"), (50, '2cab', "-P 2b 2bc"), (50, '1bca', "P 2 2 -1ac"),
+    (50, '2bca', "-P 2a 2c"), (51, 'abc', "-P 2a 2a"), (51, 'ba-c', "-P 2b 2"),
+    (51, 'cab', "-P 2 2b"), (51, '-cba', "-P 2c 2c"), (51, 'bca', "-P 2c 2"),
+    (51, 'a-cb', "-P 2 2a"), (52, 'abc', "-P 2a 2bc"), (52, 'ba-c', "-P 2b 2n"),
+    (52, 'cab', "-P 2n 2b"), (52, '-cba', "-P 2ab 2c"), (52, 'bca', "-P 2ab 2n"),
+    (52, 'a-cb', "-P 2n 2bc"), (53, 'abc', "-P 2ac 2"), (53, 'ba-c', "-P 2bc 2bc"),
+    (53, 'cab', "-P 2ab 2ab"), (53, '-cba', "-P 2 2ac"), (53, 'bca', "-P 2 2bc"),
+    (53, 'a-cb', "-P 2ab 2"), (54, 'abc', "-P 2a 2ac"), (54, 'ba-c', "-P 2b 2c"),
+    (54, 'cab', "-P 2a 2b"), (54, '-cba', "-P 2ac 2c"), (54, 'bca', "-P 2bc 2b"),
+    (54, 'a-cb', "-P 2b 2ab"), (55, 'abc', "-P 2 2ab"), (55, 'cab', "-P 2bc 2"),
+    (55, 'bca', "-P 2ac 2ac"), (56, 'abc', "-P 2ab 2ac"), (56, 'cab', "-P 2ac 2bc"),
+    (56, 'bca', "-P 2bc 2ab"), (57, 'abc', "-P 2c 2b"), (57, 'ba-c', "-P 2c 2ac"),
+    (57, 'cab', "-P 2ac 2a"), (57, '-cba', "-P 2b 2a"), (57, 'bca', "-P 2a 2ab"),
+    (57, 'a-cb', "-P 2bc 2c"), (58, 'abc', "-P 2 2n"), (58, 'cab', "-P 2n 2"),
+    (58, 'bca', "-P 2n 2n"), (59, '1abc', "P 2 2ab -1ab"), (59, '2abc', "-P 2ab 2a"),
+    (59, '1cab', "P 2bc 2 -1bc"), (59, '2cab', "-P 2c 2bc"), (59, '1bca', "P 2ac 2ac -1ac"),
+    (59, '2bca', "-P 2c 2a"), (60, 'abc', "-P 2n 2ab"), (60, 'ba-c', "-P 2n 2c"),
+    (60, 'cab', "-P 2a 2n"), (60, '-cba', "-P 2bc 2n"), (60, 'bca', "-P 2ac 2b"),
+    (60, 'a-cb', "-P 2b 2ac"), (61, 'abc', "-P 2ac 2ab"), (61, 'ba-c', "-P 2bc 2ac"),
+    (62, 'abc', "-P 2ac 2n"), (62, 'ba-c', "-P 2bc 2a"), (62, 'cab', "-P 2c 2ab"),
+    (62, '-cba', "-P 2n 2ac"), (62, 'bca', "-P 2n 2a"), (62, 'a-cb', "-P 2c 2n"),
+    (63, 'abc', "-C 2c 2"), (63, 'ba-c', "-C 2c 2c"), (63, 'cab', "-A 2a 2a"),
+    (63, '-cba', "-A 2 2a"), (63, 'bca', "-B 2 2b"), (63, 'a-cb', "-B 2b 2"),
+    (64, 'abc', "-C 2ac 2"), (64, 'ba-c', "-C 2ac 2ac"), (64, 'cab', "-A 2ab 2ab"),
+    (64, '-cba', "-A 2 2ab"), (64, 'bca', "-B 2 2ab"), (64, 'a-cb', "-B 2ab 2"),
+    (65, 'abc', "-C 2 2"), (65, 'cab', "-A 2 2"), (65, 'bca', "-B 2 2"),
+    (66, 'abc', "-C 2 2c"), (66, 'cab', "-A 2a 2"), (66, 'bca', "-B 2b 2b"),
+    (67, 'abc', "-C 2a 2"), (67, 'ba-c', "-C 2a 2a"), (67, 'cab', "-A 2b 2b"),
+    (67, '-cba', "-A 2 2b"), (67, 'bca', "-B 2 2a"), (67, 'a-cb', "-B 2a 2"),
+    (68, '1abc', "C 2 2 -1ac"), (68, '2abc', "-C 2a 2ac"), (68, '1ba-c', "C 2 2 -1ac"),
+    (68, '2ba-c', "-C 2a 2c"), (68, '1cab', "A 2 2 -1ab"), (68, '2cab', "-A 2a 2b"),
+    (68, '1-cba', "A 2 2 -1ab"), (68, '2-cba', "-A 2ab 2b"), (68, '1bca', "B 2 2 -1ab"),
+    (68, '2bca', "-B 2ab 2b"), (68, '1a-cb', "B 2 2 -1ab"), (68, '2a-cb', "-B 2b 2ab"),
+    (69, 'abc', "-F 2 2"), (70, '1abc', "F 2 2 -1d"), (70, '2abc', "-F 2uv 2vw"),
+    (71, 'abc', "-I 2 2"), (72, 'abc', "-I 2 2c"), (72, 'cab', "-I 2a 2"),
+    (72, 'bca', "-I 2b 2b"), (73, 'abc', "-I 2b 2c"), (73, 'ba-c', "-I 2a 2b"),
+    (74, 'abc', "-I 2b 2"), (74, 'ba-c', "-I 2a 2a"), (74, 'cab', "-I 2c 2c"),
+    (74, '-cba', "-I 2 2b"), (74, 'bca', "-I 2 2a"), (74, 'a-cb', "-I 2c 2"),
+    (75, None, "P 4"), (76, None, "P 4w"), (77, None, "P 4c"),
+    (78, None, "P 4cw"), (79, None, "I 4"), (80, None, "I 4bw"),
+    (81, None, "P -4"), (82, None, "I -4"), (83, None, "-P 4"),
+    (84, None, "-P 4c"), (85, '1', "P 4ab -1ab"), (85, '2', "-P 4a"),
+    (86, '1', "P 4n -1n"), (86, '2', "-P 4bc"), (87, None, "-I 4"),
+    (88, '1', "I 4bw -1bw"), (88, '2', "-I 4ad"), (89, None, "P 4 2"),
+    (90, None, "P 4ab 2ab"), (91, None, "P 4w 2c"), (92, None, "P 4abw 2nw"),
+    (93, None, "P 4c 2"), (94, None, "P 4n 2n"), (95, None, "P 4cw 2c"),
+    (96, None, "P 4nw 2abw"), (97, None, "I 4 2"), (98, None, "I 4bw 2bw"),
+    (99, None, "P 4 -2"), (100, None, "P 4 -2ab"), (101, None, "P 4c -2c"),
+    (102, None, "P 4n -2n"), (103, None, "P 4 -2c"), (104, None, "P 4 -2n"),
+    (105, None, "P 4c -2"), (106, None, "P 4c -2ab"), (107, None, "I 4 -2"),
+    (108, None, "I 4 -2c"), (109, None, "I 4bw -2"), (110, None, "I 4bw -2c"),
+    (111, None, "P -4 2"), (112, None, "P -4 2c"), (113, None, "P -4 2ab"),
+    (114, None, "P -4 2n"), (115, None, "P -4 -2"), (116, None, "P -4 -2c"),
+    (117, None, "P -4 -2ab"), (118, None, "P -4 -2n"), (119, None, "I -4 -2"),
+    (120, None, "I -4 -2c"), (121, None, "I -4 2"), (122, None, "I -4 2bw"),
+    (123, None, "-P 4 2"), (124, None, "-P 4 2c"), (125, '1', "P 4 2 -1ab"),
+    (125, '2', "-P 4a 2b"), (126, '1', "P 4 2 -1n"), (126, '2', "-P 4a 2bc"),
+    (127, None, "-P 4 2ab"), (128, None, "-P 4 2n"), (129, '1', "P 4ab 2ab -1ab"),
+    (129, '2', "-P 4a 2a"), (130, '1', "P 4ab 2n -1ab"), (130, '2', "-P 4a 2ac"),
+    (131, None, "-P 4c 2"), (132, None, "-P 4c 2c"), (133, '1', "P 4n 2c -1n"),
+    (133, '2', "-P 4ac 2b"), (134, '1', "P 4n 2 -1n"), (134, '2', "-P 4ac 2bc"),
+    (135, None, "-P 4c 2ab"), (136, None, "-P 4n 2n"), (137, '1', "P 4n 2n -1n"),
+    (137, '2', "-P 4ac 2a"), (138, '1', "P 4n 2ab -1n"), (138, '2', "-P 4ac 2ac"),
+    (139, None, "-I 4 2"), (140, None, "-I 4 2c"), (141, '1', "I 4bw 2bw -1bw"),
+    (141, '2', "-I 4bd 2"), (142, '1', "I 4bw 2aw -1bw"), (142, '2', "-I 4bd 2c"),
+    (143, None, "P 3"), (144, None, "P 31"), (145, None, "P 32"),
+    (146, 'h', "R 3"), (146, 'r', "P 3*"), (147, None, "-P 3"),
+    (148, 'h', "-R 3"), (148, 'r', "-P 3*"), (149, None, "P 3 2"),
+    (150, None, 'P 3 2"'), (151, None, "P 31 2 (0 0 4)"), (152, None, 'P 31 2"'),
+    (153, None, "P 32 2 (0 0 2)"), (154, None, 'P 32 2"'), (155, 'h', 'R 3 2"'),
+    (155, 'r', "P 3* 2"), (156, None, 'P 3 -2"'), (157, None, "P 3 -2"),
+    (158, None, 'P 3 -2"c'), (159, None, "P 3 -2c"), (160, 'h', 'R 3 -2"'),
+    (160, 'r', "P 3* -2"), (161, 'h', 'R 3 -2"c'), (161, 'r', "P 3* -2n"),
+    (162, None, "-P 3 2"), (163, None, "-P 3 2c"), (164, None, '-P 3 2"'),
+    (165, None, '-P 3 2"c'), (166, 'h', '-R 3 2"'), (166, 'r', "-P 3* 2"),
+    (167, 'h', '-R 3 2"c'), (167, 'r', "-P 3* 2n"), (168, None, "P 6"),
+    (169, None, "P 61"), (170, None, "P 65"), (171, None, "P 62"),
+    (172, None, "P 64"), (173, None, "P 6c"), (174, None, "P -6"),
+    (175, None, "-P 6"), (176, None, "-P 6c"), (177, None, "P 6 2"),
+    (178, None, "P 61 2 (0 0 5)"), (179, None, "P 65 2 (0 0 1)"), (180, None, "P 62 2 (0 0 4)"),
+    (181, None, "P 64 2 (0 0 2)"), (182, None, "P 6c 2c"), (183, None, "P 6 -2"),
+    (184, None, "P 6 -2c"), (185, None, "P 6c -2"), (186, None, "P 6c -2c"),
+    (187, None, "P -6 2"), (188, None, "P -6c 2"), (189, None, "P -6 -2"),
+    (190, None, "P -6c -2c"), (191, None, "-P 6 2"), (192, None, "-P 6 2c"),
+    (193, None, "-P 6c 2"), (194, None, "-P 6c 2c"), (195, None, "P 2 2 3"),
+    (196, None, "F 2 2 3"), (197, None, "I 2 2 3"), (198, None, "P 2ac 2ab 3"),
+    (199, None, "I 2b 2c 3"), (200, None, "-P 2 2 3"), (201, '1', "P 2 2 3 -1n"),
+    (201, '2', "-P 2ab 2bc 3"), (202, None, "-F 2 2 3"), (203, '1', "F 2 2 3 -1d"),
+    (203, '2', "-F 2uv 2vw 3"), (204, None, "-I 2 2 3"), (205, None, "-P 2ac 2ab 3"),
+    (206, None, "-I 2b 2c 3"), (207, None, "P 4 2 3"), (208, None, "P 4n 2 3"),
+    (209, None, "F 4 2 3"), (210, None, "F 4d 2 3"), (211, None, "I 4 2 3"),
+    (212, None, "P 4acd 2ab 3"), (213, None, "P 4bd 2ab 3"), (214, None, "I 4bd 2c 3"),
+    (215, None, "P -4 2 3"), (216, None, "F -4 2 3"), (217, None, "I -4 2 3"),
+    (218, None, "P -4n 2 3"), (219, None, "F -4a 2 3"), (220, None, "I -4bd 2c 3"),
+    (221, None, "-P 4 2 3"), (222, '1', "P 4 2 3 -1n"), (222, '2', "-P 4a 2bc 3"),
+    (223, None, "-P 4n 2 3"), (224, '1', "P 4n 2 3 -1n"), (224, '2', "-P 4bc 2bc 3"),
+    (225, None, "-F 4 2 3"), (226, None, "-F 4a 2 3"), (227, '1', "F 4d 2 3 -1d"),
+    (227, '2', "-F 4vw 2vw 3"), (228, '1', "F 4d 2 3 -1ad"), (228, '2', "-F 4ud 2vw 3"),
+    (229, None, "-I 4 2 3"), (230, None, "-I 4bd 2c 3"),
+)
+
+
+def get_it_number_it_coordinate_system_code_by_name_hall(name: str) -> Tuple:
+    """Space group number and setting by the Hall symbol of any setting.
+
+    Parameters
+    ----------
+    name : str
+        Hall symbol, e.g. ``"-B 2ab 2"``; extra spaces are ignored.
+
+    Returns
+    -------
+    it_number : int or None
+        Number of the space group in International Tables A
+        (None if the symbol is unknown).
+    it_coordinate_system_code : str or None
+        Code of the setting (``"a-cb"``, ``"2"``, ``"r"``, ...).
+    """
+    if not isinstance(name, str):
+        return None, None
+    name_norm = " ".join(_strip_quotes(name).split())
+    for _it_number, _code, _name in \
+            REFERENCE_TABLE_IT_NUMBER_IT_COORDINATE_SYSTEM_CODE_NAME_HALL:
+        if name_norm == _name:
+            return _it_number, _code
+    return None, None
+
+
+def _strip_quotes(name: str) -> str:
+    """Remove the quotes around a symbol, keep '"' inside ('P 3 2"')."""
+    name = name.strip()
+    if len(name) >= 2 and name[0] == name[-1] and name[0] in ("'", '"'):
+        name = name[1:-1].strip()
+    return name
+
+
+def _form_name_hm_key(name: str) -> str:
+    """Hermann-Mauguin symbol without spaces and subscript marks ("P2_1/c")."""
+    return "".join(name.split()).replace("_", "")
+
+
+def _form_d_name_hm_key_settings() -> dict:
+    """Dictionary: H-M symbol without spaces -> settings (it_number, code).
+
+    The symbols are the extended symbols of ITA Table 4.3.2.1, the old symbols
+    with the glide planes "a", "b" instead of "e", the short and full symbols
+    of the standard settings, and the short monoclinic symbols ("P 21/n" for
+    "P 1 21/n 1"). The settings for every symbol keep the order of the Hall
+    table, so the default setting of a space group comes first.
+    """
+    d_key_settings = {}
+
+    def add(name, it_number, code):
+        if name is None:
+            return
+        key = _form_name_hm_key(name)
+        l_settings = d_key_settings.setdefault(key, [])
+        if (it_number, code) not in l_settings:
+            l_settings.append((it_number, code))
+
+    d_old = {(_1, _2): _3 for _1, _2, _3 in
+             REFERENCE_TABLE_IT_NUMBER_IT_COORDINATE_SYSTEM_CODE_NAME_HM_OLD}
+    for _it_number, _code, _hall in \
+            REFERENCE_TABLE_IT_NUMBER_IT_COORDINATE_SYSTEM_CODE_NAME_HALL:
+        name_extended = \
+            get_name_hm_extended_by_it_number_it_coordinate_system_code(
+                _it_number, _code)
+        if _it_number > 2:
+            # "P 1 1 1" is given in the table above for both 1 and 2.
+            add(name_extended, _it_number, _code)
+        add(d_old.get((_it_number, _code)), _it_number, _code)
+        if (get_crystal_system_by_it_number(_it_number) == "monoclinic" and
+                name_extended is not None):
+            l_word = name_extended.split()
+            add(" ".join([l_word[0]] + [_ for _ in l_word[1:] if _ != "1"]),
+                _it_number, _code)
+        if _code in (None, get_default_it_coordinate_system_code_by_it_number(
+                _it_number)) or (len(
+                    get_it_coordinate_system_codes_by_it_number(_it_number)) <= 2
+                    and get_crystal_system_by_it_number(_it_number) not in
+                    ("monoclinic", "orthorhombic")):
+            add(get_name_hm_short_by_it_number(_it_number), _it_number, _code)
+            add(get_name_hm_full_by_it_number(_it_number), _it_number, _code)
+    return d_key_settings
+
+
+D_NAME_HM_KEY_SETTINGS = None
+
+
+def get_it_number_it_coordinate_system_code_by_name_hm(name: str) -> Tuple:
+    """Space group number and setting by a Hermann-Mauguin symbol.
+
+    Recognized: the extended symbols of all 530 settings of ITA
+    Table 4.3.2.1 ("B m e b"), the old symbols with "a", "b" glide planes
+    instead of "e" ("B m a b", "C m c a"), short monoclinic symbols
+    ("P 21/n"), symbols without spaces ("Pnma", "P2_1/c") and the origin or
+    axes choice given after a colon ("F d -3 m:1", "R -3 m:R").
+
+    Parameters
+    ----------
+    name : str
+        Hermann-Mauguin symbol.
+
+    Returns
+    -------
+    it_number : int or None
+        Number of the space group in International Tables A
+        (None if the symbol is unknown).
+    it_coordinate_system_code : str or None
+        Code of the setting. Without the choice after a colon, the default
+        origin (choice 2) or axes (hexagonal) of the space group is used.
+    """
+    global D_NAME_HM_KEY_SETTINGS
+    if not isinstance(name, str):
+        return None, None
+    if D_NAME_HM_KEY_SETTINGS is None:
+        D_NAME_HM_KEY_SETTINGS = _form_d_name_hm_key_settings()
+    name_norm = _strip_quotes(name)
+    choice = None
+    if ":" in name_norm:
+        name_norm, choice = name_norm.rsplit(":", 1)
+        choice = choice.strip().lower()
+        if choice not in ("1", "2", "h", "r"):
+            return None, None
+    l_settings = D_NAME_HM_KEY_SETTINGS.get(_form_name_hm_key(name_norm), [])
+    if choice is not None:
+        l_settings = [
+            (_it_number, _code) for _it_number, _code in l_settings
+            if (_code is not None) and (
+                (_code == choice) or
+                (_code.startswith(choice) and choice in ("1", "2")))]
+    if len(l_settings) == 0:
+        return None, None
+    for _it_number, _code in l_settings:
+        if _code == get_default_it_coordinate_system_code_by_it_number(
+                _it_number):
+            return _it_number, _code
+    return l_settings[0]
+
+
 # IT A Table 12.3.4.1. Standard space-group symbols
 REFERENCE_TABLE_TRICLINIC_IT_NUMBER_NAME_HM_FULL = (
     (1, "P 1"), (2, "P -1")
@@ -1125,45 +1465,38 @@ def get_centrosymmetry_by_name_hall(name: str) -> str:
 
 def get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(
         it_number: int, it_coordinate_system_code: str):
+    """Symmetry operators, inversion centre and Wyckoff positions of a setting.
+
+    The cards of ``itables.txt`` and ``wyckoff.dat`` are given for the
+    standard settings (origin choices 1 and 2, hexagonal and rhombohedral
+    axes, cell choice 1 with unique axis b for monoclinic groups). The other
+    settings of International Tables A, Table 4.3.2.1, are obtained from them
+    by the change of basis (a', b', c') = (a, b, c) P, x' = P^-1 x.
     """
-    FIXME: HOW it works for 166 space group
-    crystal system should be trigonal or hexagonal
-    """
-    if it_coordinate_system_code is None:
-        choice = "1"
-    elif "3" in it_coordinate_system_code:
-        choice = "3"
-    elif "2" in it_coordinate_system_code:
-        choice = "2"
-    elif "1" in it_coordinate_system_code:
-        choice = "1"
-    elif "h" in it_coordinate_system_code:
-        # FIXME: IT SHOULD BE CHECKED
-        # if crystal_system.startswith("trigonal"):
-        #     choice = "2"
-        # else:  # hexagonal
-        choice = "1"
-    elif "r" in it_coordinate_system_code:
-        choice = "2"
-    else:
-        choice = "1"
+    transform_pp_abc, choice = \
+        get_transform_pp_abc_choice_by_it_number_it_coordinate_system_code(
+            it_number, it_coordinate_system_code)
+    choice = str(choice)
     symop, p_centr = None, None
     for _el_card in EL_CARDS:
         if ((_el_card["it_number"] == it_number) & (_el_card["choice"][0] == choice)):
             symop = tuple(_el_card["symmetry"])
             # FIXME: It looks that definition of p_centr is inversed one compare with parameters given in card (at least for 227 choise 1)
             # It should be checked for all space group. It is why here factor -1.
-            p_centr = -1*array([Fraction(_).limit_denominator(10) for _ in _el_card["pcentr"][0].split(",")],
+            p_centr = -1*array([Fraction(_).limit_denominator(24) for _ in _el_card["pcentr"][0].split(",")],
                              dtype=Fraction)
             break
-    _s_name, _choice = get_transform_pp_abc_choice_by_it_number_it_coordinate_system_code(it_number,
-                                                                                          it_coordinate_system_code)
-    Q, p = transform_string_to_r_b(_s_name, ("a", "b", "c"))
+    if symop is None:
+        raise ValueError(
+            f"No symmetry card for the space group {it_number} "
+            f"(IT coordinate system code '{it_coordinate_system_code}').")
+    Q, p = transform_string_to_r_b(transform_pp_abc, ("a", "b", "c"))
     P = transpose(Q)
-    q = -1 * mult_matrix_vector(Q, p)
-    p_centr_new = p_centr + q
+    # The inversion centre is a point: x' = P^-1 (x - p).
+    p_centr_new = mult_matrix_vector(inverse_matrix(P), p_centr - p)
     symop_2 = [transform_symop_operation_xyz_by_pp_abc(_symop, P, p) for _symop in symop]
 
+    wyckoff = None
     for _el_card in WYCKOFF:
         if ((_el_card["it_number"] == it_number) & (_el_card["choice"] == int(choice))):
             wyckoff = _el_card["wyckoff"]
@@ -1178,13 +1511,34 @@ def get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(
     return symop_2, p_centr_new, l_multiplicity, l_letter, l_site_symmetry, l_coord_xyz_2
 
 
+def inverse_matrix(a):
+    """Exact inverse of a 3x3 matrix of Fractions (or integers)."""
+    a = [[Fraction(a[_i, _j]) for _j in range(3)] for _i in range(3)]
+    det = (a[0][0] * (a[1][1] * a[2][2] - a[1][2] * a[2][1]) -
+           a[0][1] * (a[1][0] * a[2][2] - a[1][2] * a[2][0]) +
+           a[0][2] * (a[1][0] * a[2][1] - a[1][1] * a[2][0]))
+    if det == 0:
+        raise ValueError("The transformation matrix is singular.")
+    res = zeros(shape=(3, 3), dtype=object)
+    for _i in range(3):
+        for _j in range(3):
+            rows = [_k for _k in range(3) if _k != _j]
+            cols = [_k for _k in range(3) if _k != _i]
+            minor = (a[rows[0]][cols[0]] * a[rows[1]][cols[1]] -
+                     a[rows[0]][cols[1]] * a[rows[1]][cols[0]])
+            res[_i, _j] = (-1) ** (_i + _j) * minor / det
+    return res
+
+
 def transform_symop_operation_xyz_by_pp_abc(symop_operation_xyz: str, P, p) -> str:
-    Q = transpose(P)  # TODO: here is proposed that Q^T = Q**-1, but I am not sure that it is true.
+    """Symmetry operator in the setting (a', b', c') = (a, b, c) P, origin shift p.
+
+    W' = P^-1 W P, w' = P^-1 (w + W p - p) (ITA, Section 1.5.2).
+    """
+    Q = inverse_matrix(P)
     q = -1 * mult_matrix_vector(Q, p)
 
     r_xyz, b_xyz = transform_string_to_r_b(symop_operation_xyz, ("x", "y", "z"))
-    b_new = zeros(shape=(3), dtype=float)
-    r_new = zeros(shape=(3, 3), dtype=float)
     QW = mult_matrixes(Q, r_xyz)
     QWP = mult_matrixes(QW, P)
     QWp = mult_matrix_vector(QW, p)
@@ -1244,36 +1598,73 @@ def auto_choose_it_coordinate_system_code(it_number:int, it_coordinate_system_co
     return it_coordinate_system_code
 
 
-def get_transform_pp_abc_choice_by_it_number_it_coordinate_system_code(it_number: int,
-                                                                       it_coordinate_system_code: str) -> Tuple:
-    # TODO: not sure about -b1, c1, -c1, a1, -a1
-    if it_coordinate_system_code in ("b1", "b2", "b3", "abc", "1abc", "2abc", "1", "2", "h", "r", None):
-        transform_pp_abc = "a,b,c"
-    elif it_coordinate_system_code in ("-a1", "-a2", "-a3", "ba-c", "1ba-c", "2ba-c"):
-        transform_pp_abc = "b,a,-c"
-    elif it_coordinate_system_code in ("c1", "c2", "c3", "cab", "1cab", "2cab"):
-        transform_pp_abc = "c,a,b"
-    elif it_coordinate_system_code in ("-b1", "-b2", "-b3", "-cba", "1-cba", "2-cba"):
-        transform_pp_abc = "-c,b,a"
-    elif it_coordinate_system_code in ("a1", "a2", "a3", "bca", "1bca", "2bca"):
-        transform_pp_abc = "b,c,a"
-    elif it_coordinate_system_code in ("-c1", "-c2", "-c3", "a-cb", "1bca", "2a-cb"):
-        transform_pp_abc = "a,-c,b"
+# Change of basis (a', b', c') from the standard setting to the settings of
+# International Tables A, Table 4.3.2.1. Orthorhombic: the setting symbol
+# itself. Monoclinic: the cell choice (from cell choice 1, unique axis b)
+# followed by the choice of the unique axis.
+REFERENCE_TABLE_ORTHORHOMBIC_SETTING_TRANSFORM_PP_ABC = (
+    ("abc", "a,b,c"), ("ba-c", "b,a,-c"), ("cab", "c,a,b"),
+    ("-cba", "-c,b,a"), ("bca", "b,c,a"), ("a-cb", "a,-c,b"))
+REFERENCE_TABLE_MONOCLINIC_CELL_CHOICE_TRANSFORM_PP_ABC = (
+    ("1", "a,b,c"), ("2", "-a-c,b,a"), ("3", "c,b,-a-c"))
+REFERENCE_TABLE_MONOCLINIC_UNIQUE_AXIS_TRANSFORM_PP_ABC = (
+    ("b", "a,b,c"), ("-b", "-c,b,a"), ("c", "c,a,b"), ("-c", "a,-c,b"),
+    ("a", "b,c,a"), ("-a", "b,a,-c"))
 
-    if it_coordinate_system_code is None:
-        choice = 1
-    elif "2" in it_coordinate_system_code:
+
+def get_transform_pp_abc_choice_by_it_number_it_coordinate_system_code(
+        it_number: int, it_coordinate_system_code: str) -> Tuple:
+    """Change of basis from the tabulated setting and the tabulated choice.
+
+    Parameters
+    ----------
+    it_number : int
+        Number of the space group in International Tables A.
+    it_coordinate_system_code : str
+        Code of the setting (``"b2"``, ``"-c3"``, ``"1cab"``, ``"2"``,
+        ``"h"``, ``"r"``) or None for the standard setting.
+
+    Returns
+    -------
+    transform_pp_abc : str
+        New basis vectors in terms of the old ones, e.g. ``"c,a,b"``.
+    choice : int
+        Choice of the card in ``itables.txt`` and ``wyckoff.dat``
+        (origin choice, or 1 for hexagonal and 2 for rhombohedral axes
+        of the trigonal R groups).
+    """
+    code = it_coordinate_system_code
+    crystal_system = get_crystal_system_by_it_number(it_number)
+    transform_pp_abc, choice = "a,b,c", 1
+    if code is None:
+        return transform_pp_abc, choice
+    if crystal_system == "monoclinic":
+        d_axis = dict(REFERENCE_TABLE_MONOCLINIC_UNIQUE_AXIS_TRANSFORM_PP_ABC)
+        d_cell = dict(REFERENCE_TABLE_MONOCLINIC_CELL_CHOICE_TRANSFORM_PP_ABC)
+        axis, cell_choice = code[:-1], code[-1]
+        if (axis not in d_axis) or (cell_choice not in d_cell):
+            raise ValueError(
+                f"Unknown IT coordinate system code '{code}' for the "
+                f"monoclinic space group {it_number}.")
+        r_axis, b_axis = transform_string_to_r_b(d_axis[axis], ("a", "b", "c"))
+        r_cell, b_cell = transform_string_to_r_b(d_cell[cell_choice], ("a", "b", "c"))
+        r_total = mult_matrixes(r_axis, r_cell)
+        transform_pp_abc = transform_r_b_to_string(
+            r_total, zeros(shape=(3,), dtype=object) + Fraction(0), ("a", "b", "c"))
+    elif crystal_system == "orthorhombic":
+        if code[0] in ("1", "2"):
+            choice = int(code[0])
+            code = code[1:]
+        d_setting = dict(REFERENCE_TABLE_ORTHORHOMBIC_SETTING_TRANSFORM_PP_ABC)
+        if code not in d_setting:
+            raise ValueError(
+                f"Unknown IT coordinate system code '{it_coordinate_system_code}' "
+                f"for the orthorhombic space group {it_number}.")
+        transform_pp_abc = d_setting[code]
+    elif code in ("1", "2"):
+        choice = int(code)
+    elif code == "r":
         choice = 2
-    elif "h" in it_coordinate_system_code:
-        crystal_system = get_crystal_system_by_it_number(it_number)
-        if crystal_system.startswith("trigonal"):
-            choice = 2
-        else:  # hexagonal
-            choice = 1
-    elif "3" in it_coordinate_system_code:
-        choice = 3
-    else:
-        choice = 1
     return transform_pp_abc, choice
 
 
