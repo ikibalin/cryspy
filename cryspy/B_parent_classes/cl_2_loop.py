@@ -14,6 +14,7 @@ from cryspy.A_functions_base.function_1_strings import find_prefix
 from cryspy.A_functions_base.function_1_objects import \
     get_functions_of_objet, get_table_html_for_variables
 
+from cryspy.B_parent_classes.cif_attributes import install_loop_descriptors
 from cryspy.B_parent_classes.cl_1_item import (
     GenericCategoryType, ItemN, make_item_class, take_float_format, take_value_type,
     value_error_mark_from_cif)
@@ -144,6 +145,13 @@ class LoopN(object):
             return res
         raise AttributeError(
             f"'{type(self).__name__:}' object has no attribute '{name:}'")
+
+    def __init_subclass__(cls, **kwargs):
+        """The columns of the attributes of the items become descriptors of
+        the loop class: ``loop.fract_x`` (list), ``loop.numpy_fract_x``
+        (numpy array, kept until numpy_to_items)."""
+        super().__init_subclass__(**kwargs)
+        install_loop_descriptors(cls)
 
     def __setattr__(self, name, value) -> NoReturn:
         """
