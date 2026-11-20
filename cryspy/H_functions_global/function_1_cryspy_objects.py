@@ -598,9 +598,9 @@ def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
         l_loop_separator_in.append(separator)
 
 
-    s_loop_prefix_in = set(l_loop_prefix_in)
+    # in the order of the file: the same file is written the same way
     l_loopn = []
-    for prefix in s_loop_prefix_in:
+    for prefix in dict.fromkeys(l_loop_prefix_in):
         loop_cls = LoopN
         if prefix in l_loop_prefix:
             loop_cls = l_loop_class[l_loop_prefix.index(prefix)]
@@ -723,8 +723,9 @@ def items_to_itemsn(items_cif: Items, l_item_class: list) -> List[ItemN]:
 
 def find_prefixes(l_name_cif):
     """Find prefix."""
-    l_short_prefix_cif = list(set([(name[1:]).split("_")[0]
-                                   for name in l_name_cif]))
+    # in the order of the file: the same file is written the same way
+    l_short_prefix_cif = list(dict.fromkeys([(name[1:]).split("_")[0]
+                                             for name in l_name_cif]))
     l_prefix_cif = []
     for short_prefix_cif in l_short_prefix_cif:
         l_name_2_cif = [name for name in l_name_cif
