@@ -430,7 +430,7 @@ class Pd(DataN):
         l_pd_peak = []
         l_refln = []
         for item_phase in self.phase.items:
-            s_label = f"dict_in_out_{item_phase.label:}"
+            s_label = f"dict_in_out_{item_phase.label.lower():}"
             if s_label in keys:
                 dict_crystal = ddict_diffrn[s_label]
                 dict_crystal_keys = dict_crystal.keys()
