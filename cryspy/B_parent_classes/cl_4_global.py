@@ -37,7 +37,6 @@ def find_changed_dict_entry(block, block_name: str, d_before: dict, set_value, v
     -------
     (way, slope, offset) or None
     """
-    flag_changed_any = False
     # both directions: a value at its limit (occupancy 1) cannot grow
     for sign in (1., -1.):
         delta = sign * 0.01 * (abs(value) + 1.)
