@@ -61,3 +61,18 @@ def test_models_without_form_factor():
     assert all(value[2] == "2: -x,y,-z+1/2,+1" for name, value in d_model.items()
                if "⊕" not in name)
     assert not crystal.is_attribute("atom_site_scat")
+
+
+def test_models_without_magnetic_atoms():
+    """magnetic_atoms left empty (the default of the menu of CrysPy
+    Editor): the magnetic atoms of the crystal are taken, instead of a
+    table where every model is 'not possible: Unknown magnetic atoms []'."""
+    crystal = cryspy.str_to_globaln(TBTE3).crystal_tbte3
+    report = crystal.report_magnetic_models(0.5, 0.5, 0.)
+    assert "Unknown magnetic atoms" not in report
+    assert report == crystal.report_magnetic_models(0.5, 0.5, 0., "Tb")
+    # no magnetic element: one clear error instead of the table
+    text = CRYSTAL.split("loop_\n_atom_site_scat_label")[0].replace("Mn1 Mn ", "Zn1 Zn ")
+    crystal = cryspy.str_to_globaln(text).crystal_phase
+    with pytest.raises(CrysPyError, match="Give magnetic_atoms"):
+        crystal.report_magnetic_models(*K_VECTOR)

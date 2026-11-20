@@ -1171,7 +1171,9 @@ class Crystal(DataN):
         k_3 : float
             Third component of the propagation vector (reciprocal lattice units).
         magnetic_atoms : str
-            Labels of the magnetic atoms separated by commas, as Fe1, Fe2.
+            Labels of the magnetic atoms separated by commas, as Fe1, Fe2;
+            empty: the atoms of atom_site_scat, else those of the magnetic
+            elements.
         use_minus_k_operations : bool
             Add the operations mapping k to -k when the representation allows it.
         try_superpositions : bool
