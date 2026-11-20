@@ -173,3 +173,47 @@ def test_all_settings_against_gemmi():
         assert get_operators(space_group) == operators_gemmi, group.xhm()
         hall = get_it_number_it_coordinate_system_code_by_name_hall(group.hall)
         assert hall[0] == group.number, group.xhm()
+
+
+CIF_OLD_TAGS_BMAB = """data_La2CuO4
+_space_group_IT_number           64
+_symmetry_Int_Tables_number      64
+_symmetry_space_group_name_Hall  '-B 2ab 2'
+_symmetry_space_group_name_H-M   'B m a b'
+_cell_length_a                   5.352
+_cell_length_b                   5.4
+_cell_length_c                   13.157
+_cell_angle_alpha                90
+_cell_angle_beta                 90
+_cell_angle_gamma                90
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+La1 La3+ 0. 0.0068 0.3615
+Cu1 Cu2+ 0. 0. 0.
+O1 O2- 0. 0.4673 0.3169
+O2 O2- 0.25 0.25 0.0066
+"""
+
+
+@pytest.mark.parametrize("cif_text", [
+    CIF_OLD_TAGS_BMAB,
+    CIF_OLD_TAGS_BMAB.replace("_symmetry_space_group_name_H-M   'B m a b'\n", ""),
+])
+def test_old_symmetry_tags_keep_setting(cif_text):
+    """COD 1008541: _space_group_IT_number with the old tag 'B m a b'.
+
+    Only the IT number was read, so the structure was taken in the
+    standard setting C m c e and O2 got 16 positions instead of 8.
+    """
+    crystal = cryspy.str_to_globaln(cif_text).items[0]
+    space_group = crystal.space_group
+    assert space_group.it_number == 64
+    assert space_group.it_coordinate_system_code == "a-cb"
+    assert get_operators(space_group) == normalize_operators(OPERATORS_BMAB)
+    multiplicity = {atom.label: atom.multiplicity
+                    for atom in crystal.atom_site.items}
+    assert multiplicity == {"La1": 8, "Cu1": 4, "O1": 8, "O2": 8}
