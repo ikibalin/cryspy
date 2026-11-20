@@ -158,6 +158,9 @@ def take_item_classes() -> List[type]:
             continue
         l_class.append(item_class)
         l_new.extend(item_class.__subclasses__())
+    # the classes of the categories of a read file that CrysPy does not
+    # know (make_item_class) are not a part of the library
     l_class = [item_class for item_class in l_class
-               if isinstance(getattr(item_class, "PREFIX", None), str)]
+               if isinstance(getattr(item_class, "PREFIX", None), str)
+               and not item_class.__dict__.get("IS_GENERIC", False)]
     return sorted(l_class, key=lambda item_class: item_class.PREFIX)

@@ -79,7 +79,8 @@ def test_dict_paths_of_refined_parameters():
 
 def test_log_with_text_values(caplog):
     # loops unknown to the data block (atom_site_susceptibility of a diffrn
-    # block) keep the values written by a refinement as text
+    # block): a value written as text by a refinement becomes a number,
+    # their numerical columns are typed as in the known categories
     f_name = os.path.join(
         os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "examples",
         "rhochi_single_susceptibility_Ho2Ti2O7", "rhochi_single_susceptibility_Ho2Ti2O7.rcif")
@@ -90,10 +91,10 @@ def test_log_with_text_values(caplog):
     setattr(record.item, record.attribute, "3.329")
     d_path = take_dict_paths(obj, dict_global)
     assert "crystal_ho2ti2o7.atom_site_susceptibility[Ho1].chi_11" in d_path.values()
-    assert record.value == "3.329"
+    assert record.value == 3.329
     with caplog.at_level(logging.INFO, logger="cryspy"):
         log_refined_parameters(obj)
-    assert " - diffrn_ho2ti2o7.atom_site_susceptibility[Ho1].chi_11 3.329" in \
+    assert " - diffrn_ho2ti2o7.atom_site_susceptibility[Ho1].chi_11 3.32900 ± 0.04800" in \
         [record.getMessage() for record in caplog.records]
 
 

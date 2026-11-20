@@ -11,6 +11,7 @@ import copy
 import pickle
 
 import cryspy
+from cryspy.B_parent_classes.cl_1_item import is_generic
 
 CIF = """data_la2cuo4
 loop_
@@ -44,8 +45,7 @@ O2 O 0. 0. 0.182 Biso 0.5 1.0
 def take_crystal():
     obj = cryspy.str_to_globaln(CIF)
     crystal = obj.crystal_la2cuo4
-    generic = [item for item in crystal.items
-               if type(item) in (cryspy.ItemN, cryspy.LoopN)]
+    generic = [item for item in crystal.items if is_generic(item)]
     assert generic, "the test needs an unknown CIF category"
     return obj, crystal
 
