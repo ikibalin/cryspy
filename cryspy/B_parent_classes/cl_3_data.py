@@ -365,9 +365,14 @@ class DataN(object):
         """
         prefix = self.PREFIX
         data_name = self.data_name
+        if isinstance(data_name, str):
+            data_name = data_name.lower()
 
         prefix_d, prefix_n = name[0], name[1]
+        if isinstance(prefix_d[1], str):
+            prefix_d = (prefix_d[0], prefix_d[1].lower())
 
+        # names of get_variable_names are in lower case (data_Pbcn)
         if prefix_d != (prefix, data_name):
             return
 

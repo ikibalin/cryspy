@@ -561,9 +561,14 @@ class GlobalN(object):
         """
         prefix = self.PREFIX
         global_name = self.global_name
+        if isinstance(global_name, str):
+            global_name = global_name.lower()
 
         prefix_g, prefix_n = name[0], name[1]
+        if isinstance(prefix_g[1], str):
+            prefix_g = (prefix_g[0], prefix_g[1].lower())
 
+        # names of get_variable_names are in lower case
         if prefix_g != (prefix, global_name):
             return
 
@@ -794,6 +799,13 @@ class GlobalN(object):
             for marked_2 in l_refined[ind_1+1:]:
                 if marked_1.label != marked_2.label:
                     continue
+                for marked in (marked_1, marked_2):
+                    if marked.entry is None:
+                        raise RcifFormatError(
+                            f"The value marked {marked.mark:} "
+                            f"({form_variable_path(marked.variable_name):}) does not "
+                            "change the calculation. Is it used by the model (for "
+                            "example _atom_site_adp_type Uiso for u_iso_or_equiv)?")
                 coeff_1 = -1. if marked_1.mark.endswith("-") else 1.
                 coeff_2 = 1. if marked_2.mark.endswith("-") else -1.
                 l_term, const = form_dict_equation(
