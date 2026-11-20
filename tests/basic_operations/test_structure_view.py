@@ -8,9 +8,9 @@ import pytest
 import cryspy
 from cryspy.A_functions_base.structure_scene import (
     calc_adp_probability_factor, calc_atoms_in_cells, calc_atoms_in_unit_cell,
-    calc_cell_edges, calc_ellipsoid_matrix_by_adp,
+    calc_box_mesh, calc_cell_edges, calc_ellipsoid_matrix_by_adp,
     calc_ellipsoid_matrix_by_susceptibility, calc_ellipsoid_mesh,
-    calc_structure_scene)
+    calc_flags_non_positive_definite, calc_structure_scene)
 
 DIR_EXAMPLES = os.path.join(
     os.path.dirname(__file__), os.pardir, os.pardir, "examples")
@@ -166,17 +166,21 @@ def test_susceptibility_ellipsoids_view():
         cryspy.StructureViewSettings(atom_display="cubes")
 
 
+@pytest.mark.filterwarnings("ignore:Non-positive definite")
 def test_adp_ellipsoids_and_dummy_atoms():
     crystal = take_crystal(F_PBSO4)
     settings = cryspy.StructureViewSettings(
         atom_display="ADP ellipsoids", show_boundary_atoms=False)
-    scene = crystal.get_structure_scene(settings)
+    with pytest.warns(UserWarning, match="Non-positive definite .* of S"):
+        scene = crystal.get_structure_scene(settings)
     u = scene["tensor_xyz"]
-    # Uiso: isotropic tensors U * 1; S has a negative Uiso and stays a sphere
-    flags = numpy.isfinite(u[0, 0])
-    assert (~flags).sum() == 4
-    numpy.testing.assert_allclose(u[0, 1, flags], 0., atol=1e-12)
-    numpy.testing.assert_allclose(u[0, 0, flags], u[2, 2, flags])
+    # Uiso: isotropic tensors U * 1; S keeps its negative Uiso (drawn as |U|)
+    assert numpy.all(numpy.isfinite(u))
+    numpy.testing.assert_allclose(u[0, 1], 0., atol=1e-12)
+    numpy.testing.assert_allclose(u[0, 0], u[2, 2])
+    npd = numpy.array(scene["atom_element"])[scene["atom_index"]] == "S"
+    assert npd.sum() == 4
+    assert numpy.all(u[0, 0, npd] < 0.) and numpy.all(u[0, 0, ~npd] > 0.)
     crystal.atom_site.items[1].type_symbol = "Dummy"
     n_all = scene["atom_index"].size
     scene = crystal.get_structure_scene(settings)
@@ -214,3 +218,80 @@ def test_assistant_tools_unit_cell_and_ellipsoids():
     result = cryspy.call_assistant_tool(rcif, "convert_to_p1", {})
     assert result["flag_object_changed"]
     assert any(item.data_name == "EMSO_p1" for item in rcif.items)
+
+
+def test_non_positive_definite_flags_and_absolute_ellipsoid():
+    u = numpy.stack([numpy.diag([0.01, 0.02, 0.03]),      # physical
+                     numpy.eye(3) * -0.01,                 # negative Uiso
+                     numpy.diag([0.02, -0.005, 0.01]),     # one negative U_i
+                     numpy.zeros((3, 3))], axis=2)         # no ADP
+    flags = calc_flags_non_positive_definite(u)
+    assert flags.tolist() == [False, True, True, False]
+    # |U|: semi-axes c sqrt(|U_i|), not a collapsed (zero) ellipsoid
+    matrix = calc_ellipsoid_matrix_by_adp(u[:, :, 1:3], 0.5, flag_absolute=True)
+    c = calc_adp_probability_factor(0.5)
+    numpy.testing.assert_allclose(numpy.diag(matrix[:, :, 0]), c * 0.1, rtol=1e-6)
+    numpy.testing.assert_allclose(
+        numpy.diag(matrix[:, :, 1]),
+        c * numpy.sqrt([0.02, 0.005, 0.01]), rtol=1e-6)
+    clipped = calc_ellipsoid_matrix_by_adp(u[:, :, 1:2], 0.5)
+    numpy.testing.assert_allclose(clipped, 0., atol=1e-12)
+
+
+@pytest.mark.parametrize("handedness", [1., -1.])
+def test_box_mesh_faces_point_outwards(handedness):
+    center = numpy.array([1., 2., 3.])
+    rot = numpy.array([[0.6, -0.8, 0.], [0.8, 0.6, 0.], [0., 0., 1.]])
+    # eigenvectors may form a left-handed frame (det = -1)
+    axes = rot @ numpy.diag([0.2, 0.3, 0.5 * handedness])
+    vertices, normals, faces = calc_box_mesh(center, axes)
+    assert vertices.shape == (3, 24) and faces.shape == (12, 3)
+    numpy.testing.assert_allclose(numpy.sqrt(numpy.square(normals).sum(axis=0)), 1.)
+    # corners at center ± the half edges along the rotated axes
+    local = numpy.linalg.solve(axes, vertices - center[:, numpy.newaxis])
+    numpy.testing.assert_allclose(numpy.abs(local), 1., atol=1e-12)
+    for face in faces:
+        p_0, p_1, p_2 = vertices[:, face].transpose()
+        geometric = numpy.cross(p_1 - p_0, p_2 - p_0)
+        outward = p_0 + p_1 + p_2 - 3. * center
+        # counter-clockwise seen from outside, and the normal agrees
+        assert geometric @ outward > 0.
+        assert geometric @ normals[:, face[0]] > 0.
+
+
+@pytest.mark.parametrize("npd_display, n_custom, n_bar", [
+    ("cubes", 24, 0), ("ellipsoids with bars", 24, 4 * 3)])
+def test_view_draws_non_positive_adp(npd_display, n_custom, n_bar):
+    pytest.importorskip("py3Dmol")
+    crystal = take_crystal(F_PBSO4)
+    settings = cryspy.StructureViewSettings(
+        atom_display="ADP ellipsoids", show_boundary_atoms=False,
+        show_cell=False, npd_display=npd_display)
+    with pytest.warns(UserWarning, match=npd_display):
+        html = crystal.get_structure_view_html(settings, js="3Dmol-min.js")
+    # every atom is drawn, the 4 S with a negative Uiso too
+    assert html.count("addCustom") == n_custom
+    assert html.count("addCylinder") == n_bar
+    assert html.count('"opacity"') == (4 if n_bar else 0)
+    with pytest.raises(ValueError):
+        cryspy.StructureViewSettings(npd_display="spheres")
+
+
+def test_report_ellipsoids_names_non_positive_adp():
+    crystal = take_crystal(F_PBSO4)
+    assert crystal.take_non_positive_adp_labels() == ["S"]
+    report = crystal.report_ellipsoids("ADP")
+    # S with a negative Uiso is in the table now, and named with the causes
+    assert "| S |" in report
+    assert "Non-positive definite: S. Usual causes" in report
+    item = [it for it in crystal.atom_site.items if it.label == "S"][0]
+    item.u_iso_or_equiv = 0.004
+    assert "Non-positive definite:" not in crystal.report_ellipsoids("ADP")
+
+@pytest.mark.parametrize("handedness", [1., -1.])
+def test_ellipsoid_mesh_faces_point_outwards(handedness):
+    axes = numpy.diag([0.2, 0.3, 0.5 * handedness])
+    vertices, normals, faces = calc_ellipsoid_mesh(numpy.zeros(3), axes, 6, 8)
+    for face in faces:
+        p_0, p_1, p_2 = vertices[:, face].transpose()
+        assert numpy.cross(p_1 - p_0, p_2 - p_0) @ (p_0 + p_1 + p_2) > 0.

@@ -222,7 +222,52 @@ def calc_adp_probability_factor(probability: float = 0.5) -> float:
     return 0.5 * (low + high)
 
 
-def calc_ellipsoid_matrix_by_adp(u_xyz, probability: float = 0.5):
+def calc_principal_axes_by_tensor(tensor_xyz):
+    """Eigenvalues and eigenvectors of symmetric Cartesian tensors.
+
+    Parameters
+    ----------
+    tensor_xyz : numpy.ndarray, shape (3, 3, n)
+        Symmetric tensors (the symmetric part is taken).
+
+    Returns
+    -------
+    val : numpy.ndarray, shape (3, n)
+        Eigenvalues in ascending order.
+    vec : numpy.ndarray, shape (3, 3, n)
+        Unit eigenvectors as columns: ``vec[:, i, n]`` belongs to
+        ``val[i, n]``.
+    """
+    tensor = numpy.moveaxis(numpy.asarray(tensor_xyz, dtype=float), 2, 0)
+    val, vec = numpy.linalg.eigh(0.5 * (tensor + numpy.swapaxes(tensor, 1, 2)))
+    return val.transpose(), numpy.moveaxis(vec, 0, 2)
+
+
+def calc_flags_non_positive_definite(u_xyz):
+    """Which displacement tensors U are non-positive definite.
+
+    A physical U has three positive eigenvalues (mean square displacements
+    along the principal axes); a negative Biso/Uiso or a Uani with a
+    negative or zero eigenvalue is non-positive definite (NPD). A zero
+    tensor (no displacement parameters) is not NPD.
+
+    Parameters
+    ----------
+    u_xyz : numpy.ndarray, shape (3, 3, n)
+        Cartesian displacement tensors, Å².
+
+    Returns
+    -------
+    numpy.ndarray, shape (n,), bool
+    """
+    val = calc_principal_axes_by_tensor(u_xyz)[0]
+    scale = numpy.abs(val).max(axis=0)
+    # relative tolerance: rounding of U written in a CIF with 5-6 digits
+    return (scale > 0.) & (val.min(axis=0) <= 1e-9 * scale)
+
+
+def calc_ellipsoid_matrix_by_adp(
+        u_xyz, probability: float = 0.5, flag_absolute: bool = False):
     """Matrices that turn a unit sphere into displacement ellipsoids.
 
     Parameters
@@ -231,16 +276,23 @@ def calc_ellipsoid_matrix_by_adp(u_xyz, probability: float = 0.5):
         Cartesian displacement tensors U, Å².
     probability : float
         Probability level of the ellipsoids.
+    flag_absolute : bool
+        Use the absolute values of the eigenvalues of a non-positive
+        definite U (the ellipsoid of |U| that a 3D view marks); otherwise
+        negative eigenvalues are set to 0.
 
     Returns
     -------
     numpy.ndarray, shape (3, 3, n)
-        c * U^(1/2) (negative eigenvalues of non-positive U are set to 0).
+        c * U^(1/2).
     """
     factor = calc_adp_probability_factor(probability)
     u = numpy.moveaxis(numpy.asarray(u_xyz, dtype=float), 2, 0)
     val, vec = numpy.linalg.eigh(0.5 * (u + numpy.swapaxes(u, 1, 2)))
-    root = numpy.sqrt(numpy.clip(val, 0., None))
+    if flag_absolute:
+        root = numpy.sqrt(numpy.abs(val))
+    else:
+        root = numpy.sqrt(numpy.clip(val, 0., None))
     res = numpy.einsum("nij,nj,nkj->nik", vec, root, vec) * factor
     return numpy.moveaxis(res, 0, 2)
 
@@ -296,6 +348,9 @@ def calc_ellipsoid_mesh(center, matrix, n_theta: int = 12, n_phi: int = 24):
                           numpy.sin(t) * numpy.sin(p),
                           numpy.cos(t)], axis=0).reshape(3, -1)
     m = numpy.asarray(matrix, dtype=float)
+    if numpy.linalg.det(m) < 0.:
+        # -M gives the same surface with the faces counter-clockwise outside
+        m = -m
     vertices = numpy.asarray(center, dtype=float)[:, na] + m @ sphere
     # normals of an affine image of a sphere: M^-T n (pinv: flat ellipsoids)
     normals = numpy.linalg.pinv(m).transpose() @ sphere
@@ -312,6 +367,50 @@ def calc_ellipsoid_mesh(center, matrix, n_theta: int = 12, n_phi: int = 24):
             if i_t < n_theta - 1:
                 faces.append((i_2, i_3, i_4))
     return vertices, normals, numpy.array(faces, dtype=int)
+
+
+def calc_box_mesh(center, axes):
+    """Triangle mesh of a box with flat faces (a cube for equal axes).
+
+    Parameters
+    ----------
+    center : numpy.ndarray, shape (3,)
+    axes : numpy.ndarray, shape (3, 3)
+        Half edges of the box as columns (e.g. the principal axes of an
+        ellipsoid scaled by its semi-axes).
+
+    Returns
+    -------
+    vertices : numpy.ndarray, shape (3, 24)
+        Four vertices per face, so every face has its own normal.
+    normals : numpy.ndarray, shape (3, 24), unit vectors
+    faces : numpy.ndarray, shape (12, 3), vertex indices
+    """
+    m = numpy.array(axes, dtype=float)
+    if numpy.linalg.det(m) < 0.:
+        # the same box; a right-handed frame keeps the faces counter-clockwise
+        m[:, 0] = -m[:, 0]
+    center = numpy.asarray(center, dtype=float)
+    # normals of the parallelepiped M [-1, 1]^3: M^-T e (pinv: flat boxes)
+    normal_m = numpy.linalg.pinv(m).transpose()
+    l_vertex, l_normal, l_face = [], [], []
+    for i_axis in range(3):
+        j_axis, k_axis = (i_axis + 1) % 3, (i_axis + 2) % 3
+        for sign in (1., -1.):
+            corners = []
+            for s_j, s_k in ((-1., -1.), (1., -1.), (1., 1.), (-1., 1.)):
+                unit = numpy.zeros(3)
+                unit[i_axis], unit[j_axis], unit[k_axis] = sign, s_j * sign, s_k
+                corners.append(center + m @ unit)
+            normal = normal_m[:, i_axis] * sign
+            norm = numpy.sqrt(numpy.square(normal).sum())
+            normal = normal / (norm if norm > 0. else 1.)
+            i_0 = len(l_vertex)
+            l_vertex.extend(corners)
+            l_normal.extend([normal] * 4)
+            l_face.extend([(i_0, i_0 + 1, i_0 + 2), (i_0, i_0 + 2, i_0 + 3)])
+    return (numpy.array(l_vertex).transpose(), numpy.array(l_normal).transpose(),
+            numpy.array(l_face, dtype=int))
 
 
 def calc_structure_scene(

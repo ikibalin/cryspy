@@ -16,8 +16,11 @@ import numpy
 
 from cryspy.A_functions_base.optional_import import optional_module
 from cryspy.A_functions_base.structure_scene import (
-    calc_ellipsoid_matrix_by_adp, calc_ellipsoid_matrix_by_susceptibility,
-    calc_ellipsoid_mesh)
+    calc_box_mesh, calc_ellipsoid_matrix_by_adp,
+    calc_ellipsoid_matrix_by_susceptibility, calc_ellipsoid_mesh,
+    calc_flags_non_positive_definite, calc_principal_axes_by_tensor)
+
+na = numpy.newaxis
 
 py3Dmol = optional_module("py3Dmol", extra="view3d")
 ipywidgets = optional_module("ipywidgets", extra="view3d")
@@ -29,6 +32,18 @@ ATOM_DISPLAY_ADP = "ADP ellipsoids"
 ATOM_DISPLAY_SUSCEPTIBILITY = "susceptibility ellipsoids"
 ATOM_DISPLAYS = (ATOM_DISPLAY_SPHERES, ATOM_DISPLAY_ADP,
                  ATOM_DISPLAY_SUSCEPTIBILITY)
+
+# atoms with non-positive definite displacement parameters (NPD) are drawn
+# with |U|: as boxes (the ORTEP/SHELX/Olex2 convention) or as half
+# transparent ellipsoids crossed by bars along the axes with U_i <= 0
+NPD_DISPLAY_CUBES = "cubes"
+NPD_DISPLAY_MARKED = "ellipsoids with bars"
+NPD_DISPLAYS = (NPD_DISPLAY_CUBES, NPD_DISPLAY_MARKED)
+NPD_BAR_COLOR = "#FF00FF"
+NPD_OPACITY = 0.7
+# a small negative U gives a mark hidden inside the bonds: the largest half
+# axis of the mark is at least this, Å (the shape keeps its proportions)
+NPD_MIN_SEMI_AXIS = 0.4
 
 # Jmol colours (as 3Dmol.js uses them) for the ellipsoids drawn as meshes
 JMOL_COLORS = {
@@ -90,6 +105,14 @@ class StructureViewSettings:
     adp_probability: float = _setting(
         0.5, "Probability to find the atom inside its displacement ellipsoid.",
         min=0.1, max=0.99, step=0.05)
+    npd_display: str = _setting(
+        NPD_DISPLAY_CUBES,
+        "How atoms with non-positive definite displacement parameters "
+        "(negative Biso, Uiso or a negative eigenvalue of Uani) are drawn "
+        "with |U|: cubes (boxes along the principal axes), or half "
+        "transparent ellipsoids crossed by magenta bars along the axes "
+        "with negative U_i; a mark is at least 0.4 Å in size to be seen.",
+        choices=NPD_DISPLAYS)
     show_bonds: bool = _setting(True, "Show bonds (found by 3Dmol.js from the distances).")
     show_labels: bool = _setting(False, "Show atom labels.")
     show_cell: bool = _setting(True, "Show the edges of the block of unit cells.")
@@ -119,6 +142,9 @@ class StructureViewSettings:
         if self.atom_display not in ATOM_DISPLAYS:
             raise ValueError(
                 f"atom_display is {self.atom_display!r}, not one of {ATOM_DISPLAYS}.")
+        if self.npd_display not in NPD_DISPLAYS:
+            raise ValueError(
+                f"npd_display is {self.npd_display!r}, not one of {NPD_DISPLAYS}.")
 
     @property
     def n_cells(self):
@@ -153,7 +179,8 @@ def calc_display_ellipsoids(scene: dict, settings: StructureViewSettings):
     Returns
     -------
     numpy.ndarray, shape (3, 3, n), or None for spheres
-        NaN for atoms drawn as spheres.
+        NaN for atoms drawn as spheres. A non-positive definite U gives
+        the ellipsoid of |U| (see :func:`calc_display_non_positive_adp`).
     """
     tensor_xyz = scene.get("tensor_xyz")
     if settings.atom_display == ATOM_DISPLAY_SPHERES or tensor_xyz is None:
@@ -164,7 +191,8 @@ def calc_display_ellipsoids(scene: dict, settings: StructureViewSettings):
         return res
     if settings.atom_display == ATOM_DISPLAY_ADP:
         matrix = calc_ellipsoid_matrix_by_adp(
-            tensor_xyz[:, :, flags], settings.adp_probability)
+            tensor_xyz[:, :, flags], settings.adp_probability,
+            flag_absolute=True)
     else:
         matrix = calc_ellipsoid_matrix_by_susceptibility(
             tensor_xyz[:, :, flags], settings.susceptibility_field
@@ -174,6 +202,66 @@ def calc_display_ellipsoids(scene: dict, settings: StructureViewSettings):
     matrix[:, :, zero] = numpy.nan
     res[:, :, flags] = matrix
     return res
+
+
+def calc_display_non_positive_adp(scene: dict, settings: StructureViewSettings):
+    """Atoms of the scene with non-positive definite displacement tensors.
+
+    Parameters
+    ----------
+    scene : dict
+        Output of ``structure_scene.calc_structure_scene``.
+    settings : StructureViewSettings
+
+    Returns
+    -------
+    numpy.ndarray, shape (n,), bool
+        True for an atom with NPD displacement parameters; all False
+        unless ADP ellipsoids are shown.
+    """
+    tensor_xyz = scene.get("tensor_xyz")
+    n_atom = scene["atom_index"].size
+    flags = numpy.zeros(n_atom, dtype=bool)
+    if settings.atom_display != ATOM_DISPLAY_ADP or tensor_xyz is None:
+        return flags
+    finite = numpy.all(numpy.isfinite(tensor_xyz), axis=(0, 1))
+    if numpy.any(finite):
+        flags[finite] = calc_flags_non_positive_definite(tensor_xyz[:, :, finite])
+    return flags
+
+
+def _add_mesh(view, vertices, normals, faces, color: str, opacity: float = 1.):
+    shape = {
+        "vertexArr": [_point(v, 3) for v in vertices.transpose()],
+        "normalArr": [_point(n, 3) for n in normals.transpose()],
+        "faceArr": [int(i) for i in faces.flatten()],
+        "color": color}
+    if opacity < 1.:
+        shape["opacity"] = opacity
+    view.addCustom(shape)
+
+
+def _add_non_positive_atom(view, xyz, matrix, u_xyz, color: str,
+                           settings: StructureViewSettings):
+    """A cube, or an ellipsoid with bars along the negative axes, of |U|."""
+    # the drawn surface c |U|^(1/2) along the principal axes of U
+    val, vec = calc_principal_axes_by_tensor(u_xyz[:, :, na])
+    val, vec = val[:, 0], vec[:, :, 0]
+    semi = numpy.sqrt(numpy.square(matrix @ vec).sum(axis=0))
+    # a zero eigenvalue would give a flat box: keep a tenth of the largest axis
+    semi = numpy.maximum(semi, 0.1 * semi.max())
+    semi = semi * max(1., NPD_MIN_SEMI_AXIS / semi.max())
+    axes = vec * semi[na, :]
+    if settings.npd_display == NPD_DISPLAY_CUBES:
+        _add_mesh(view, *calc_box_mesh(xyz, axes), color)
+        return
+    _add_mesh(view, *calc_ellipsoid_mesh(xyz, axes, n_theta=10, n_phi=16),
+              color, opacity=NPD_OPACITY)
+    for i_axis in numpy.flatnonzero(val <= 1e-9 * numpy.abs(val).max()):
+        half = 1.3 * axes[:, i_axis]
+        view.addCylinder({"start": _point(xyz - half), "end": _point(xyz + half),
+                          "radius": 0.04, "color": NPD_BAR_COLOR,
+                          "fromCap": 1, "toCap": 1})
 
 
 def make_structure_view(
@@ -217,6 +305,7 @@ def make_structure_view(
         flags_ellipsoid = numpy.zeros(index.size, dtype=bool)
     else:
         flags_ellipsoid = ~numpy.any(numpy.isnan(ellipsoid_matrix), axis=(0, 1))
+    flags_npd = calc_display_non_positive_adp(scene, settings) & flags_ellipsoid
     stick = {"radius": 0.1, "colorscheme": "Jmol"}
     style = {"sphere": {"scale": settings.atom_scale, "colorscheme": "Jmol"}}
     if settings.show_bonds:
@@ -229,16 +318,17 @@ def make_structure_view(
                            {"sphere": {"hidden": True}})
         view.setStyle({"index": [int(i) for i in numpy.flatnonzero(flags_ellipsoid)]},
                       style_ellipsoid)
-        for i_atom, xyz, matrix in zip(
-                index[flags_ellipsoid], atom_xyz[:, flags_ellipsoid].transpose(),
-                numpy.moveaxis(ellipsoid_matrix[:, :, flags_ellipsoid], 2, 0)):
-            vertices, normals, faces = calc_ellipsoid_mesh(
-                xyz, matrix, n_theta=10, n_phi=16)
-            view.addCustom({
-                "vertexArr": [_point(v, 3) for v in vertices.transpose()],
-                "normalArr": [_point(n, 3) for n in normals.transpose()],
-                "faceArr": [int(i) for i in faces.flatten()],
-                "color": JMOL_COLORS.get(atom_element[i_atom], "#FF1493")})
+        for i_scene in numpy.flatnonzero(flags_ellipsoid):
+            xyz = atom_xyz[:, i_scene]
+            matrix = ellipsoid_matrix[:, :, i_scene]
+            color = JMOL_COLORS.get(atom_element[index[i_scene]], "#FF1493")
+            if flags_npd[i_scene]:
+                _add_non_positive_atom(view, xyz, matrix,
+                                       scene["tensor_xyz"][:, :, i_scene],
+                                       color, settings)
+                continue
+            _add_mesh(view, *calc_ellipsoid_mesh(xyz, matrix, n_theta=10, n_phi=16),
+                      color)
 
     if settings.show_cell:
         for start, end in zip(scene["edges_xyz"][0].transpose(),
