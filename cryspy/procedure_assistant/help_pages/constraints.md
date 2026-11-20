@@ -1,6 +1,6 @@
 ---
 title: Constraints between refined parameters
-keywords: constraint, constraints, restraint, soft constraint, sigma, linear, equation, sum, occupancy, mark, label, x+y, punishment
+keywords: constraint, u_iso_or_equiv, adp_type, not refined, constraints, restraint, soft constraint, sigma, linear, equation, sum, occupancy, mark, label, x+y, punishment
 categories: constraint
 ---
 A mark is a name written after the parentheses of a refined value:
@@ -31,6 +31,17 @@ An expression is a linear equation of the marks: numbers, marks, `+`, `-`,
 `*` and `/` by numbers, parentheses. During the refinement the last
 parameters of each equation are calculated from the others, so the
 equation holds exactly.
+
+Constraints work for any refinable parameter (coordinates, occupancies,
+`u_iso_or_equiv`, `b_iso_or_equiv`, cell lengths and angles, scale, ...).
+The equation is written in the units of the file (U in Å², angles in
+degrees), whatever units the calculation uses inside. When only some
+parameters of an equation are refined, the others are refined too
+(`x+y=1` with refined `x` refines `y`); a constraint without refined
+parameters is not used. A marked value that does not change the
+calculation (`u_iso_or_equiv` of an atom with `_atom_site_adp_type Biso`)
+gives an error that names it. Without `_atom_site_adp_type`, a given
+`U_iso_or_equiv` is used as Uiso and a given `B_iso_or_equiv` as Biso.
 
 A soft constraint (restraint) has a sigma: the equation `f = g` adds
 `((f-g)/sigma)**2` to chi-square, so it holds within about sigma. Any formula

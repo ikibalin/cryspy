@@ -278,10 +278,7 @@ class Crystal(DataN):
         cell = self.cell
         for item_a_s in a_s.items:
             label_atom = item_a_s.label
-            try:
-                adp_type = item_a_s.adp_type
-            except AttributeError:
-                adp_type = None
+            adp_type = item_a_s.get_adp_type()
             b_iso = 0.0
             beta = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
             if adp_type == "Uiso":
@@ -938,7 +935,7 @@ class Crystal(DataN):
             item = atom_site.items[i_atom]
             occupancy = item.occupancy if item.is_attribute("occupancy") else 1.
             type_symbol = item.type_symbol if item.is_attribute("type_symbol") else item.label
-            adp_type = item.adp_type if item.is_attribute("adp_type") else "Biso"
+            adp_type = item.get_adp_type()
             if adp_type in ("Uani", "Bani") and not numpy.any(numpy.isnan(u_xyz)):
                 sigma = inv_m @ u_xyz @ inv_m.transpose()
                 u_cif = sigma / (rec[:, numpy.newaxis] * rec[numpy.newaxis, :])

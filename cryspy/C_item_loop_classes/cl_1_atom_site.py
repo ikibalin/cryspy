@@ -250,13 +250,24 @@ All other parameters can be calculated.
         res = self.occupancy_refinement
         return res
 
+    def get_adp_type(self) -> str:
+        """Type of the atomic displacement parameters: adp_type, or when it
+        is not given, Uiso for a given u_iso_or_equiv, Biso for a given
+        b_iso_or_equiv (as for CIF files of COD), None without them."""
+        if self.is_attribute("adp_type"):
+            return self.adp_type
+        if self.is_attribute("u_iso_or_equiv"):
+            return "Uiso"
+        if self.is_attribute("b_iso_or_equiv"):
+            return "Biso"
+        return None
+
     def get_flags_atom_b_iso(self):
         res = False
-        if not(self.is_attribute("adp_type")):
-            res = False
-        elif self.adp_type in ["Uiso", "Uovl", "Umpe", ]:
+        adp_type = self.get_adp_type()
+        if adp_type in ["Uiso", "Uovl", "Umpe", ]:
             res = self.u_iso_or_equiv_refinement
-        elif self.adp_type in ["Biso", "Bovl", ]:
+        elif adp_type in ["Biso", "Bovl", ]:
             res = self.b_iso_or_equiv_refinement
         return res
 

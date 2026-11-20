@@ -1301,8 +1301,9 @@ def take_crystal_parameters_from_dictionary(crystal, ddict_crystal, l_parameter_
         unit_cell_parameters = ddict_crystal["unit_cell_parameters"]
         if not (crystal.atom_site.is_attribute("adp_type")):
             for item in crystal.atom_site:
-                item.adp_type = "Biso"
-                if not (item.is_attribute("b_iso_or_equiv")):
+                adp_type = item.get_adp_type()
+                item.adp_type = "Biso" if adp_type is None else adp_type
+                if item.adp_type == "Biso" and not item.is_attribute("b_iso_or_equiv"):
                     item.b_iso_or_equiv = 0.0
         atom_adp_type = numpy.array(crystal.atom_site.adp_type, dtype=str)
         atom_iso_param, atom_aniso_param = (

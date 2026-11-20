@@ -74,8 +74,10 @@ def calc_punishement_function(dict_obj):
         chi_sq_punishement += eval(expression, {}, d_value)
     # soft constraints of the constraint loop: ((lhs - rhs)/sigma)**2
     for expression, sigma, d_mark_way in dict_obj.get("soft_constraints", []):
-        d_value = {mark: sign * dict_obj[way[0]][way[1]][way[2]]
-                   for mark, (sign, way) in d_mark_way.items()}
+        # values of the object: the dictionary may keep them in other
+        # units (b_iso = 8 pi^2 u_iso), value_dict = slope*value + offset
+        d_value = {mark: sign * (dict_obj[way[0]][way[1]][way[2]] - offset) / slope
+                   for mark, (sign, way, slope, offset) in d_mark_way.items()}
         chi_sq_punishement += calc_soft_constraint_chi_sq(expression, sigma, d_value)
     chi_sq_punishement += calc_restraints_chi_sq(dict_obj)
     return chi_sq_punishement
