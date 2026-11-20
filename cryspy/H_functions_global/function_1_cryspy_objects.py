@@ -173,6 +173,12 @@ from cryspy.C_item_loop_classes.cl_1_magnetic_broadening import (
 L_ITEM_CLASS.extend([MagneticBroadening])
 L_LOOP_CLASS.extend([MagneticBroadeningL])
 
+from cryspy.C_item_loop_classes.cl_1_pd_peak_magnetic_k import (
+    PdPeakMagneticK, PdPeakMagneticKL)
+
+L_ITEM_CLASS.extend([PdPeakMagneticK])
+L_LOOP_CLASS.extend([PdPeakMagneticKL])
+
 from cryspy.C_item_loop_classes.cl_1_geom import (
     GeomBond, GeomBondL, GeomAngle, GeomAngleL, GeomTorsion, GeomTorsionL,
     GeomHbond, GeomHbondL)

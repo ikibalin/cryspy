@@ -33,6 +33,7 @@ from cryspy.C_item_loop_classes.cl_1_pd_instr_resolution import (
 from cryspy.C_item_loop_classes.cl_1_pd_meas import PdMeasL
 from cryspy.C_item_loop_classes.cl_1_pd_proc import PdProcL
 from cryspy.C_item_loop_classes.cl_1_pd_peak import PdPeakL
+from cryspy.C_item_loop_classes.cl_1_pd_peak_magnetic_k import PdPeakMagneticKL
 from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_range import Range
 from cryspy.C_item_loop_classes.cl_1_texture import TextureL
@@ -44,10 +45,51 @@ from cryspy.C_item_loop_classes.cl_1_magnetic_broadening import (
 from cryspy.C_item_loop_classes.cl_1_layer_correlation import (
     LayerCorrelationL)
 from cryspy.A_functions_base.plot_peak_labels import (
-    add_interactive_peak_labels, form_hkl_labels)
+    add_interactive_peak_labels, form_hkl_labels, form_fractional_hkl_labels)
+from cryspy.A_functions_base.structure_factor_magnetic_k import (
+    merge_equivalent_satellites)
 
 
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
+
+
+def form_satellite_peaks(dict_in_out_phase: dict, phase_label: str):
+    """Loop pd_peak_magnetic_k of a phase from its calculated satellites.
+
+    Equivalent satellites are merged (merge_equivalent_satellites); the
+    intensities include the scale and Lorentz factors. Satellites with zero
+    intensity are left out unless all of them are zero. Returns None when
+    the phase has no satellites in the range.
+    """
+    ttheta_hkl = dict_in_out_phase["ttheta_hkl_magnetic_k"]
+    if ttheta_hkl.size == 0:
+        return None
+    iint = dict_in_out_phase.get(
+        "iint_magnetic_k_with_factors", dict_in_out_phase["iint_magnetic_k"])
+    index_hkl, ttheta_hkl, iint, k_index, multiplicity = \
+        merge_equivalent_satellites(
+            dict_in_out_phase["index_hkl_magnetic_k"], ttheta_hkl, iint,
+            dict_in_out_phase["k_index_magnetic_k"])
+    # satellites forbidden by the magnetic structure (moment parallel to
+    # the scattering vector, magnetic centring) get no tick nor label;
+    # all of them are kept while every intensity is zero (no moments yet)
+    flag_seen = numpy.abs(iint) > 1e-8 * numpy.abs(iint).max()
+    if numpy.any(flag_seen):
+        index_hkl, ttheta_hkl, iint = (
+            index_hkl[:, flag_seen], ttheta_hkl[flag_seen], iint[flag_seen])
+        k_index, multiplicity = k_index[flag_seen], multiplicity[flag_seen]
+    order = numpy.argsort(ttheta_hkl, kind="stable")
+    satellite = PdPeakMagneticKL(loop_name=phase_label)
+    satellite.numpy_index_h = numpy.round(index_hkl[0, order], 4) + 0.
+    satellite.numpy_index_k = numpy.round(index_hkl[1, order], 4) + 0.
+    satellite.numpy_index_l = numpy.round(index_hkl[2, order], 4) + 0.
+    satellite.numpy_wave_vector_seq_id = k_index[order] + 1
+    satellite.numpy_index_mult = multiplicity[order]
+    satellite.numpy_ttheta = numpy.round(
+        numpy.degrees(ttheta_hkl[order]), decimals=3)
+    satellite.numpy_intensity = numpy.round(iint[order], decimals=5)
+    satellite.numpy_to_items()
+    return satellite
 
 
 class Pd(DataN):
@@ -96,6 +138,7 @@ class Pd(DataN):
         ExcludeL,
         PdProcL,
         PdPeakL,
+        PdPeakMagneticKL,
         RefineLs,
         ReflnL,
         ReflnSusceptibilityL,
@@ -154,6 +197,20 @@ class Pd(DataN):
                     l_peaks.append((
                         np_tth,
                         form_hkl_labels(item.index_h, item.index_k, item.index_l),
+                        lines[0].get_color()))
+                elif isinstance(item, PdPeakMagneticKL):
+                    np_tth = item.numpy_ttheta
+                    lines = ax_hkl.plot(
+                        np_tth,
+                        0.0 * np_tth + y_min_s - y_step_s,
+                        "|",
+                        label=f"{item.loop_name} (k)",
+                    )
+                    y_step_s += 0.05 * y_dist_s
+                    l_peaks.append((
+                        np_tth,
+                        form_fractional_hkl_labels(
+                            item.index_h, item.index_k, item.index_l),
                         lines[0].get_color()))
             res = []
             ax_s.legend(loc="upper right")
@@ -429,6 +486,7 @@ class Pd(DataN):
 
         l_pd_peak = []
         l_refln = []
+        l_satellite = []
         for item_phase in self.phase.items:
             s_label = f"dict_in_out_{item_phase.label.lower():}"
             if s_label in keys:
@@ -460,6 +518,11 @@ class Pd(DataN):
                         )
                     pd_peak.numpy_to_items()
                     l_pd_peak.append(pd_peak)
+                    if "ttheta_hkl_magnetic_k" in dict_crystal_keys:
+                        satellite = form_satellite_peaks(
+                            dict_crystal, item_phase.label)
+                        if satellite is not None:
+                            l_satellite.append(satellite)
 
                     flag_f_squared = False
                     if ("iint_plus" in dict_crystal_keys) and (
@@ -502,6 +565,8 @@ class Pd(DataN):
 
         if len(l_pd_peak) > 0:
             self.add_items(l_pd_peak)
+        if len(l_satellite) > 0:
+            self.add_items(l_satellite)
         if len(l_refln) > 0:
             self.add_items(l_refln)
 

@@ -1127,3 +1127,63 @@ def calc_magnetic_space_group_of_k0_by_dictionary(dict_crystal, tolerance: float
         "flags_atom_ordered_moment_crystalaxis_dn": numpy.zeros(moment_dn.shape, dtype=bool),
     })
     return result
+
+
+def merge_equivalent_satellites(index_hkl, ttheta_hkl, iint, k_index):
+    """Merge symmetry-equivalent magnetic satellites of a powder pattern.
+
+    The powder satellites come with multiplicity 1 (every satellite of the
+    orbit is listed), so a peak list of them repeats one position many
+    times. Satellites of one propagation vector at the same 2theta with the
+    same intensity are taken as one orbit: equivalent satellites have the
+    same |F_M_perp|^2 in an unpolarized experiment. Their intensities are
+    summed and the satellite with the largest (h, k, l) represents them, so
+    that (0.5 0 1) is preferred to (-0.5 0 -1).
+
+    Parameters
+    ----------
+    index_hkl : numpy.ndarray
+        (3, n_hkl) float indices of the satellites (h + k, reciprocal
+        lattice units).
+    ttheta_hkl : numpy.ndarray
+        (n_hkl,) peak positions 2theta (radians).
+    iint : numpy.ndarray
+        (n_hkl,) intensities of the satellites.
+    k_index : numpy.ndarray
+        (n_hkl,) index of the propagation vector of each satellite.
+
+    Returns
+    -------
+    index_hkl : numpy.ndarray
+        (3, n_peak) indices of the representatives.
+    ttheta_hkl : numpy.ndarray
+        (n_peak,) 2theta (radians).
+    iint : numpy.ndarray
+        (n_peak,) summed intensities.
+    k_index : numpy.ndarray
+        (n_peak,) index of the propagation vector.
+    multiplicity : numpy.ndarray
+        (n_peak,) number of merged satellites.
+    """
+    iint = numpy.asarray(iint, dtype=float)
+    if iint.size == 0:
+        return (numpy.zeros((3, 0), dtype=float), numpy.zeros((0,), dtype=float),
+                numpy.zeros((0,), dtype=float), numpy.zeros((0,), dtype=int),
+                numpy.zeros((0,), dtype=int))
+    # relative precision 1e-6: equivalent satellites differ by rounding only
+    iint_scale = max(float(numpy.abs(iint).max()), 1e-30)
+    keys = numpy.stack([
+        numpy.asarray(k_index, dtype=float),
+        numpy.round(numpy.degrees(ttheta_hkl), 4),
+        numpy.round(iint / iint_scale, 6)], axis=1)
+    _, group, multiplicity = numpy.unique(
+        keys, axis=0, return_inverse=True, return_counts=True)
+    group = group.ravel()
+    order = numpy.lexsort((index_hkl[2], index_hkl[1], index_hkl[0], group))
+    is_last = numpy.append(group[order][1:] != group[order][:-1], True)
+    representative = order[is_last]
+    iint_sum = numpy.bincount(group, weights=iint, minlength=multiplicity.size)
+    group_representative = group[representative]
+    return (index_hkl[:, representative], ttheta_hkl[representative],
+            iint_sum[group_representative], numpy.asarray(k_index)[representative],
+            multiplicity[group_representative])
