@@ -28,7 +28,7 @@ classifiers = [
 dependencies = [
   'numpy>=2.0',
   'scipy>=1.13',
-  'pycifstar',
+  'pycifstar>=0.3.1',
 ]
 
 [project.optional-dependencies]
