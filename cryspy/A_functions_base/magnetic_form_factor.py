@@ -175,3 +175,70 @@ def calc_magnetic_form_factor_by_multipole_model(index_hkl, r_d,
     magnetic_form_factor = numpy.stack(l_ff, axis=2)
     dder = {}
     return magnetic_form_factor, dder
+
+
+def calc_magnetic_form_factor_with_multipoles_by_dictionary(
+        dict_crystal, index_hkl, rotation, atom_label, form_factor):
+    """Magnetic form factor of atoms, with multipoles where they are given.
+
+    The same function serves the magnetic space groups (``full_mcif_elems``)
+    and the magnetic superspace groups (``magnetic_k_op_rotation``): the
+    multipole density of an atom is anisotropic, so its form factor depends
+    on the rotation of the symmetry operation which generates the atom; the
+    centring translations and the superspace phases do not change it.
+
+    Parameters
+    ----------
+    dict_crystal : dict
+        Crystal dictionary. The multipole model is taken from the keys
+        ``atom_rho_multipole_*`` and ``atom_local_axes_*`` (loops
+        atom_rho_multipole and atom_local_axes); an atom is described by
+        multipoles when both loops have a row with its label.
+    index_hkl : numpy.ndarray
+        (3, n_hkl) Miller indices (integer or fractional) in the reciprocal
+        basis of the cell.
+    rotation : numpy.ndarray
+        (9, n_s) rotation parts of the symmetry operations acting on
+        fractional coordinates.
+    atom_label : numpy.ndarray
+        (n_atom,) labels of the magnetic atoms.
+    form_factor : numpy.ndarray
+        (n_hkl, n_atom) spherical (dipole) form factor of the atoms, kept
+        for the atoms without multipoles.
+
+    Returns
+    -------
+    numpy.ndarray
+        (n_hkl, n_s, n_atom) form factor when at least one atom has
+        multipoles, otherwise ``form_factor`` with a symmetry axis of
+        length 1, (n_hkl, 1, n_atom).
+    """
+    form_factor = numpy.expand_dims(form_factor, axis=1)
+    keys = ("atom_rho_multipole_label", "atom_local_axes_label",
+            "atom_local_axes_matrix")
+    if not all(key in dict_crystal for key in keys):
+        return form_factor
+    multipole_label = list(dict_crystal["atom_rho_multipole_label"])
+    axes_label = list(dict_crystal["atom_local_axes_label"])
+    l_atom, l_multipole, l_axes = [], [], []
+    for i_atom, label in enumerate(atom_label):
+        if label in multipole_label and label in axes_label:
+            l_atom.append(i_atom)
+            l_multipole.append(multipole_label.index(label))
+            l_axes.append(axes_label.index(label))
+    if len(l_atom) == 0:
+        return form_factor
+
+    l_n, l_zeta, l_coeff = dict_crystal["atom_rho_multipole_n_zeta_coeff"]
+    multipole_form_factor = calc_magnetic_form_factor_by_multipole_model(
+        index_hkl, rotation,
+        dict_crystal["atom_local_axes_matrix"][:, l_axes],
+        dict_crystal["atom_rho_multipole_plm"][:, l_multipole],
+        dict_crystal["atom_rho_multipole_lm"],
+        dict_crystal["atom_rho_multipole_kappa"][l_multipole],
+        [l_n[i] for i in l_multipole], [l_zeta[i] for i in l_multipole],
+        [l_coeff[i] for i in l_multipole],
+        dict_crystal["unit_cell_parameters"])[0]
+    form_factor = numpy.repeat(form_factor, rotation.shape[1], axis=1)
+    form_factor[:, :, l_atom] = multipole_form_factor
+    return form_factor

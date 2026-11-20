@@ -59,7 +59,8 @@ from cryspy.A_functions_base.unit_cell import (
     calc_m_m_norm_by_unit_cell_parameters,
     calc_sthovl_by_unit_cell_parameters,
 )
-from cryspy.A_functions_base.magnetic_form_factor import calc_form_factor
+from cryspy.A_functions_base.magnetic_form_factor import (
+    calc_form_factor, calc_magnetic_form_factor_with_multipoles_by_dictionary)
 
 na = numpy.newaxis
 
@@ -414,7 +415,9 @@ def calc_f_m_k(
     atom_occupancy, atom_b_iso : numpy.ndarray
         (n_atom,) occupancy and isotropic B (Å²).
     atom_form_factor : numpy.ndarray
-        (n_hkl, n_atom) magnetic form factor.
+        (n_hkl, n_atom) magnetic form factor, or (n_hkl, n_s, n_atom) when it
+        depends on the operation (multipoles: the density of the generated
+        atom is rotated by ``R_s``).
     atom_fourier_crystalaxis : numpy.ndarray
         (3, n_atom) complex Fourier components ``S_kj`` along the unit
         vectors of a, b, c in μB.
@@ -461,12 +464,14 @@ def calc_f_m_k(
 
     sthovl = calc_sthovl_by_unit_cell_parameters(index_hkl, unit_cell_parameters)[0]
     debye_waller = numpy.exp(-atom_b_iso[na, :] * numpy.square(sthovl)[:, na])
-    weight = (atom_multiplicity * atom_occupancy)[na, :] * atom_form_factor * \
-        debye_waller / (n_s * n_c)  # (n_hkl, n_atom)
+    if atom_form_factor.ndim == 2:
+        atom_form_factor = atom_form_factor[:, na, :]
+    weight = (atom_multiplicity * atom_occupancy)[na, na, :] * atom_form_factor * \
+        debye_waller[:, na, :] / (n_s * n_c)  # (n_hkl, n_s or 1, n_atom)
 
     # F in crystal axes (3, n_hkl)
     f_m_crystalaxis = (
-        s_kjs[:, na, :, :] * exp_s[na, :, :, :] * weight[na, :, na, :]
+        s_kjs[:, na, :, :] * exp_s[na, :, :, :] * weight[na, :, :, :]
         ).sum(axis=(2, 3))
 
     m_norm = calc_m_m_norm_by_unit_cell_parameters(unit_cell_parameters)[0]
@@ -519,7 +524,8 @@ def calc_powder_iint_magnetic_k(
     atom_fract_xyz, atom_occupancy, atom_b_iso : numpy.ndarray
         Magnetic atoms, see :func:`calc_f_m_k`.
     form_factor_function : callable
-        Takes sin(theta)/lambda (n_hkl,) and returns (n_hkl, n_atom).
+        Takes the indices (3, n_hkl) and returns the form factor
+        (n_hkl, n_atom) or (n_hkl, n_s, n_atom), see :func:`calc_f_m_k`.
     atom_fourier_crystalaxis : numpy.ndarray
         (3, n_atom) complex Fourier components ``S_kj`` (μB).
 
@@ -571,7 +577,8 @@ def calc_f_m_perp_k_at_index_hkl(
     atom_fract_xyz, atom_occupancy, atom_b_iso, op_conjugate :
         See :func:`calc_f_m_k`.
     form_factor_function : callable
-        Takes sin(theta)/lambda (n,) (Å⁻¹) and returns (n, n_atom).
+        Takes the indices (3, n) and returns the form factor (n, n_atom) or
+        (n, n_s, n_atom), see :func:`calc_f_m_k`.
     atom_fourier_crystalaxis : numpy.ndarray
         (3, n_atom) complex Fourier components ``S`` of the ``+k`` term at
         the positions ``atom_fract_xyz`` (μB, crystal axes).
@@ -598,8 +605,6 @@ def calc_f_m_perp_k_at_index_hkl(
             continue
         flag_any = flag_any | flag
         index_sign = index_hkl[:, flag]
-        sthovl = calc_sthovl_by_unit_cell_parameters(
-            index_sign, unit_cell_parameters)[0]
         if sign == 1:
             fourier, phase = atom_fourier_crystalaxis, op_phase
         else:
@@ -608,7 +613,7 @@ def calc_f_m_perp_k_at_index_hkl(
             index_sign, sign * k_vector,
             unit_cell_parameters, op_rotation, op_translation, op_moment,
             phase, centring_translations, atom_fract_xyz, atom_occupancy,
-            atom_b_iso, form_factor_function(sthovl), fourier,
+            atom_b_iso, form_factor_function(index_sign), fourier,
             atom_multiplicity=multiplicity, op_conjugate=op_conjugate)
     f_m_perp = numpy.zeros(index_hkl.shape, dtype=complex)
     if numpy.any(flag_any):
@@ -702,6 +707,7 @@ def _take_magnetic_k_atoms(dict_crystal):
     Fourier component ``S(p)`` is calculated for that position.
     """
     atom_index = dict_crystal["atom_fourier_index"]
+    atom_label = numpy.asarray(dict_crystal["atom_fourier_label"])
     mag_index = dict_crystal["mag_atom_fourier_index"]
     atom_fract_xyz = (
         (dict_crystal["atom_site_sc_fract"].reshape(3, 3, -1)
@@ -728,10 +734,16 @@ def _take_magnetic_k_atoms(dict_crystal):
         if not numpy.any(flag):
             continue
 
-        def form_factor_function(sthovl, flag=flag):
-            return calc_form_factor(
+        def form_factor_function(index_hkl, flag=flag):
+            sthovl = calc_sthovl_by_unit_cell_parameters(
+                index_hkl, dict_crystal["unit_cell_parameters"])[0]
+            form_factor = calc_form_factor(
                 sthovl[:, na], lande[na, flag], kappa[na, flag],
                 j0[:, na, flag], j2[:, na, flag])[0]
+            # multipoles: the same function as for magnetic space groups
+            return calc_magnetic_form_factor_with_multipoles_by_dictionary(
+                dict_crystal, index_hkl, dict_crystal["magnetic_k_op_rotation"],
+                atom_label[flag], form_factor)
 
         yield i_k, dict(
             k_vector=k_vector,

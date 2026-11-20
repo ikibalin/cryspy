@@ -100,6 +100,7 @@ from cryspy.D_functions_item_loop.function_1_magnetic_k import (
 from cryspy.A_functions_base.magnetic_k_symmetry import (
     snap_k_vector, form_operation_xyz, calc_supercell_magnetic_space_group)
 from cryspy.exceptions import CrysPyError
+from cryspy.D_functions_item_loop.function_1_multipoles import add_multipole_form_factor
 from cryspy.C_item_loop_classes.cl_1_refln import ReflnL
 from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_centering import (
     SpaceGroupSymopMagnCenteringL,
@@ -2102,6 +2103,47 @@ class Crystal(DataN):
     ):
         return take_crystal_parameters_from_dictionary(
             self, ddict_crystal=ddict_crystal, l_parameter_name=l_parameter_name, l_sigma=l_sigma)
+
+    def add_multipole_form_factor(self, atom_label: str, magnetic_ion: str = "",
+                                  orbital: str = "", coefficients: str = "",
+                                  kappa: float = 1.0) -> str:
+        """Describe the magnetic form factor of an atom by multipoles.
+
+        Adds a row of ``atom_rho_multipole`` (Hansen-Coppens model: Slater
+        radial function of the orbital, kappa, coefficients P_lm of the real
+        spherical harmonics up to l = 4; P00 = 1) and, when the atom has
+        none, a row of ``atom_local_axes`` with two dummy atoms, so that
+        the local axes are z || c and x || a*. The multipoles replace the
+        dipole form factor (atom_site_scat) of a magnetic atom, for magnetic
+        space groups and for propagation vectors (magnetic superspace
+        groups) alike: the form factor of every generated atom is rotated
+        by its symmetry operation. The ion is ``magnetic_ion``, else the
+        ion of atom_site_scat, else the type_symbol of the atom (Cu2+); the
+        orbital is the open shell of the ion in the knowledge base (3d,
+        4f) when it is not given. Give only the coefficients allowed by the
+        site symmetry: they are not checked.
+
+        Parameters
+        ----------
+        atom_label : str
+            Label of the magnetic atom (atom_site).
+        magnetic_ion : str
+            Ion (as Cu2+); empty takes it from atom_site_scat or atom_site.
+        orbital : str
+            Orbital of the radial function (as 3d or 4f); empty takes the open shell of the ion.
+        coefficients : str
+            Multipole coefficients besides P00 = 1, as "P20 0.1, P22 -0.05"; empty gives a spherical density.
+        kappa : float
+            Expansion-contraction coefficient of the radial function.
+
+        Returns
+        -------
+        str
+            Markdown report of the rows added.
+        """
+        return add_multipole_form_factor(
+            self, atom_label, magnetic_ion=magnetic_ion, orbital=orbital,
+            coefficients=coefficients, kappa=kappa)
 
     def save_atom_rho_multipole_density_to_den(
         self,

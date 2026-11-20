@@ -39,7 +39,7 @@ from .symmetry_elements import (
 )
 from .magnetic_form_factor import (
     calc_form_factor,
-    calc_magnetic_form_factor_by_multipole_model,
+    calc_magnetic_form_factor_with_multipoles_by_dictionary,
 )
 
 na = numpy.newaxis
@@ -647,78 +647,41 @@ def calc_f_m_perp_ordered_by_dictionary(
         dict_crystal["flags_mag_atom_kappa"][mag_atom_ordered_index]
     )
 
-    flag_multipole = all(
-        [
-            hh in dict_crystal.keys()
-            for hh in ["mag_atom_rho_multipole_index", "atom_local_axes_label"]
-        ]
-    )
-    if flag_multipole:
-        mag_atom_rho_multipole_index = dict_crystal[
-            "mag_atom_rho_multipole_index"
-        ]
-        atom_rho_multipole_transformation_matrix = dict_crystal[
-            "atom_local_axes_matrix"
-        ][:, mag_atom_rho_multipole_index]
-        atom_rho_multipole_plm = dict_crystal["atom_rho_multipole_plm"][
-            :, mag_atom_rho_multipole_index
-        ]
-        atom_rho_multipole_lm = dict_crystal["atom_rho_multipole_lm"]
-        l_kappa = dict_crystal["atom_rho_multipole_kappa"][
-            mag_atom_rho_multipole_index
-        ]
-        l_n_hh, l_zeta_hh, l_coeff_hh = dict_crystal[
-            "atom_rho_multipole_n_zeta_coeff"
-        ]
-        # FIXME: not sure that it is needed
-        l_n = [l_n_hh[hh] for hh in mag_atom_rho_multipole_index]
-        l_zeta = [l_zeta_hh[hh] for hh in mag_atom_rho_multipole_index]
-        l_coeff = [l_coeff_hh[hh] for hh in mag_atom_rho_multipole_index]
-
-        magnetic_form_factor, dder = (
-            calc_magnetic_form_factor_by_multipole_model(
-                index_hkl,
-                full_mcif_elems[4:-1, :],
-                atom_rho_multipole_transformation_matrix,
-                atom_rho_multipole_plm,
-                atom_rho_multipole_lm,
-                l_kappa,
-                l_n,
-                l_zeta,
-                l_coeff,
-                unit_cell_parameters,
-            )
-        )
+    flag_sthovl = flag_unit_cell_parameters
+    if (
+        flag_use_precalculated_data
+        and ("sthovl" in dict_in_out_keys)
+        and not (flag_sthovl)
+    ):
+        sthovl = dict_in_out["sthovl"]
     else:
-        flag_sthovl = flag_unit_cell_parameters
-        if (
-            flag_use_precalculated_data
-            and ("sthovl" in dict_in_out_keys)
-            and not (flag_sthovl)
-        ):
-            sthovl = dict_in_out["sthovl"]
-        else:
-            sthovl, dder_sthovl = calc_sthovl_by_unit_cell_parameters(
-                index_hkl,
-                unit_cell_parameters,
-                flag_unit_cell_parameters=flag_unit_cell_parameters,
-            )
-            dict_in_out["sthovl"] = sthovl
+        sthovl, dder_sthovl = calc_sthovl_by_unit_cell_parameters(
+            index_hkl,
+            unit_cell_parameters,
+            flag_unit_cell_parameters=flag_unit_cell_parameters,
+        )
+        dict_in_out["sthovl"] = sthovl
 
-        atom_ordered_form_factor, dder_ff = calc_form_factor(
-            sthovl[:, na],
-            atom_ordered_lande_factor[na, :],
-            atom_ordered_kappa[na, :],
-            atom_ordered_j0_parameters[:, na, :],
-            atom_ordered_j2_parameters[:, na, :],
-            flag_lande_factor=flag_atom_ordered_lande_factor,
-            flag_only_orbital=flag_only_orbital,
-            flag_sthovl=flag_sthovl,
-            flag_kappa=flag_atom_ordered_kappa,
-        )
-        magnetic_form_factor = numpy.expand_dims(
-            atom_ordered_form_factor, axis=1
-        )
+    atom_ordered_form_factor, dder_ff = calc_form_factor(
+        sthovl[:, na],
+        atom_ordered_lande_factor[na, :],
+        atom_ordered_kappa[na, :],
+        atom_ordered_j0_parameters[:, na, :],
+        atom_ordered_j2_parameters[:, na, :],
+        flag_lande_factor=flag_atom_ordered_lande_factor,
+        flag_only_orbital=flag_only_orbital,
+        flag_sthovl=flag_sthovl,
+        flag_kappa=flag_atom_ordered_kappa,
+    )
+    # [N_hkl, N_symm or 1, N_atom]: multipoles replace the spherical form
+    # factor of their atoms (the same function serves superspace groups)
+    magnetic_form_factor = calc_magnetic_form_factor_with_multipoles_by_dictionary(
+        dict_crystal,
+        index_hkl,
+        full_mcif_elems[4:13, :],
+        dict_crystal["atom_ordered_label"],
+        atom_ordered_form_factor,
+    )
 
     flag_atom_ordered_moment_crystalaxis_dn = numpy.any(
         flags_atom_ordered_moment_crystalaxis_dn

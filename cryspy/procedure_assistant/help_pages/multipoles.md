@@ -1,6 +1,6 @@
 ---
 title: Multipole model of the magnetization (form factor)
-keywords: multipole, multipoles, aspherical, anisotropic form factor, pseudoatom, hansen-coppens, kappa, plm, orbital, local axes, dummy atom
+keywords: multipole, multipoles, add multipoles, propagation vector, superspace, aspherical, anisotropic form factor, pseudoatom, hansen-coppens, kappa, plm, orbital, local axes, dummy atom
 categories: atom_rho_multipole, atom_local_axes, atom_site, atom_electron_configuration
 ---
 The anisotropic magnetic form factor of an atom can be described by the
@@ -51,7 +51,25 @@ _atom_rho_multipole_coeff_P22
 The model is also used as a prior density for MEM (`_mem_parameters_prior_density core`).
 For a spherical form factor in the dipole approximation use `atom_site_scat` instead.
 
-To add the multipoles of an atom to a loaded object, add a row to each of
+The same rows describe the form factor of magnetic space groups
+(`space_group_symop_magn_operation`, `atom_site_moment`) and of magnetic
+superspace groups with a propagation vector
+(`space_group_symop_magn_ssg_operation`, `atom_site_moment_Fourier`): the
+density of every generated atom is rotated by its symmetry operation.
+
+The method `Crystal.add_multipole_form_factor` adds both rows for an atom in
+one step (AI assistant: `call_method` on the crystal):
+
+```
+crystal_cula2o4.add_multipole_form_factor(atom_label="Cu", coefficients="P20 0.1")
+```
+
+It takes the ion from `atom_site_scat` or `atom_site` (Cu2+), the orbital
+from the open shell of the ion (3d), sets P00 = 1, and adds two dummy atoms
+so that the local axes are z || c and x || a*. Change `atom_local_axes` to
+align the axes with the bonds.
+
+Rows can also be added one by one: to add the multipoles of an atom to a loaded object, add a row to each of
 the two loops (the AI assistant does it with the action `add_item`; a
 loop is created when the crystal has none):
 
