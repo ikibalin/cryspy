@@ -32,6 +32,8 @@ get_name_hall_by_it_number(it_number:int)->str
 
 
 """
+import copy
+import functools
 import logging
 import os
 from numpy import array, transpose, zeros
@@ -1473,6 +1475,15 @@ def get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(
     settings of International Tables A, Table 4.3.2.1, are obtained from them
     by the change of basis (a', b', c') = (a, b, c) P, x' = P^-1 x.
     """
+    # the tables do not change: every crystal of a setting reads them once,
+    # the copy keeps the cached lists safe from changes by the caller
+    return copy.deepcopy(calc_setting_tables(it_number, it_coordinate_system_code))
+
+
+@functools.lru_cache(maxsize=None)
+def calc_setting_tables(it_number: int, it_coordinate_system_code: str):
+    """get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2
+    without the copy (cached)."""
     transform_pp_abc, choice = \
         get_transform_pp_abc_choice_by_it_number_it_coordinate_system_code(
             it_number, it_coordinate_system_code)

@@ -127,7 +127,7 @@ class CifValue(CifPlain):
                     f"Value '{value:}' of '{name:}' in {type(instance).__name__:} "
                     f"is not {value_type.__name__:}.") from error_value
         flag_write = True
-        d_constraints = take_class_or_object_dict(instance, "D_CONSTRAINTS")
+        d_constraints, d_min, d_max = take_limits(instance)
         if name in d_constraints and value_new not in d_constraints[name]:
             flag_write = False
             warnings.warn(
@@ -135,10 +135,8 @@ class CifValue(CifPlain):
                 f"is ignored: allowed values are "
                 f"{', '.join(str(_) for _ in d_constraints[name]):}.",
                 CrysPyWarning, stacklevel=2)
-        d_min = take_class_or_object_dict(instance, "D_MIN")
         if name in d_min and value_new < d_min[name]:
             value_new = d_min[name]
-        d_max = take_class_or_object_dict(instance, "D_MAX")
         if name in d_max and value_new > d_max[name]:
             value_new = d_max[name]
         # the internal parameters were calculated from the old value
@@ -148,6 +146,20 @@ class CifValue(CifPlain):
 
     def __repr__(self):
         return f"CifValue('{self.name:}', {getattr(self.value_type, '__name__', self.value_type)})"
+
+
+def take_limits(instance) -> tuple:
+    """D_CONSTRAINTS, D_MIN, D_MAX of the object (take_class_or_object_dict)
+    in one call: it is done for every value read from a file."""
+    d_object = instance.__dict__
+    cls = type(instance)
+    l_dict = []
+    for name in ("D_CONSTRAINTS", "D_MIN", "D_MAX"):
+        value = d_object.get(name)
+        if value is None:
+            value = getattr(cls, name, None)
+        l_dict.append(value if isinstance(value, dict) else {})
+    return tuple(l_dict)
 
 
 def take_class_or_object_dict(instance, name: str) -> dict:

@@ -201,6 +201,14 @@ class LoopN(object):
         """
         cif_data = Data()
         cif_data.take_from_string(string)
+        return cls.from_cif_data(cif_data)
+
+    @classmethod
+    def from_cif_data(cls, cif_data: Data):
+        """Object from CIF data already read by pycifstar (Data with the
+        loops); None when there is no loop of this class. Reading a file
+        goes this way without writing the data back to text and reading it
+        again."""
         obj = None
         if cls is LoopN:  # a category unknown to CrysPy: a class for it
             loop = cif_data.loops[0]
@@ -217,7 +225,7 @@ class LoopN(object):
                 attr_int=tuple(attr for attr in l_attr if d_type[attr] is int),
                 formats=tuple((attr, take_float_format(loop[name]))
                               for attr, name in zip(l_attr, l_name)))
-            return make_loop_class(item_class).from_cif(string)
+            return make_loop_class(item_class).from_cif_data(cif_data)
         item_class = cls.ITEM_CLASS
         l_attr = item_class.ATTR_NAMES
         l_cif_attr = item_class.ATTR_CIF
