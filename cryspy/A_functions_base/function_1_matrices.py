@@ -71,11 +71,11 @@ def transform_string_to_digits(name: str, labels: Tuple[str]):
     >>> transform_string_to_digits('-a+2x/7-0.7t+4', ('a', 'x', 't'))
     """
     coefficients = []
-    offset = Fraction(0, 1).limit_denominator(10)
+    offset = Fraction(0, 1).limit_denominator(24)
     l_name = name.strip().replace(" ", "").replace("+", " +").replace(
         "-", " -").split()
     for _label in labels:
-        res = Fraction(0, 1).limit_denominator(10)
+        res = Fraction(0, 1).limit_denominator(24)
         for _name in l_name:
             if _label in _name:
                 s_1 = _name.replace(_label, "").replace("+/", "+1/").replace(
@@ -88,13 +88,13 @@ def transform_string_to_digits(name: str, labels: Tuple[str]):
                     s_1 = s_1 + "1"
                 if s_1.endswith("-"):
                     s_1 = s_1 + "1"
-                res += Fraction(s_1).limit_denominator(10)
+                res += Fraction(s_1).limit_denominator(24)
         coefficients.append(res)
-    res = Fraction(0, 1).limit_denominator(10)
+    res = Fraction(0, 1).limit_denominator(24)
     for _name in l_name:
         flag = all([not (_label in _name) for _label in labels])
         if flag:
-            res += Fraction(_name).limit_denominator(10)
+            res += Fraction(_name).limit_denominator(24)
     offset = res
     return coefficients, offset
 
@@ -119,7 +119,7 @@ def transform_fraction_with_label_to_string(number: Fraction, label: str) \
     if isinstance(number, Fraction):
         val = number
     else:
-        val = Fraction(number).limit_denominator(10)
+        val = Fraction(number).limit_denominator(24)
     if val == Fraction(0, 1):
         res = ""
     elif val == Fraction(1, 1):
@@ -165,7 +165,7 @@ def transform_digits_to_string(labels: Tuple[str], coefficients,
             l_res.append(_name)
         else:
             l_res.append(f"+{_name:}")
-    _name = str(Fraction(offset).limit_denominator(10))
+    _name = str(Fraction(offset).limit_denominator(24))
     if _name == "0":
         if l_res == []:
             l_res.append(_name)

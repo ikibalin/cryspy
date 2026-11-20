@@ -14,6 +14,8 @@ from cryspy.A_functions_base.function_2_space_group import \
     get_it_number_by_name_hm_full, \
     get_it_number_by_name_hm_short, \
     get_it_number_by_name_hall, \
+    get_it_number_it_coordinate_system_code_by_name_hm, \
+    get_it_number_it_coordinate_system_code_by_name_hall, \
     get_it_number_by_name_schoenflies, \
     get_it_coordinate_system_codes_by_it_number, \
     get_default_it_coordinate_system_code_by_it_number, \
@@ -164,7 +166,55 @@ To defince magnetic space group instead this item use two loops: space_group_sym
             name_hm = self.D_NAME_HM_WITHOUT_SPACES.get("".join(value.split()))
             if name_hm in self.D_CONSTRAINTS[name]:
                 value = name_hm
+            elif name == "name_hm_alt":
+                # Any setting of ITA Table 4.3.2.1, old symbols ("B m a b"),
+                # short monoclinic symbols ("P 21/n"), choice after a colon
+                # ("F d -3 m:1").
+                it_number, code = \
+                    get_it_number_it_coordinate_system_code_by_name_hm(value)
+                if it_number is not None:
+                    value = self.get_name_hm_alt_by_it_number_it_coordinate_system_code(
+                        it_number, code)
+                    self.set_it_coordinate_system_code_by_name(code)
+        elif ((name == "name_hall") and isinstance(value, str) and
+                (value not in self.D_CONSTRAINTS[name])):
+            # Hall symbols of the non-standard settings ("-B 2ab 2").
+            it_number, code = \
+                get_it_number_it_coordinate_system_code_by_name_hall(value)
+            if it_number is not None:
+                value = get_name_hall_by_it_number(it_number)
+                self.set_it_coordinate_system_code_by_name(code)
         super(SpaceGroup, self).__setattr__(name, value)
+
+    def set_it_coordinate_system_code_by_name(self, code: str) -> NoReturn:
+        """Keep the setting given by a space group symbol.
+
+        An IT coordinate system code given explicitly has priority.
+        """
+        if (code is not None) and \
+                (not self.is_attribute("it_coordinate_system_code")):
+            super(SpaceGroup, self).__setattr__(
+                "it_coordinate_system_code", code)
+
+    @staticmethod
+    def get_name_hm_alt_by_it_number_it_coordinate_system_code(
+            it_number: int, it_coordinate_system_code: str) -> str:
+        """Hermann-Mauguin symbol to write for the setting.
+
+        The extended symbol of ITA Table 4.3.2.1 for the non-standard
+        monoclinic and orthorhombic settings ("B m e b"), otherwise the
+        short symbol of the space group.
+        """
+        crystal_system = get_crystal_system_by_it_number(it_number)
+        if (crystal_system in ("monoclinic", "orthorhombic")) and \
+                (it_coordinate_system_code !=
+                 get_default_it_coordinate_system_code_by_it_number(it_number)):
+            name_hm = \
+                get_name_hm_extended_by_it_number_it_coordinate_system_code(
+                    it_number, it_coordinate_system_code)
+            if name_hm is not None:
+                return name_hm
+        return get_name_hm_short_by_it_number(it_number)
 
     def form_object(self) -> NoReturn:
         """Form object."""
@@ -326,9 +376,16 @@ To defince magnetic space group instead this item use two loops: space_group_sym
             self.__dict__["name_hm_full"] = name_hm_full
         if name_hm_short is not None:
             self.__dict__["name_hm_ref"] = name_hm_short
-            self.__dict__["name_hm_alt"] = name_hm_short
-            self.__dict__["name_hm_alt_description"] = \
-                "The short Hermann-Mauguin space-group symbol."
+            name_hm_alt = \
+                self.get_name_hm_alt_by_it_number_it_coordinate_system_code(
+                    it_number, it_c_s_c)
+            self.__dict__["name_hm_alt"] = name_hm_alt
+            if name_hm_alt == name_hm_short:
+                self.__dict__["name_hm_alt_description"] = \
+                    "The short Hermann-Mauguin space-group symbol."
+            else:
+                self.__dict__["name_hm_alt_description"] = \
+                    "The extended Hermann-Mauguin space-group symbol."
         if name_hall is not None:
             self.__dict__["name_hall"] = name_hall
         if name_schoenflies is not None:
