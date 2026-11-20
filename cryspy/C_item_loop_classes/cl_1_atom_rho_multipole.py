@@ -30,7 +30,10 @@ INDEX_PLM = numpy.array([[0,0],[1,1],[1,-1],[1,0],
                      [4,0],[4,1],[4,-1],[4,2],[4,-2],[4,3],[4,-3],[4,4],[4,-4]],dtype=int)
 
 class AtomRhoMultipole(ItemN):
-    """AtomRhoMultipole contains information about the multipole coefficients used to describe the electron density.
+    """Multipole coefficients of the electron density of an atom, or of the magnetization density of a magnetic atom (its magnetic form factor through multipoles).
+
+For a magnetic atom the multipoles replace the dipole approximation of
+the magnetic form factor (atom_site_scat).
 
 It should be noted that used parameters in this block are different from parameters defined in Electron density CIF: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_rho.dic/Catom_rho_multipole.html
     """
@@ -188,7 +191,10 @@ It should be noted that used parameters in this block are different from paramet
         return (fig, ax)
     
 class AtomRhoMultipoleL(LoopN):
-    """AtomRhoMultipole contains information about the multipole coefficients used to describe the electron density.
+    """Multipole coefficients of the electron density of an atom, or of the magnetization density of a magnetic atom (its magnetic form factor through multipoles).
+
+For a magnetic atom the multipoles replace the dipole approximation of
+the magnetic form factor (atom_site_scat).
 
 It should be noted that used parameters in this block are different from parameters defined in Electron density CIF: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_rho.dic/Catom_rho_multipole.html
     """
