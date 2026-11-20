@@ -98,6 +98,12 @@ class LoopN(object):
             DESCRIPTION.
 
         """
+        # a special name (__setstate__ asked by copy.deepcopy and pickle on
+        # an object made without __init__) is never a CIF attribute: without
+        # this check the lookups below come here again until RecursionError,
+        # a stack overflow in a thread (CrysPy Editor closed on macOS)
+        if name.startswith("__") and name.endswith("__"):
+            raise AttributeError(name)
         item_class = self.ITEM_CLASS
         if item_class is ItemN:
             item_class = self.items[0]
