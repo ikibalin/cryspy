@@ -667,16 +667,6 @@ def form_crystal_dictionary(crystal, ddict):
             mag_atom_ordered_index = args[args[:, 1].argsort()][:, 0]
             ddict["mag_atom_ordered_index"] = mag_atom_ordered_index
 
-        if "atom_rho_multipole_label" in ddict.keys():
-            flag_2d = numpy.expand_dims(
-                ddict["atom_rho_multipole_label"], axis=0
-            ) == numpy.expand_dims(mag_atom_label, axis=1)
-            args = numpy.argwhere(flag_2d)
-            mag_atom_rho_multipole_index = args[args[:, 1].argsort()][:, 0]
-            ddict["mag_atom_rho_multipole_index"] = (
-                mag_atom_rho_multipole_index
-            )
-
     form_magnetic_k_dictionary(crystal, ddict)
 
     if atom_type is not None:
