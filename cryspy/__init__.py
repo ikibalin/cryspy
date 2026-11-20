@@ -336,6 +336,10 @@ from cryspy.procedure_assistant.procedures import (
     describe_procedure,
     describe_procedures,
 )
+from cryspy.procedure_assistant.menus import (
+    group_methods_for_menu,
+    group_procedures_for_menu,
+)
 from cryspy.procedure_assistant.recipes import run_recipe, set_user_recipe_folder
 from cryspy.procedure_assistant.knowledge import search_knowledge
 from cryspy.procedure_assistant.documents import (
