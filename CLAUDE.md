@@ -86,6 +86,13 @@ Public API is re-exported from `cryspy/__init__.py`.
   `procedure_assistant/menus.py`). A line `Menu: <name>` in the docstring
   sets the menu by hand, `Menu: -` hides the function from the menus only
   (AI assistants and scripts still see it).
+- Tools of AI assistants (`procedure_assistant/tools.py`): only the general
+  ones in `CORE_TOOLS` are described in the prompt of a model; the special
+  ones are given with a request whose words are in their name and
+  description (`find_matching_tools`). Give a new special tool a specific
+  name with the words users type (`estimate_absorption`,
+  `add_crystal_from_cod`); add a tool to `CORE_TOOLS` only when almost any
+  analysis needs it.
 - Physical data that people should read and correct (magnetic ions:
   usual valences, Lande factors, free-ion moments; usual ionic charges) live
   as Markdown tables in the knowledge base `cryspy/knowledge/*.md`, read by

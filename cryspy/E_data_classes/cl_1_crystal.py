@@ -4,6 +4,7 @@ __author__ = "ikibalin"
 __version__ = "2020_08_19"
 import dataclasses
 import logging
+import warnings
 import numpy
 
 from typing import NoReturn
@@ -22,8 +23,8 @@ from cryspy.A_functions_base.structure_factor import (
 )
 
 from cryspy.A_functions_base.structure_scene import (
-    calc_atoms_in_unit_cell, calc_structure_scene, calc_tensors_xyz_by_symmetry,
-    calc_xyz_by_fract)
+    calc_atoms_in_unit_cell, calc_flags_non_positive_definite,
+    calc_structure_scene, calc_tensors_xyz_by_symmetry, calc_xyz_by_fract)
 from cryspy.D_functions_item_loop.function_1_view_structure import (
     ATOM_DISPLAY_ADP, ATOM_DISPLAY_SUSCEPTIBILITY,
     StructureViewSettings,
@@ -724,6 +725,12 @@ class Crystal(DataN):
         atom_tensor = None
         if settings.atom_display == ATOM_DISPLAY_ADP:
             atom_tensor = self.calc_adp_tensors_xyz()
+            npd_labels = self.take_non_positive_adp_labels(atom_tensor)
+            if npd_labels:
+                warnings.warn(
+                    "Non-positive definite displacement parameters of "
+                    f"{', '.join(npd_labels)}: drawn with |U| as "
+                    f"{settings.npd_display}.", stacklevel=2)
         elif settings.atom_display == ATOM_DISPLAY_SUSCEPTIBILITY:
             atom_tensor = self.calc_susceptibility_tensors_xyz()
         if atom_site.is_attribute("type_symbol"):
@@ -1550,7 +1557,9 @@ class Crystal(DataN):
         -------
         str
             Directions are unit vectors in Cartesian axes (x || a*, z || c)
-            and in the crystal axes [u v w] (fractions of a, b, c).
+            and in the crystal axes [u v w] (fractions of a, b, c). Atoms
+            with non-positive definite U (negative Biso, Uiso or U_i) are
+            named with the usual causes.
         """
         kind_low = kind.strip().lower()
         if kind_low.startswith("adp") or kind_low.startswith("u") or kind_low.startswith("therm"):
@@ -1612,7 +1621,27 @@ class Crystal(DataN):
         if flag_adp:
             ls_out.append("")
             ls_out.append("A negative U_i means non-positive definite displacement parameters.")
+            npd_labels = self.take_non_positive_adp_labels()
+            if npd_labels:
+                ls_out.append(
+                    f"Non-positive definite: {', '.join(npd_labels)}. Usual causes: "
+                    "wrong atom type or occupancy, no absorption or extinction "
+                    "correction, wrong scale or background, correlations with "
+                    "other parameters, too few high-angle reflections. Check them, "
+                    "or fix a small positive Biso and refine again. The 3D view "
+                    "draws these atoms with |U| as cubes or ellipsoids with bars "
+                    "(npd_display).")
         return "\n".join(ls_out)
+
+    def take_non_positive_adp_labels(self, u_xyz=None) -> list:
+        """Labels of atoms with non-positive definite displacement tensors."""
+        if u_xyz is None:
+            u_xyz = self.calc_adp_tensors_xyz()
+        finite = numpy.all(numpy.isfinite(u_xyz), axis=(0, 1))
+        flags = numpy.zeros(finite.size, dtype=bool)
+        if numpy.any(finite):
+            flags[finite] = calc_flags_non_positive_definite(u_xyz[:, :, finite])
+        return [label for label, flag in zip(self.atom_site.label, flags) if flag]
 
     def take_geometry_input(self) -> GeometryInput:
         return GeometryInput(self.cell, self.atom_site, self.get_full_symm_elems())
@@ -1902,7 +1931,8 @@ class Crystal(DataN):
         -------
         numpy.ndarray, shape (3, 3, n_atom)
             U in Å², x || a*, z || c; NaN for atoms without displacement
-            parameters.
+            parameters (B = 0). Non-positive definite U (negative Biso,
+            Uiso or a negative eigenvalue of Uani) is kept as it is.
         """
         b_iso, beta = self.calc_b_iso_beta()
         m_m = calc_m_m_by_unit_cell_parameters(
@@ -1915,7 +1945,8 @@ class Crystal(DataN):
                                       [bb[4], bb[5], bb[2]]], dtype=float)
                 # exp(-h^T beta h): beta = 2 pi^2 Sigma_fract
                 res[:, :, i_atom] = m_m @ beta_m @ m_m.transpose() / (2. * numpy.pi**2)
-            elif b > 0.:
+            elif b != 0.:
+                # a negative B stays: the view and the reports mark it
                 res[:, :, i_atom] = numpy.eye(3) * b / (8. * numpy.pi**2)
         return res
 

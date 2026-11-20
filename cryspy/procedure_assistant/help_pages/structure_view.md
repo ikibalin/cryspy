@@ -1,6 +1,6 @@
 ---
 title: 3D view of the crystal structure
-keywords: 3d, view, ellipsoid, ellipsoids, adp, thermal ellipsoids, displacement, susceptibility ellipsoid, magnetization ellipsoid, p1, unit cell atoms, dummy, visualization, visualisation, structure, picture, draw, show, py3dmol, 3dmol, moments, arrows, unit cells, bonds, jupyter
+keywords: 3d, view, ellipsoid, ellipsoids, adp, negative biso, negative uiso, negative adp, non-positive definite, npd, cubes, thermal ellipsoids, displacement, susceptibility ellipsoid, magnetization ellipsoid, p1, unit cell atoms, dummy, visualization, visualisation, structure, picture, draw, show, py3dmol, 3dmol, moments, arrows, unit cells, bonds, jupyter
 categories: atom_site, atom_site_aniso, atom_site_moment, atom_site_susceptibility, cell, space_group
 ---
 A crystal data block can be shown as an interactive 3D picture: atoms of the
@@ -39,6 +39,22 @@ moment scale, colours and the size of the view.
 - `susceptibility ellipsoids`: magnetization ellipsoids of the atoms of
   `atom_site_susceptibility`, the moments M = χB induced by a field of
   `susceptibility_field` tesla in every direction (semi-axes |χ_i|·B).
+
+Atoms with non-positive definite displacement parameters (a negative
+`Biso`/`Uiso`, or a `Uani` with a negative eigenvalue U_i) are not physical
+but are still drawn, with |U|, and marked as `npd_display` chooses:
+
+- `cubes` (default): boxes along the principal axes with half edges of the
+  |U| ellipsoid, the usual convention of ORTEP, SHELX and Olex2;
+- `ellipsoids with bars`: half transparent ellipsoids of |U| crossed by
+  magenta bars along the axes with a negative U_i, so an anisotropic atom
+  shows in which direction its displacement is wrong (a negative `Biso`
+  gives three bars).
+
+A mark is at least 0.4 Å in size, so a small negative value is still seen.
+A warning names these atoms, and `report_ellipsoids` lists their U_i with
+the usual causes (wrong atom type or occupancy, missing absorption or
+extinction correction, scale, background, correlations).
 
 Atoms without such parameters stay spheres. `moment_scale` (Å per μB) gives
 the length of the moment arrows and the size of the magnetization

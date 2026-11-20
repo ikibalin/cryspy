@@ -52,7 +52,7 @@ from cryspy.procedure_assistant.procedures import (
 from cryspy.procedure_assistant.menus import group_methods_for_menu
 from cryspy.procedure_assistant.methods import (
     describe_method, find_method_blocks, find_parameter_blocks, format_method, take_method_parameters,
-    take_methods, score_method, take_request_words)
+    take_methods, score_method, take_request_words, count_name_words, score_text)
 from cryspy.procedure_assistant.history import (
     find_stuck_at_zero, form_metrics, format_metrics, keep_checkpoint, keep_snapshot,
     restore_snapshot, take_history)
@@ -140,6 +140,28 @@ class AssistantTool:
             else:
                 l_argument.append(f"{name:}?: {s_type:}")
         return f"- {self.name:}({', '.join(l_argument):}): {self.description:}"
+
+    @property
+    def flag_core(self) -> bool:
+        """A general tool that the prompt of a model always describes; the
+        other (special) tools are described with the request when they fit
+        it (form_matching_tools_text), so the prompt does not grow with
+        every new tool."""
+        return self.name in CORE_TOOLS
+
+
+# general tools of every analysis: help, parameters, refinement, recipes,
+# questions to the user, items, methods and procedures of the object (the
+# special ones, e.g. absorption, twins, geometry, documents, are found by
+# the words of the request: find_matching_tools)
+CORE_TOOLS = frozenset({
+    "get_help", "summarize_object", "list_parameters", "refine_parameters", "fix_parameters",
+    "set_parameter", "diagnose_fit", "list_attributes", "set_attribute", "show_item",
+    "describe_category", "calculate", "refine", "refine_one_by_one", "undo_refinement",
+    "list_recipes", "get_recipe", "use_recipe", "suggest_recipes", "ask_user",
+    "get_recipe_guide", "check_recipe_text", "save_recipe", "add_item", "remove_item",
+    "list_methods", "call_method", "list_procedures", "run_procedure",
+})
 
 
 def format_dictionary_name(name) -> str:
@@ -1826,6 +1848,73 @@ def take_assistant_tool(name: str) -> Optional[AssistantTool]:
 def assistant_tools() -> List[dict]:
     """Descriptions of the tools for a chat model (JSON schema format)."""
     return [tool.to_dict() for tool in L_ASSISTANT_TOOLS]
+
+
+# special tools given with a request, and the length of their descriptions
+N_MATCHING_TOOLS = 3
+N_CHAR_TOOL_DESCRIPTION = 300
+
+
+# a word of at most so many tools (names and descriptions) is specific
+N_RARE_WORD_TOOLS = 2
+
+
+def count_tools_with_word(word: str) -> int:
+    """Number of tools with the word (stem) in the name or the description."""
+    return sum(1 for tool in L_ASSISTANT_TOOLS if score_text(tool.name, tool.description, [word]))
+
+
+def find_matching_tools(request: str, max_tools: int = N_MATCHING_TOOLS) -> List[AssistantTool]:
+    """Special tools (not in CORE_TOOLS) that fit a request, best first,
+    with the rules of methods.find_matching_methods: at least two words of
+    the request in the name and the description, at least one meaningful
+    word in the name ('Is an absorption correction needed?' finds
+    estimate_absorption, 'Load the crystal from COD' add_crystal_from_cod),
+    only the tools close to the best one. One word is enough only when it
+    is rare among the descriptions of all tools ('COD'), not a common one
+    ('cell', 'parameter', 'structure')."""
+    l_word = take_request_words(request)
+    if len(l_word) == 0:
+        return []
+    l_found = []
+    n_min = 1 if len(l_word) == 1 else 2
+    for tool in L_ASSISTANT_TOOLS:
+        if tool.flag_core:
+            continue
+        n_name, n_generic = count_name_words(tool.name, l_word)
+        score = score_text(tool.name, tool.description, l_word)
+        if n_name == 0:
+            continue
+        if score < n_min and not any(count_tools_with_word(word) <= N_RARE_WORD_TOOLS
+                                     for word in l_word if score_text(tool.name, "", [word])):
+            continue
+        l_found.append((score + n_name + 0.5 * n_generic, tool.name, tool))
+    if len(l_found) == 0:
+        return []
+    l_found.sort(key=lambda item: (-item[0], item[1]))
+    score_best = l_found[0][0]
+    return [tool for score, _, tool in l_found if score >= score_best - 1][:max_tools]
+
+
+def form_tool_signature(tool: AssistantTool) -> str:
+    """'name(argument, optional?)'."""
+    l_argument = [name if name in tool.required else f"{name:}?" for name in tool.parameters]
+    return f"{tool.name:}({', '.join(l_argument):})"
+
+
+def form_matching_tools_text(request: str, max_tools: int = N_MATCHING_TOOLS) -> str:
+    """Text of find_matching_tools for the prompt of a language model, given
+    with the request ('' when no special tool fits)."""
+    l_tool = find_matching_tools(request, max_tools)
+    if len(l_tool) == 0:
+        return ""
+    ls_out = ["Actions that may do this:"]
+    for tool in l_tool:
+        description = " ".join(tool.description.split())
+        if len(description) > N_CHAR_TOOL_DESCRIPTION:
+            description = description[:N_CHAR_TOOL_DESCRIPTION].rsplit(" ", 1)[0] + " ..."
+        ls_out.append(f"- {form_tool_signature(tool):}: {description:}")
+    return "\n".join(ls_out)
 
 
 def assistant_tools_as_text() -> str:
