@@ -1,5 +1,6 @@
 """Transform data to objects of cryspy library."""
 import logging
+import re
 import warnings
 import os
 import os.path
@@ -367,7 +368,7 @@ def str_to_items(s_cont: str, item_classes=(), loop_classes=()) -> list:
     """Transfer string of cif format to cryspy objects."""
     data_cif = Data()
     try:
-        data_cif.take_from_string(s_cont)
+        data_cif.take_from_string(take_modern_space_group_tags(s_cont))
     except ValueError as error:
         raise RcifFormatError(str(error)) from error
     l_item_class = L_ITEM_CLASS + list(item_classes)
@@ -380,12 +381,51 @@ def str_to_items(s_cont: str, item_classes=(), loop_classes=()) -> list:
     return l_item
 
 
+# old tags of CIF 1.0 (still in many COD files) -> tags read by CrysPy
+D_OLD_SPACE_GROUP_TAGS = {
+    "_space_group_name_H-M_alt": ("_symmetry_space_group_name_H-M", ),
+    "_space_group_IT_number": ("_symmetry_Int_Tables_number", ),
+    "_space_group_name_Hall": ("_symmetry_space_group_name_Hall", ),
+}
+
+
+def take_modern_space_group_tags(cif_text: str) -> str:
+    """CIF text where the space group is given by the tags of CrysPy.
+
+    In every data block, an old CIF 1.0 tag (_symmetry_space_group_name_H-M,
+    _symmetry_space_group_name_Hall, _symmetry_Int_Tables_number) is copied
+    to the new tag when the block has no new one. Without it a block with
+    _space_group_IT_number and the old name "B m a b" was read in the
+    standard setting "C m c e".
+    """
+    l_part = re.split(r"(?im)^(?=[ \t]*data_)", cif_text)
+    l_part_new = []
+    for part in l_part:
+        l_line = []
+        for tag, l_old_tag in D_OLD_SPACE_GROUP_TAGS.items():
+            if re.search(rf"^\s*{re.escape(tag):}\s", part,
+                         flags=re.MULTILINE | re.IGNORECASE):
+                continue
+            for old_tag in l_old_tag:
+                match = re.search(rf"^\s*{re.escape(old_tag):}[ \t]+(\S.*?)\s*$",
+                                  part, flags=re.MULTILINE | re.IGNORECASE)
+                if match is not None:
+                    l_line.append(f"{tag:} {match.group(1):}")
+                    break
+        match = re.match(r"[ \t]*data_\S*[ \t]*\r?\n", part, flags=re.IGNORECASE)
+        if len(l_line) != 0 and match is not None:
+            part = (part[:match.end()] + "\n".join(l_line) + "\n" +
+                    part[match.end():])
+        l_part_new.append(part)
+    return "".join(l_part_new)
+
+
 def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),
                    data_classes=(), global_classes=()) -> GlobalN:
     """Transfer string of cif format to cryspy objects."""
     global_cif = Global()
     try:
-        global_cif.take_from_string(s_cont)
+        global_cif.take_from_string(take_modern_space_group_tags(s_cont))
     except ValueError as error:
         raise RcifFormatError(str(error)) from error
     l_global_item = []

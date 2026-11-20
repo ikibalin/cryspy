@@ -122,43 +122,22 @@ def take_type_symbol(label: str) -> str:
     return match.group(1) if match is not None else label
 
 
-# old tags of CIF 1.0 (still in many COD files) -> tags read by CrysPy
-D_OLD_SPACE_GROUP_TAGS = {
-    "_space_group_name_H-M_alt": ("_symmetry_space_group_name_H-M", ),
-    "_space_group_IT_number": ("_symmetry_Int_Tables_number", ),
-    "_space_group_name_Hall": ("_symmetry_space_group_name_Hall", ),
-}
+def take_cif_space_group_tags(cif_text: str) -> str:
+    """CIF text with the space group tags of CrysPy.
 
-
-def take_modern_space_group_tags(cif_text: str) -> str:
-    """CIF text where the space group is given by the tags of CrysPy.
-
-    A file with only the old tags (_symmetry_space_group_name_H-M) gets the
-    new ones; a file with no space group is taken as P 1 (logged).
+    The old tags are read by ``str_to_globaln`` itself
+    (``take_modern_space_group_tags``); a file with no space group is taken
+    as P 1 (logged).
     """
-    l_line = []
-    for tag, l_old_tag in D_OLD_SPACE_GROUP_TAGS.items():
-        if re.search(rf"^\s*{re.escape(tag):}\s", cif_text,
-                     flags=re.MULTILINE | re.IGNORECASE):
-            continue
-        for old_tag in l_old_tag:
-            match = re.search(rf"^\s*{re.escape(old_tag):}\s+(.+?)\s*$",
-                              cif_text, flags=re.MULTILINE | re.IGNORECASE)
-            if match is not None:
-                l_line.append(f"{tag:} {match.group(1):}")
-                break
-    if not re.search(r"^\s*_(space_group|symmetry)_", cif_text,
-                     flags=re.MULTILINE | re.IGNORECASE):
-        logger.info("No space group in the CIF text: P 1 is used.")
-        l_line.append('_space_group_name_H-M_alt "P 1"')
-    if len(l_line) == 0:
+    if re.search(r"^\s*_(space_group|symmetry)_", cif_text,
+                 flags=re.MULTILINE | re.IGNORECASE):
         return cif_text
-    # the new tags go right after the first data_ line
+    logger.info("No space group in the CIF text: P 1 is used.")
     match = re.search(r"^\s*data_\S*\s*$", cif_text,
                       flags=re.MULTILINE | re.IGNORECASE)
     if match is None:
         return cif_text
-    return (cif_text[:match.end():] + "\n" + "\n".join(l_line) + "\n"
+    return (cif_text[:match.end():] + '\n_space_group_name_H-M_alt "P 1"\n'
             + cif_text[match.end():])
 
 
@@ -169,7 +148,7 @@ def cif_to_crystal(cif_text: str, data_name: str = "") -> Crystal:
     Missing type symbols are taken from the labels; atoms without
     displacement parameters get adp_type 'Biso' with B = 0.
     """
-    globaln = str_to_globaln(take_modern_space_group_tags(cif_text))
+    globaln = str_to_globaln(take_cif_space_group_tags(cif_text))
     l_data = [item for item in globaln.items if isinstance(item, DataN)]
     if len(l_data) == 0:
         raise ValueError("The CIF text has no data block.")
