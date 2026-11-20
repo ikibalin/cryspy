@@ -558,7 +558,13 @@ class LoopN(object):
         prefix = self.ITEM_CLASS.PREFIX
         
         prefix_t, attr_t = name
-        if prefix_t != (prefix, self.loop_name):
+        loop_name = self.loop_name
+        if isinstance(loop_name, str):
+            loop_name = loop_name.lower()
+        if isinstance(prefix_t[1], str):
+            prefix_t = (prefix_t[0], prefix_t[1].lower())
+        # names of get_variable_names are in lower case
+        if prefix_t != (prefix, loop_name):
             return
         attr_name, item_index = attr_t
         setattr(self.items[item_index], attr_name, value)

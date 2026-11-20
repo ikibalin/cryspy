@@ -242,3 +242,22 @@ def test_constrained_parameter_not_used_by_the_model():
         atom.b_iso_or_equiv = 0.5
     with pytest.raises(cryspy.RcifFormatError, match="adp_type"):
         obj.get_dictionary()
+
+
+def test_marks_in_data_block_with_capital_letters():
+    """data_Pbcn: names of get_variable_names are in lower case, the
+    parameters are found and changed by them (the calculation failed with
+    'cannot unpack non-iterable NoneType object')."""
+    s_cont = open(F_NAME).read().replace("data_tbte3", "data_TbTe3")
+    s_cont = s_cont.replace("Te1     Te   0.000000   0.928930   0.250000   1.0   Uiso   0.0",
+                            "Te1     Te   0.000000   0.928930   0.250000   1.0   Uiso   0.01()rr")
+    s_cont = s_cont.replace("Te2     Te   0.000000   0.571030   0.250000   1.0   Uiso   0.0",
+                            "Te2     Te   0.000000   0.571030   0.250000   1.0   Uiso   0.01()rr")
+    obj = cryspy.str_to_globaln(s_cont)
+    d_global = obj.get_dictionary()
+    assert d_global["linear_constraints"] == [
+        [(pytest.approx(1. / COEFF_B), ("crystal_tbte3", "atom_b_iso", (1, ))),
+         (pytest.approx(-1. / COEFF_B), ("crystal_tbte3", "atom_b_iso", (2, )))]]
+    name = (("global", ""), ("crystal", "tbte3"), ("atom_site", ""), ("u_iso_or_equiv", 1))
+    obj.set_variable_by_name(name, 0.02)
+    assert obj.get_variable_by_name(name) == 0.02
