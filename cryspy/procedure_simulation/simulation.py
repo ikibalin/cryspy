@@ -13,6 +13,7 @@ from cryspy.A_functions_base.unit_cell import calc_m_b_by_unit_cell_parameters
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 
 from cryspy.procedure_rhochi.rhochi import rhochi_no_refinement
+from cryspy.procedure_rhochi.rhochi_by_dictionary import rhochi_calc_chi_sq_by_dictionary
 
 from cryspy.A_functions_base.structure_factor import \
     calc_index_hkl_multiplicity_in_range
@@ -405,12 +406,43 @@ def simulation_fliping_ratio(cryspy_object: cryspy.GlobalN):
             l_diffrn.append(rcif_diffrn)
 
     cryspy_object.add_items(l_diffrn)
+    remove_extinct_reflections(cryspy_object, l_diffrn)
     rhochi_no_refinement(cryspy_object)
 
     for rcif_diffrn in l_diffrn:
         for item in rcif_diffrn.diffrn_refln.items:
             item.fr = float(numpy.round(item.fr_calc, 5))
     rhochi_no_refinement(cryspy_object)
+
+
+# Relative intensity below which a reflection is extinct: the intensities of
+# systematic absences are round-off, about 1e-30 of the strongest reflection.
+EXTINCT_INTENSITY = 1e-10
+
+
+def remove_extinct_reflections(cryspy_object: cryspy.GlobalN, l_diffrn: list):
+    """Remove the reflections without nuclear and magnetic scattering from the
+    simulated flipping ratio experiments.
+
+    Their flipping ratio is the ratio of two round-off values: it changes with
+    the last bits of the moments from one calculation to the next and cannot
+    be measured.
+    """
+    dict_in_out = {}
+    rhochi_calc_chi_sq_by_dictionary(
+        cryspy_object.get_dictionary(), dict_in_out=dict_in_out,
+        flag_use_precalculated_data=False, flag_calc_analytical_derivatives=False)
+    for rcif_diffrn in l_diffrn:
+        dict_in_out_diffrn = dict_in_out[rcif_diffrn.get_dictionary()["type_name"]]
+        items = rcif_diffrn.diffrn_refln.items
+        n_hkl = len(items)
+        # twin domains are blocks of n_hkl reflections
+        iint = (dict_in_out_diffrn["iint_plus"] + dict_in_out_diffrn["iint_minus"]).reshape(-1, n_hkl).sum(axis=0)
+        flags_measurable = iint > EXTINCT_INTENSITY * iint.max()
+        loop_diffrn_refln = DiffrnReflnL()
+        loop_diffrn_refln.items = [item for item, flag in zip(items, flags_measurable) if flag]
+        rcif_diffrn.diffrn_refln = loop_diffrn_refln
+
 
 def simulation_current_experiments(cryspy_object: cryspy.GlobalN):
     """Simulate existing experiments

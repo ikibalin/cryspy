@@ -124,10 +124,10 @@ def calc_vector_product_v1_v2_v1(v1, v2, flag_v1: bool = False, flag_v2: bool = 
     dder = {}
     if flag_v1:
         if v1.dtype == complex:
-            dder["v1_real"] = dder_vv["v1_real"]*numpy.expand_dims(numpy.expand_dims(v2, axis=0), axis=2).sum(axis=1)
-            dder["v1_imag"] = dder_vv["v1_imag"]*numpy.expand_dims(numpy.expand_dims(v2, axis=0), axis=2).sum(axis=1)
+            dder["v1_real"] = (dder_vv["v1_real"]*numpy.expand_dims(numpy.expand_dims(v2, axis=0), axis=2)).sum(axis=1)
+            dder["v1_imag"] = (dder_vv["v1_imag"]*numpy.expand_dims(numpy.expand_dims(v2, axis=0), axis=2)).sum(axis=1)
         else:
-            dder["v1"] = dder_vv["v1"]*numpy.expand_dims(numpy.expand_dims(v2, axis=0), axis=2).sum(axis=1)
+            dder["v1"] = (dder_vv["v1"]*numpy.expand_dims(numpy.expand_dims(v2, axis=0), axis=2)).sum(axis=1)
 
     if flag_v2:
         d_2 = vv*numpy.ones((1, )+ v2.shape, dtype=float)
