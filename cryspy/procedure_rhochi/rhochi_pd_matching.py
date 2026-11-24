@@ -30,6 +30,8 @@ cannot be separated: they get one intensity, shared in proportion to their
 multiplicity (Le Bail equipartition). Reflections without measured points
 get zero intensity.
 """
+from dataclasses import dataclass
+
 import numpy
 import scipy.optimize
 
@@ -42,6 +44,32 @@ from cryspy.A_functions_base.powder_diffraction_const_wavelength import (
 na = numpy.newaxis
 
 MATCHING_MODES = ("off", "refine_intensities", "fixed_intensities")
+
+
+@dataclass
+class MatchingPhase:
+    """Peaks of one phase in the matching mode.
+
+    Attributes
+    ----------
+    column : numpy.ndarray
+        Peaks of unit integrated intensity at the points, shape (n_point, n_hkl).
+    multiplicity : numpy.ndarray
+        Multiplicities of the reflections, shape (n_hkl,).
+    ttheta_hkl : numpy.ndarray
+        2θ of the reflections without the offsets (radians), shape (n_hkl,).
+    dict_in_out_phase : dict
+        Output dictionary of the phase (pd_peak is written from it).
+    iint_plus, iint_minus : numpy.ndarray or None
+        Integrated intensities up and down, shape (n_hkl,): fixed ones from
+        pd_peak or fitted by fit_matching_intensities.
+    """
+    column: numpy.ndarray
+    multiplicity: numpy.ndarray
+    ttheta_hkl: numpy.ndarray
+    dict_in_out_phase: dict
+    iint_plus: numpy.ndarray = None
+    iint_minus: numpy.ndarray = None
 
 
 def take_matching_mode(dict_pd: dict) -> str:
@@ -72,7 +100,7 @@ def calc_matching_phase(
         unit_cell_parameters: numpy.ndarray, wavelength: float,
         ttheta_zs: numpy.ndarray, lorentz_factor: numpy.ndarray,
         resolution_parameters: numpy.ndarray, p_ig: float,
-        asymmetry_parameters: tuple, k: float, cthm: float) -> dict:
+        asymmetry_parameters: tuple, k: float, cthm: float) -> MatchingPhase:
     """Peaks of one phase in the matching mode.
 
     Parameters
@@ -95,22 +123,19 @@ def calc_matching_phase(
 
     Returns
     -------
-    dict
-        "column": peaks of unit integrated intensity, shape (n_point, n_hkl);
-        "multiplicity", "ttheta_hkl" (radians, without the offsets),
-        "dict_in_out_phase"; for "fixed_intensities" also "iint_plus",
-        "iint_minus" (n_hkl,).
+    MatchingPhase
+        Peaks of the phase; the intensities are set for "fixed_intensities".
     """
     # the dictionary of the phase keeps only the matching results (no
     # structure factors of an earlier Rietveld calculation)
     dict_in_out_phase.clear()
-    res = {}
+    iint_plus, iint_minus = None, None
     if matching_mode == "fixed_intensities":
         dict_peaks = take_fixed_peaks(dict_pd, p_name)
         index_hkl = dict_peaks["index_hkl"]
         multiplicity_hkl = dict_peaks["multiplicity"]
-        res["iint_plus"] = dict_peaks["intensity_plus"]
-        res["iint_minus"] = dict_peaks["intensity_minus"]
+        iint_plus = dict_peaks["intensity_plus"]
+        iint_minus = dict_peaks["intensity_minus"]
 
     sthovl_hkl = calc_sthovl_by_unit_cell_parameters(index_hkl, unit_cell_parameters)[0]
     ttheta_hkl = 2 * numpy.arcsin(numpy.clip(sthovl_hkl * wavelength, 0., 1.))
@@ -139,13 +164,12 @@ def calc_matching_phase(
     dict_in_out_phase["multiplicity_hkl"] = multiplicity_hkl
     dict_in_out_phase["ttheta_hkl"] = ttheta_hkl + ttheta_hkl_shift
     dict_in_out_phase["profile_pv"] = profile_pv
-    res.update({
-        "column": column, "multiplicity": multiplicity_hkl, "ttheta_hkl": ttheta_hkl,
-        "dict_in_out_phase": dict_in_out_phase})
-    return res
+    return MatchingPhase(
+        column=column, multiplicity=multiplicity_hkl, ttheta_hkl=ttheta_hkl,
+        dict_in_out_phase=dict_in_out_phase, iint_plus=iint_plus, iint_minus=iint_minus)
 
 
-def group_equal_positions(l_phase: list):
+def group_equal_positions(l_phase: list[MatchingPhase]):
     """Columns of the reflections that cannot be separated merged.
 
     Returns the merged columns (n_point, n_group), the group of every
@@ -154,12 +178,12 @@ def group_equal_positions(l_phase: list):
     """
     l_key = []
     for i_phase, phase in enumerate(l_phase):
-        ttheta_hkl = numpy.round(phase["ttheta_hkl"] / 1e-9)
+        ttheta_hkl = numpy.round(phase.ttheta_hkl / 1e-9)
         l_key.append(numpy.stack([numpy.full(ttheta_hkl.shape, i_phase), ttheta_hkl], axis=1))
     key = numpy.concatenate(l_key, axis=0)
-    column = numpy.concatenate([phase["column"] for phase in l_phase], axis=1)
+    column = numpy.concatenate([phase.column for phase in l_phase], axis=1)
     multiplicity = numpy.concatenate(
-        [numpy.asarray(phase["multiplicity"], dtype=float) for phase in l_phase])
+        [numpy.asarray(phase.multiplicity, dtype=float) for phase in l_phase])
     multiplicity = numpy.where(multiplicity > 0, multiplicity, 1.)
     if key.shape[0] == 0:
         return column, numpy.zeros((0,), dtype=int), multiplicity
@@ -198,15 +222,15 @@ def solve_nonnegative(a: numpy.ndarray, b: numpy.ndarray) -> numpy.ndarray:
 
 
 def fit_matching_intensities(
-        l_phase: list, signal_sum: numpy.ndarray, sigma_sum: numpy.ndarray,
+        l_phase: list[MatchingPhase], signal_sum: numpy.ndarray, sigma_sum: numpy.ndarray,
         in_points: numpy.ndarray, signal_diff: numpy.ndarray = None,
         sigma_diff: numpy.ndarray = None):
     """Integrated intensities >= 0 of the reflections of all phases.
 
     Parameters
     ----------
-    l_phase : list
-        Results of calc_matching_phase for every phase.
+    l_phase : list of MatchingPhase
+        Peaks of every phase (calc_matching_phase).
     signal_sum, sigma_sum : numpy.ndarray
         Measured (up + down) intensity minus the background and its sigma,
         shape (n_point,); None when the sum is not fitted (polarized data
@@ -217,7 +241,7 @@ def fit_matching_intensities(
         Measured up - down intensity and its sigma for polarized data
         (chi2 diff True); then I+ and I- are fitted separately.
 
-    Writes "iint_plus", "iint_minus" (n_hkl,) to every phase of l_phase.
+    Sets iint_plus, iint_minus (n_hkl,) of every phase of l_phase.
     """
     column, index_group, share = group_equal_positions(l_phase)
     l_a, l_b = [], []
@@ -250,21 +274,21 @@ def fit_matching_intensities(
         iint_minus = iint_plus
     i_start = 0
     for phase in l_phase:
-        n_hkl = phase["column"].shape[1]
-        phase["iint_plus"] = iint_plus[i_start:i_start + n_hkl]
-        phase["iint_minus"] = iint_minus[i_start:i_start + n_hkl]
+        n_hkl = phase.column.shape[1]
+        phase.iint_plus = iint_plus[i_start:i_start + n_hkl]
+        phase.iint_minus = iint_minus[i_start:i_start + n_hkl]
         i_start += n_hkl
 
 
-def calc_matching_signal(phase: dict):
+def calc_matching_signal(phase: MatchingPhase):
     """Up and down signals of a phase from its intensities; the intensities
     are written to dict_in_out_phase as in a Rietveld calculation (pd_peak)."""
-    column = phase["column"]
-    signal_plus = column @ phase["iint_plus"]
-    signal_minus = column @ phase["iint_minus"]
-    dict_in_out_phase = phase["dict_in_out_phase"]
-    dict_in_out_phase["iint_plus_with_factors"] = phase["iint_plus"]
-    dict_in_out_phase["iint_minus_with_factors"] = phase["iint_minus"]
+    column = phase.column
+    signal_plus = column @ phase.iint_plus
+    signal_minus = column @ phase.iint_minus
+    dict_in_out_phase = phase.dict_in_out_phase
+    dict_in_out_phase["iint_plus_with_factors"] = phase.iint_plus
+    dict_in_out_phase["iint_minus_with_factors"] = phase.iint_minus
     dict_in_out_phase["signal_plus"] = signal_plus
     dict_in_out_phase["signal_minus"] = signal_minus
     return signal_plus, signal_minus
