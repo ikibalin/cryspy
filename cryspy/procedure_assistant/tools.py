@@ -464,6 +464,16 @@ def tool_refine(cryspy_object, parameters: str = "", *, progress: Optional[Calla
         s_marked = tool_refine_parameters(cryspy_object, parameters)
         if s_marked.startswith("Error"):
             return {"text": s_marked}
+    return run_refinement_with_history(
+        cryspy_object, lambda callback: rhochi_rietveld_refinement(cryspy_object, callback=callback),
+        progress=progress, s_marked=s_marked)
+
+
+def run_refinement_with_history(cryspy_object, run_refinement: Callable, *,
+                                progress: Optional[Callable] = None, s_marked: str = "",
+                                s_title: str = "Refinement finished.") -> dict:
+    """Refinement run_refinement(callback) of the object with a snapshot for
+    undo_refinement and the metrics compared with the previous calculation."""
     history = take_history(cryspy_object)
     d_last = {}  # the last iteration of the minimizer: chi_sq and the number of points
     l_value_before = [(record.path, record.value) for record in take_parameter_records(cryspy_object)
@@ -477,7 +487,7 @@ def tool_refine(cryspy_object, parameters: str = "", *, progress: Optional[Calla
 
     keep_snapshot(cryspy_object)
     try:
-        result = rhochi_rietveld_refinement(cryspy_object, callback=callback)
+        result = run_refinement(callback)
     except Exception:
         history.l_snapshot.pop()  # nothing is changed: nothing to undo
         raise
@@ -494,11 +504,38 @@ def tool_refine(cryspy_object, parameters: str = "", *, progress: Optional[Calla
             "them; set a start value first (set_parameter, e.g. radius 30, mosaicity 60, "
             "moment 1): " + ", ".join(l_stuck[:10]) + "."]
     keep_checkpoint(cryspy_object, d_metrics)
-    s_title = "Refinement stopped by the user." if result.get("stopped", False) else "Refinement finished."
+    if result.get("stopped", False):
+        s_title = "Refinement stopped by the user."
     text = form_calculation_text(s_title, result, cryspy_object, d_metrics)
     if s_marked != "":
         text = f"{s_marked:}\n{text:}"
     return {"text": text, "metrics": d_metrics}
+
+
+def tool_profile_matching(cryspy_object, fixed_intensities: bool = False, *,
+                          progress: Optional[Callable] = None) -> dict:
+    """Profile matching (rhochi_profile_matching) of the powder patterns
+    with the marked parameters; with nothing marked only the intensities
+    are fitted."""
+    from cryspy.procedure_rhochi.rhochi import rhochi_profile_matching
+    if fixed_intensities:
+        s_title = "Profile matching with the fixed intensities of pd_peak finished."
+    else:
+        s_title = "Profile matching finished: the intensities (>= 0) are written to pd_peak."
+    try:
+        result = run_refinement_with_history(
+            cryspy_object,
+            lambda callback: rhochi_profile_matching(
+                cryspy_object, fixed_intensities=fixed_intensities, callback=callback),
+            progress=progress, s_title=s_title)
+    except ValueError as error:
+        return {"text": f"Error: {error:}"}
+    result["text"] += (
+        "\nThe intensities are not calculated from the structure: the misfit tells about "
+        "the peak positions, widths and the background only (ignore the scale and "
+        "intensity findings of diagnose_fit). The tool 'refine' (or 'calculate') "
+        "returns to the Rietveld model.")
+    return result
 
 
 def format_step_value(d_step: dict) -> str:
@@ -1509,6 +1546,17 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         {"parameters": {"type": "string",
                         "description": "Pattern of the parameters to mark first when none "
                                        "is marked (optional)."}},
+        flag_object_changed=True),
+    AssistantTool(
+        "profile_matching",
+        "Profile matching (Le Bail fit) of the powder patterns: the integrated intensities of "
+        "the reflections are fitted (>= 0) instead of being calculated from the structure, "
+        "with the parameters marked for refinement (cell, zero shift, peak width, background), "
+        "and written to pd_peak; with fixed_intensities those of pd_peak are kept and only "
+        "the peak positions and shapes are refined.",
+        tool_profile_matching,
+        {"fixed_intensities": {"type": "boolean", "description":
+                               "Keep the intensities of pd_peak fixed (false by default)."}},
         flag_object_changed=True),
     AssistantTool(
         "refine_one_by_one",

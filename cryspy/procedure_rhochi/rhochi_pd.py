@@ -41,6 +41,9 @@ from .rhochi_texture import calc_texture_sh_for_phase
 from .rhochi_magnetic_broadening import form_y_mag_by_hkl
 from .rhochi_layer_correlation import (
     calc_signal_layer_correlation, calc_in_plane_mask)
+from .rhochi_pd_matching import (
+    take_matching_mode, calc_matching_phase, fit_matching_intensities,
+    calc_matching_signal)
 
 na = numpy.newaxis
 
@@ -145,6 +148,30 @@ def calc_signal_magnetic_k(
             ttheta_zs, unique_pw[:, 0], u, v, w, p_ig, x, y, unique_pw[:, 1],
             p_1, p_2, p_3, p_4, cutoff_fwhm=cutoff_fwhm)[0]
     return p_scale * lorentz_factor * (profile_pv * iint_unique[na, :]).sum(axis=1)
+
+
+def calc_index_hkl_multiplicity_for_phase(
+        dict_crystal: dict, sthovl_min: float, sthovl_max: float,
+        unit_cell_parameters: numpy.ndarray, flag_p1: bool = False):
+    """Reflections of a phase in the range of sin(theta)/lambda (1/Å).
+
+    flag_p1: all reflections of the P1 group (a texture breaks the
+    equivalence of the symmetry-related reflections). Returns index_hkl
+    (3, n_hkl) and multiplicity_hkl (n_hkl,).
+    """
+    flag_only_nuclear = dict_crystal.get('flag_only_nuclear', False)
+    translation_elems_p1 = numpy.array([[0], [0], [0], [1]], dtype=int)
+    if flag_p1:
+        reduced_symm_elems_p1 = numpy.array([[0], [0], [0], [1], [1], [0], [0], [0], [1], [0], [0], [0], [1]], dtype=int)
+        return calc_index_hkl_multiplicity_in_range(
+            sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems_p1, translation_elems_p1, False, flag_only_nuclear=flag_only_nuclear)
+    if "reduced_symm_elems" in dict_crystal.keys():
+        return calc_index_hkl_multiplicity_in_range(
+            sthovl_min, sthovl_max, unit_cell_parameters, dict_crystal["reduced_symm_elems"],
+            dict_crystal["translation_elems"], dict_crystal["centrosymmetry"], flag_only_nuclear=flag_only_nuclear)
+    return calc_index_hkl_multiplicity_in_range(
+        sthovl_min, sthovl_max, unit_cell_parameters, dict_crystal["full_mcif_elems"][:13],
+        translation_elems_p1, False, flag_only_nuclear=flag_only_nuclear)
 
 
 def calc_chi_sq_for_pd_by_dictionary(
@@ -290,6 +317,8 @@ def calc_chi_sq_for_pd_by_dictionary(
 
     total_signal_plus = numpy.zeros_like(ttheta_zs)
     total_signal_minus = numpy.zeros_like(ttheta_zs)
+    matching_mode = take_matching_mode(dict_pd)
+    l_matching_phase = []
     for (
         p_name,
         p_scale,
@@ -332,12 +361,6 @@ def calc_chi_sq_for_pd_by_dictionary(
         dict_in_out_phase_keys = dict_in_out_phase.keys()
         dict_crystal_keys = dict_crystal.keys()
 
-        if "reduced_symm_elems" in dict_crystal_keys:
-            reduced_symm_elems = dict_crystal["reduced_symm_elems"]
-            translation_elems = dict_crystal["translation_elems"]
-        elif "full_mcif_elems" in dict_crystal_keys:
-            full_mcif_elems = dict_crystal["full_mcif_elems"]
-
         unit_cell_parameters = dict_crystal["unit_cell_parameters"]
         flags_unit_cell_parameters = dict_crystal["flags_unit_cell_parameters"]
         flag_unit_cell_parameters = numpy.any(flags_unit_cell_parameters)
@@ -349,6 +372,20 @@ def calc_chi_sq_for_pd_by_dictionary(
                 numpy.dot(sc_uc, unit_cell_parameters) + v_uc
             )
 
+        if matching_mode != "off":
+            # matching mode: free (or fixed) integrated intensities instead
+            # of the structure factors
+            index_hkl, multiplicity_hkl = None, None
+            if matching_mode == "refine_intensities":
+                index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_for_phase(
+                    dict_crystal, sthovl_min, sthovl_max, unit_cell_parameters)
+            l_matching_phase.append(calc_matching_phase(
+                matching_mode, dict_pd, dict_in_out_phase, p_name, index_hkl,
+                multiplicity_hkl, unit_cell_parameters, wavelength, ttheta_zs,
+                lorentz_factor, resolution_parameters + p_resolution, p_ig,
+                (p_1, p_2, p_3, p_4), k, cthm))
+            continue
+
         if (
             flag_use_precalculated_data
             and ("index_hkl" in dict_in_out_phase_keys)
@@ -358,21 +395,9 @@ def calc_chi_sq_for_pd_by_dictionary(
             index_hkl = dict_in_out_phase["index_hkl"]
             multiplicity_hkl = dict_in_out_phase["multiplicity_hkl"]
         else:
-            flag_only_nuclear = dict_crystal.get('flag_only_nuclear', False)
-            if flag_phase_texture:
-                reduced_symm_elems_p1 = numpy.array([[0], [0], [0], [1], [1], [0], [0], [0], [1], [0], [0], [0], [1]], dtype=int)
-                translation_elems_p1 = numpy.array([[0], [0], [0], [1]], dtype=int)
-                index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
-                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems_p1, translation_elems_p1, False, flag_only_nuclear=flag_only_nuclear)
-            else:
-                if "reduced_symm_elems" in dict_crystal_keys:
-                    centrosymmetry = dict_crystal["centrosymmetry"]
-                    index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
-                        sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems, translation_elems, centrosymmetry, flag_only_nuclear=flag_only_nuclear)
-                else:
-                    translation_elems_p1 = numpy.array([[0], [0], [0], [1]], dtype=int)
-                    index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
-                        sthovl_min, sthovl_max, unit_cell_parameters, full_mcif_elems[:13], translation_elems_p1, False, flag_only_nuclear=flag_only_nuclear)
+            index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_for_phase(
+                dict_crystal, sthovl_min, sthovl_max, unit_cell_parameters,
+                flag_p1=flag_phase_texture)
 
             if (("index_hkl" in dict_in_out_phase_keys) and flag_use_precalculated_data):
                 if index_hkl.shape != dict_in_out_phase["index_hkl"].shape:
@@ -765,10 +790,6 @@ def calc_chi_sq_for_pd_by_dictionary(
         total_signal_plus += signal_plus
         total_signal_minus += signal_minus
 
-    if flag_dict:
-        dict_in_out["signal_plus"] = total_signal_plus
-        dict_in_out["signal_minus"] = total_signal_minus
-
     if ("signal_exp_plus" in dict_pd_keys) and (
         "signal_exp_minus" in dict_pd_keys
     ):
@@ -800,10 +821,31 @@ def calc_chi_sq_for_pd_by_dictionary(
         flag_chi_sq_sum = True
         flag_chi_sq_difference = False
 
+    in_points = numpy.logical_not(excluded_points)
+    if matching_mode == "refine_intensities":
+        signal_net_sum, sigma_sum, signal_diff, sigma_diff = None, None, None, None
+        if flag_chi_sq_sum:
+            signal_net_sum = signal_exp - signal_background
+            sigma_sum = signal_sigma
+        if flag_chi_sq_difference:
+            signal_diff = signal_exp_plus[0, :] - signal_exp_minus[0, :]
+            sigma_diff = numpy.sqrt(numpy.square(signal_exp_plus[1, :])
+                                    + numpy.square(signal_exp_minus[1, :]))
+        fit_matching_intensities(
+            l_matching_phase, signal_net_sum, sigma_sum, in_points,
+            signal_diff=signal_diff, sigma_diff=sigma_diff)
+    for matching_phase in l_matching_phase:
+        signal_plus, signal_minus = calc_matching_signal(matching_phase)
+        total_signal_plus += signal_plus
+        total_signal_minus += signal_minus
+
+    if flag_dict:
+        dict_in_out["signal_plus"] = total_signal_plus
+        dict_in_out["signal_minus"] = total_signal_minus
+
     chi_sq = 0.0
     n_point = 0
     if flag_chi_sq_sum:
-        in_points = numpy.logical_not(excluded_points)
         total_signal_sum = (
             total_signal_plus + total_signal_minus + signal_background
         )

@@ -289,6 +289,33 @@ class Pd(DataN):
 
         return ddict
 
+    def get_matching_peaks(self) -> dict:
+        """Reflections and integrated intensities of the loops pd_peak (one
+        per phase, keys are the phase labels in lower case) for the profile
+        matching with fixed intensities (rhochi_profile_matching)."""
+        d_peaks = {}
+        l_phase_label = [item.label.lower() for item in self.phase.items]
+        for item in self.items:
+            if not (isinstance(item, PdPeakL) and item.loop_name is not None
+                    and item.loop_name.lower() in l_phase_label):
+                continue
+            if not (item.is_attribute("intensity_plus") and item.is_attribute("intensity_minus")):
+                raise ValueError(
+                    f"Profile matching with fixed intensities: the loop pd_peak of the phase "
+                    f"'{item.loop_name:}' needs the columns intensity_plus and intensity_minus.")
+            index_hkl = numpy.array(
+                [item.index_h, item.index_k, item.index_l], dtype=int).reshape(3, -1)
+            if item.is_attribute("index_mult"):
+                multiplicity = numpy.array(item.index_mult, dtype=int)
+            else:
+                multiplicity = numpy.ones(index_hkl.shape[1], dtype=int)
+            d_peaks[item.loop_name.lower()] = {
+                "index_hkl": index_hkl,
+                "multiplicity": multiplicity,
+                "intensity_plus": numpy.array(item.intensity_plus, dtype=float),
+                "intensity_minus": numpy.array(item.intensity_minus, dtype=float)}
+        return d_peaks
+
     def take_parameters_from_dictionary(
         self, ddict_diffrn, l_parameter_name: list = None, l_sigma: list = None
     ):

@@ -287,6 +287,7 @@ from cryspy.procedure_rhochi.rhochi_layer_correlation import (
 from cryspy.procedure_rhochi.rhochi import (
     rhochi_rietveld_refinement,
     rhochi_rietveld_refinement_with_parameters,
+    rhochi_profile_matching,
     rhochi_no_refinement,
     rhochi_inversed_hessian,
     report_refined_parameters,
@@ -518,6 +519,7 @@ L_FUNCTION = [
     report_layer_correlation,
     rhochi_rietveld_refinement,
     rhochi_rietveld_refinement_with_parameters,
+    rhochi_profile_matching,
     rhochi_no_refinement,
     rhochi_inversed_hessian,
     mempy_nuclear_density_reconstruction,

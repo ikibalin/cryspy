@@ -28,3 +28,6 @@ A constant wavelength 1d powder experiment is a `pd` data block:
 `pd2d` is the 2d version for polarized neutrons (`gamma_nu_...` data),
 `tof` is a time-of-flight pattern with `tof_parameters` (zero, dtt1, ...),
 `tof_profile` and `tof_background`.
+
+Profile matching (Le Bail fit, free or fixed integrated intensities of
+`pd_peak`) is the procedure `rhochi_profile_matching`, see its help page.
