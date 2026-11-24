@@ -472,15 +472,20 @@ def delete_user_recipe(name: str) -> bool:
     return True
 
 
+# tools refining the marked parameters
+REFINING_TOOLS = ("refine", "profile_matching")
+
+
 def find_recipe_advice(recipe: Recipe) -> List[str]:
     """Remarks on a correct recipe that are not errors: what a recipe
     written from the words of the user often misses."""
     l_advice = []
     for ind, step in enumerate(recipe.steps):
         l_name = [name for name, _ in step.actions]
-        if "refine_parameters" in l_name and "refine" not in l_name[l_name.index("refine_parameters"):]:
+        if "refine_parameters" in l_name and not set(REFINING_TOOLS) & set(
+                l_name[l_name.index("refine_parameters"):]):
             l_later = [name for later in recipe.steps[ind + 1:] for name, _ in later.actions]
-            if "refine" not in l_later:
+            if not set(REFINING_TOOLS) & set(l_later):
                 l_advice.append(f"step {step.name:} marks parameters for refinement, but no step "
                                 "refines them (refine)")
         if len(step.actions) == 0 and step.success == S_SUCCESS:
@@ -657,7 +662,7 @@ def run_recipe_steps(cryspy_object, recipe: Recipe, l_step: list, l_metrics: lis
                 break
             if "chi_sq_per_n" in result["metrics"]:
                 l_metrics.append(result["metrics"])
-            if result["metrics"].get("warnings") and action == "refine":
+            if result["metrics"].get("warnings") and action in REFINING_TOOLS:
                 status = "undone" if "undo_refinement" in step.on_fail else "failed"
                 if status == "undone":
                     result = call_assistant_tool(cryspy_object, "undo_refinement")

@@ -1,6 +1,9 @@
-"""Matching mode of a 1D constant-wavelength powder pattern.
+"""Profile matching of a 1D constant-wavelength powder pattern.
 
-In the matching mode the integrated intensities of the reflections are not
+The procedure rhochi_profile_matching sets ``matching_mode`` in the
+dictionary of every pd experiment ("refine_intensities" or
+"fixed_intensities", with ``matching_peaks`` from pd_peak). In the
+matching mode the integrated intensities of the reflections are not
 calculated from the crystal structure: the pattern is the sum of the peaks of
 all reflections of every phase with free integrated intensities
 
@@ -56,9 +59,9 @@ def take_fixed_peaks(dict_pd: dict, p_name: str) -> dict:
     dict_peaks = dict_pd.get("matching_peaks", {}).get(p_name)
     if dict_peaks is None:
         raise ValueError(
-            f"Matching mode 'fixed_intensities': the experiment '{dict_pd['name']:}' "
+            f"Profile matching with fixed intensities: the experiment '{dict_pd['name']:}' "
             f"has no loop pd_peak with intensities for the phase '{p_name:}'. "
-            "Run the matching mode 'refine_intensities' (or a calculation) first, "
+            "Run a calculation or the profile matching with free intensities first: "
             "it writes the loop.")
     return dict_peaks
 
@@ -226,11 +229,11 @@ def fit_matching_intensities(
         l_a.append(numpy.concatenate([a_sum, a_sum], axis=1) if flag_diff else a_sum)
         l_b.append(signal_sum[rows] / sigma_sum[rows])
     elif not flag_diff:
-        raise ValueError("Matching mode: nothing to fit (chi2 sum and diff are False).")
+        raise ValueError("Profile matching: nothing to fit (chi2 sum and diff are False).")
     if flag_diff:
         if signal_sum is None:
             raise ValueError(
-                "Matching mode 'refine_intensities' needs the sum of the polarized "
+                "Profile matching needs the sum of the polarized "
                 "pattern (chi2 sum True): the difference alone does not define "
                 "the intensities.")
         rows = sigma_diff > 0

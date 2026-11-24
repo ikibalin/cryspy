@@ -74,13 +74,7 @@ def rhochi_rietveld_refinement(cryspy_object: cryspy.GlobalN, *, callback=None) 
     # check object
     rhochi_check_items(cryspy_object)
 
-    method = "BFGS"
-
-    dict_out = rhochi_rietveld_refinement_with_parameters(
-        cryspy_object,
-        optimization_method=method, callback=callback)
-
-    return dict_out
+    return refine_by_rhochi(cryspy_object, callback=callback)
 
 
 def update_restraint_differences(cryspy_object) -> None:
@@ -91,6 +85,50 @@ def update_restraint_differences(cryspy_object) -> None:
                 item.is_attribute(name) for name in
                 ("restr_distance", "restr_angle", "restr_torsion")):
             item.update_restraints()
+
+
+def rhochi_profile_matching(
+        cryspy_object: cryspy.GlobalN, fixed_intensities: bool = False, *,
+        callback=None) -> dict:
+    """Run profile matching (Le Bail fit) of the powder patterns by RhoChi procedure.
+
+    The integrated intensities of the reflections of the 1D powder patterns
+    (pd) are not calculated from the crystal structure. Without fixed
+    intensities they are fitted to the pattern (>= 0; up and down
+    separately for polarized neutrons) at every step, together with the
+    parameters marked for refinement (cell, zero shift, peak width and
+    asymmetry, background), and written to the loop pd_peak of every
+    phase; with nothing marked only the intensities are fitted. With fixed
+    intensities those of pd_peak are kept and the marked parameters of the
+    peak positions and shapes are refined. The atoms and the scale factors
+    of the phases are not used. Other experiments are refined as usual.
+
+    callback (keyword-only, optional): see rhochi_rietveld_refinement.
+
+    Parameters
+    ----------
+    cryspy_object : GlobalN
+        The object with the crystals and the experiments.
+    fixed_intensities : bool
+        Keep the integrated intensities of pd_peak fixed (refine only the peak positions and shapes).
+    """
+    rhochi_check_items(cryspy_object)
+    matching_mode = "fixed_intensities" if fixed_intensities else "refine_intensities"
+    l_pd = [item for item in cryspy_object.items if isinstance(item, cryspy.Pd)]
+    if len(l_pd) == 0:
+        raise ValueError("Profile matching needs a 1D powder experiment (pd).")
+
+    def prepare_dictionary(obj_dict: dict):
+        for experiment in l_pd:
+            dict_pd = obj_dict[experiment.get_name()]
+            dict_pd["matching_mode"] = matching_mode
+            if fixed_intensities:
+                dict_pd["matching_peaks"] = experiment.get_matching_peaks()
+
+    if len(cryspy_object.get_variable_names()) == 0:
+        return calculate_by_rhochi(cryspy_object, prepare_dictionary=prepare_dictionary)
+    return refine_by_rhochi(
+        cryspy_object, callback=callback, prepare_dictionary=prepare_dictionary)
 
 
 def rhochi_rietveld_refinement_with_parameters(
@@ -109,11 +147,28 @@ def rhochi_rietveld_refinement_with_parameters(
         scipy.optimize.minimize
         (https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html).
     """
+    return refine_by_rhochi(
+        cryspy_object, optimization_method=optimization_method, callback=callback)
+
+
+def refine_by_rhochi(
+        cryspy_object: cryspy.GlobalN, optimization_method: str = "BFGS", *,
+        callback=None, prepare_dictionary=None) -> dict:
+    """Refinement of the marked parameters of the object by RhoChi, common to
+    the procedures (rhochi_rietveld_refinement, rhochi_profile_matching).
+
+    callback: see rhochi_rietveld_refinement. prepare_dictionary is called
+    with the dictionary of the object before the refinement and before the
+    estimation of the errors (rhochi_profile_matching sets the matching
+    mode of the powder experiments in it).
+    """
 
     # check object
     rhochi_check_items(cryspy_object)
 
     obj_dict = cryspy_object.get_dictionary()
+    if prepare_dictionary is not None:
+        prepare_dictionary(obj_dict)
     flag_scipy_refinements = True
     flag_stopped = False
     if flag_scipy_refinements:
@@ -166,7 +221,7 @@ def rhochi_rietveld_refinement_with_parameters(
         log_refined_parameters(cryspy_object)
         return dict_out
     logger.info("Errors are estimating by numerical derivatives.")
-    rhochi_inversed_hessian(cryspy_object)
+    estimate_inversed_hessian_by_rhochi(cryspy_object, prepare_dictionary=prepare_dictionary)
     log_refined_parameters(cryspy_object)
     return dict_out
 
@@ -206,10 +261,19 @@ def log_refined_parameters(cryspy_object: GlobalN):
 def rhochi_no_refinement(cryspy_object: cryspy.GlobalN) -> dict:
     """Run calculations by RhoChi procedure.
     """
+    return calculate_by_rhochi(cryspy_object)
+
+
+def calculate_by_rhochi(cryspy_object: cryspy.GlobalN, *, prepare_dictionary=None) -> dict:
+    """Calculation of the object by RhoChi without refinement, common to the
+    procedures (rhochi_no_refinement, rhochi_profile_matching);
+    prepare_dictionary: see refine_by_rhochi."""
     flag_calc_analytical_derivatives = False
     flag_use_precalculated_data = False
 
     obj_dict = cryspy_object.get_dictionary()
+    if prepare_dictionary is not None:
+        prepare_dictionary(obj_dict)
     dict_in_out = {}
 
     chi_sq, n_point, der_chi_sq, dder_chi_sq, parameter_names = rhochi_calc_chi_sq_by_dictionary(
@@ -267,6 +331,12 @@ def form_hessian_labels(parameter_names, parameter_paths: dict = None) -> list:
 
 def rhochi_inversed_hessian(global_object: GlobalN):
     """Estimate inversed Hessian matrix."""
+    return estimate_inversed_hessian_by_rhochi(global_object)
+
+
+def estimate_inversed_hessian_by_rhochi(global_object: GlobalN, *, prepare_dictionary=None):
+    """Inversed Hessian matrix by numerical derivatives, common to the
+    procedures; prepare_dictionary: see refine_by_rhochi."""
     if global_object.is_attribute("inversed_hessian"):
         global_object.items.remove(global_object.inversed_hessian)
 
@@ -276,6 +346,9 @@ def rhochi_inversed_hessian(global_object: GlobalN):
     flag_use_precalculated_data = False
 
     obj_dict = global_object.get_dictionary()
+    if prepare_dictionary is not None:
+        prepare_dictionary(global_dict)
+        prepare_dictionary(obj_dict)
     dict_in_out = {}
     # paths are found before the values in global_dict are changed
     d_path = take_dict_paths(global_object, global_dict)

@@ -1,27 +1,25 @@
 # Profile matching (Le Bail / Pawley fit with intensities >= 0) of a 1D powder pattern: the
-# integrated intensities are fitted at every calculation, so the cell, the zero shift, the
-# peak shape and the background are refined without a structure model (FullProf Jbt=2).
+# integrated intensities are fitted at every step, so the cell, the zero shift, the peak shape
+# and the background are refined without a structure model (FullProf Jbt=2).
 Recipe profile_matching: Profile matching (Le Bail fit) of a powder pattern with free integrated intensities
 Requests: profile matching, Le Bail fit, Pawley fit, matching mode, fit the intensities of the reflections, refine the cell without a structure, integrated intensities of the powder peaks, extract intensities from the powder pattern
-For: powder_1d, matching
+For: any
 
-1. start: Fix all, switch the matching mode on and read the misfit; the atoms and the scale factor are not used.
-   Actions: fix_parameters; call_method {"method": "switch_matching_mode", "mode": "refine_intensities"}; calculate; diagnose_fit
+1. start: Fix all and fit only the intensities at the present cell and peak shape; the atoms and the scale factor are not used.
+   Actions: fix_parameters; profile_matching
    Success: chi_sq/n is a number.
    Otherwise: Stop and explain the error.
 2. zero: Zero shift alone (never with offset_sycos or offset_sysin).
-   Actions: refine_parameters {"pattern": "offset_ttheta"}; refine
+   Actions: refine_parameters {"pattern": "offset_ttheta"}; profile_matching
    Otherwise: undo_refinement
 3. cell: Unit cell parameters with the zero shift.
-   Actions: refine_parameters {"pattern": "unit cell"}; refine
+   Actions: refine_parameters {"pattern": "unit cell"}; profile_matching
    Otherwise: undo_refinement
-4. width: Peak width: W, then U and V, then the asymmetry.
-   Actions: refine_parameters {"pattern": "pd_instr_resolution.w"}; refine; refine_parameters {"pattern": "pd_instr_resolution.u, pd_instr_resolution.v"}; refine
+4. width: Peak width: W, then U and V.
+   Actions: refine_parameters {"pattern": "pd_instr_resolution.w"}; profile_matching; refine_parameters {"pattern": "pd_instr_resolution.u, pd_instr_resolution.v"}; profile_matching
    Otherwise: undo_refinement (U, V, W correlate strongly) and keep W only.
 5. background: Intensities of the background points (broad free peaks and the background correlate: refine it last).
-   Actions: refine_parameters {"pattern": "pd_background"}; refine
+   Actions: refine_parameters {"pattern": "pd_background"}; profile_matching
    Otherwise: undo_refinement
-6. check: What is still wrong.
-   Actions: diagnose_fit
 
-Final answer: chi_sq/n at the start and at the end, the refined cell, zero shift and widths with their errors; the fitted integrated intensities are in the loop pd_peak of every phase (intensity_plus + intensity_minus). Say that the Rietveld refinement is switched on again by call_method switch_matching_mode with mode off.
+Final answer: chi_sq/n at the start and at the end, the refined cell, zero shift and widths with their errors; the fitted integrated intensities are in the loop pd_peak of every phase (intensity_plus + intensity_minus). The tool refine returns to the Rietveld refinement.
