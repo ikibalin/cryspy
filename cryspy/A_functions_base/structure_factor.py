@@ -105,7 +105,7 @@ def calc_f_m_perp_by_sft(
             * numpy.expand_dims(dder_f_m["magnetic_field"].imag, axis=0)
         ).sum(axis=1)
     if flag_eq_ccs:
-        dder["eq_ccs"] = dder_f_m_perp["eq_css"]
+        dder["eq_ccs"] = dder_f_m_perp["eq_ccs"]
     return f_m_perp, dder
 
 

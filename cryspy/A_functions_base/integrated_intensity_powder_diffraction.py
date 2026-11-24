@@ -417,7 +417,7 @@ def calc_powder_iint_1d_mix(f_nucl, f_m_perp, tensor_sigma, polarization, flippe
         dder_plus["polarization"] = dder_plus_para["polarization"] + magnetic_field * m_2 * numpy.ones_like(polarization)
         dder_minus["polarization"] = dder_minus_para["polarization"] + magnetic_field * m_2 * (2.*flipper-1.)* numpy.ones_like(polarization)
     if flag_flipper:
-        dder_minus["flipper"] = dder_minus_para["flippe"] + magnetic_field * m_2 * 2*polarization* numpy.ones_like(flipper)
+        dder_minus["flipper"] = dder_minus_para["flipper"] + magnetic_field * m_2 * 2*polarization* numpy.ones_like(flipper)
     if flag_magnetic_field:
         dder_plus["magnetic_field"] = dder_plus_para["magnetic_field"] + p_u* m_2 * numpy.ones_like(magnetic_field)
         dder_minus["magnetic_field"] = dder_minus_para["magnetic_field"] + p_d* m_2 * numpy.ones_like(magnetic_field)
