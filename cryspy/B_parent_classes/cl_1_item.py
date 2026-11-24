@@ -539,8 +539,12 @@ class ItemN(object):
             self.set_variable_by_name(name_ref, False)
 
     def refine_all_variables(self):
-        """Fix variables."""
+        """Mark all defined parameters without constraints for refinement."""
         for name in self.ATTR_REF:
+            # an undefined attribute (u_iso_or_equiv when b_iso_or_equiv is
+            # given) is not a parameter of the model
+            if not self.is_attribute(name):
+                continue
             name_constr = f"{name:}_constraint"
             constr = getattr(self, name_constr)
             if not(constr):

@@ -240,18 +240,22 @@ class LoopN(object):
             #       cif_loop.prefix.lower().startswith("_" + prefix.lower()))
             # if ("_" + prefix.lower()) == cif_loop.prefix.lower():
             if (cif_loop.prefix.lower().startswith("_" + prefix.lower())):
-                prefix = f"_{prefix:}"
-                # prefix = cif_loop.prefix
                 l_name = cif_loop.names
                 loop_name = cif_loop.name
-                l_name_short = [_[(len(prefix) + 1):] for _ in l_name]
+                l_name_short = [_[(len(prefix) + 2):] for _ in l_name]
+                l_name_short_obj = [
+                    l_attr[l_cif_attr.index(_.lower())] if _.lower() in l_cif_attr else _.lower()
+                    for _ in l_name_short]
+                if not any(_.strip("_").strip(".") in l_attr for _ in l_name_short_obj):
+                    # a loop of another category with a longer name (for
+                    # example atom_site_aniso for atom_site): not this loop
+                    continue
 
-                if obj is None:
-                    obj = cls(loop_name=loop_name)
+                obj = cls(loop_name=loop_name)
                 _i = 0
                 for _name, _name_short in zip(l_name, l_name_short):
                     if _name_short.lower() in l_cif_attr:
-                        _name_short_obj = l_attr[l_cif_attr.index(_name_short)]
+                        _name_short_obj = l_attr[l_cif_attr.index(_name_short.lower())]
                     else:
                         _name_short_obj = _name_short.lower()
 
