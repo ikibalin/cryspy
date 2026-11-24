@@ -46,7 +46,7 @@ def report_powder_experiment(experiment: DataN) -> str:
             dict_signal, flag_sum=flag_sum, flag_diff=flag_diff)
         if s_report != "":
             ls_out.append(s_report)
-    for name in ("pd_matching", "phase", "refine_ls"):
+    for name in ("phase", "refine_ls"):
         if experiment.is_attribute(name):
             s_report = getattr(experiment, name).report()
             if s_report != "":

@@ -33,8 +33,7 @@ from cryspy.E_data_classes.cl_2_pd2d import Pd2d
 from cryspy.E_data_classes.cl_2_tof import TOF
 
 KINDS = ("single_crystal", "powder", "powder_1d", "powder_2d", "tof",
-         "polarized", "unpolarized", "flip_ratio", "nuclear", "magnetic", "satellites",
-         "matching")
+         "polarized", "unpolarized", "flip_ratio", "nuclear", "magnetic", "satellites")
 FLIP_RATIO_TOLERANCE = 1e-6  # |FR_calc - 1| below it: no magnetic scattering
 CHI_START = 0.1  # mu_B/T, a start value of a new susceptibility: zero gives no derivative step
 # start values of chi_11 (mu_B/T) tried for new magnetic atoms: the flip ratios
@@ -106,9 +105,6 @@ def take_experiment_kinds(cryspy_object, experiment: DataN) -> List[str]:
         if isinstance(experiment, Pd):
             l_kind.extend(["powder", "powder_1d"])
             s_meas = "pd_meas"
-            # matching mode: the intensities are not calculated from the structure
-            if experiment.is_attribute("pd_matching") and experiment.pd_matching.mode != "off":
-                l_kind.append("matching")
         elif isinstance(experiment, Pd2d):
             l_kind.extend(["powder", "powder_2d"])
             s_meas = "pd2d_meas"
