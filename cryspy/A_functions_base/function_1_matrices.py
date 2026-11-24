@@ -21,11 +21,13 @@ Functions
     - scalar_product
     - calc_rotation_matrix_by_two_vectors
     - tri_linear_interpolation
+    - calc_bilinear_interpolation_on_grid
     - ortogonalize_matrix
     - calc_moment_2d_by_susceptibility
     - calc_phase_3d
 """
 import numpy
+import scipy.interpolate
 from fractions import Fraction
 from typing import Tuple
 
@@ -563,6 +565,50 @@ def tri_linear_interpolation(ind_xyz, den_3d):
     c = c0*(1.-zd) + c1*zd
 
     return c
+
+
+def calc_bilinear_interpolation_on_grid(
+        x_grid: numpy.ndarray, y_grid: numpy.ndarray, z_grid: numpy.ndarray,
+        x: numpy.ndarray, y: numpy.ndarray) -> numpy.ndarray:
+    """Bilinear interpolation of values given on a rectangular grid.
+
+    Replaces ``scipy.interpolate.interp2d`` (removed in scipy 1.14) for the
+    2D powder background and the offsets of 2D powder patterns. Outside the
+    grid the value of the nearest edge is taken, as in the background of the
+    RhoChi refinement (rhochi_pd2d.calc_background).
+
+    Parameters
+    ----------
+    x_grid, y_grid : numpy.ndarray
+        Grid points along x and y, shapes (n_x_grid,) and (n_y_grid,), any order.
+    z_grid : numpy.ndarray
+        Values on the grid, shape (n_x_grid, n_y_grid).
+    x, y : numpy.ndarray
+        Points along x and y, shapes (n_x,) and (n_y,), the same units as the grid.
+
+    Returns
+    -------
+    numpy.ndarray
+        Values at the points (x_i, y_j), shape (n_x, n_y).
+    """
+    x_grid = numpy.asarray(x_grid, dtype=float)
+    y_grid = numpy.asarray(y_grid, dtype=float)
+    z_grid = numpy.asarray(z_grid, dtype=float)
+    order_x, order_y = numpy.argsort(x_grid), numpy.argsort(y_grid)
+    x_grid, y_grid = x_grid[order_x], y_grid[order_y]
+    z_grid = z_grid[order_x][:, order_y]
+    x_2d, y_2d = numpy.meshgrid(
+        numpy.clip(x, x_grid[0], x_grid[-1]), numpy.clip(y, y_grid[0], y_grid[-1]),
+        indexing="ij")
+    if x_grid.size == 1 or y_grid.size == 1:
+        # one grid line: linear interpolation along the other axis only
+        if x_grid.size == 1 and y_grid.size == 1:
+            return numpy.full(x_2d.shape, z_grid[0, 0])
+        if x_grid.size == 1:
+            return numpy.interp(y_2d, y_grid, z_grid[0, :])
+        return numpy.interp(x_2d, x_grid, z_grid[:, 0])
+    func = scipy.interpolate.RegularGridInterpolator((x_grid, y_grid), z_grid, method="linear")
+    return func(numpy.stack([x_2d, y_2d], axis=-1))
 
 
 def ortogonalize_matrix(m_ij, m_norm_ij):

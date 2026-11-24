@@ -1,9 +1,8 @@
 """Pd2dBackground class."""
 import numpy
-import scipy
-import scipy.interpolate
 from typing import NoReturn, Union
 
+from cryspy.A_functions_base.function_1_matrices import calc_bilinear_interpolation_on_grid
 from cryspy.A_functions_base.function_1_strings import \
     string_to_value_error_mark, value_error_mark_to_string
 
@@ -230,20 +229,11 @@ class Pd2dBackground(ItemN):
         """Interpolate by points."""
         l_phi_b = self.nu
         l_tth_b = self.gamma
-        ll_int_b = self.intensity
-        ll_int_b = [[float(ll_int_b[_2][_1]) for _2 in range(len(ll_int_b))]
-                    for _1 in range(len(ll_int_b[0]))]
         if len(l_tth_b) == 0:
-            int_2d = numpy.zeros((tth.size, phi.size), dtype=float)
-        else:
-            phi_b = numpy.array(l_phi_b, dtype=float)
-            tth_b = numpy.array(l_tth_b, dtype=float)
-            int_b = numpy.array(ll_int_b, dtype=float)
-            func = scipy.interpolate.interp2d(tth_b, phi_b, int_b)
-            # tth_2d, phi_2d = numpy.meshgrid(tth, phi, indexing="ij")
-            int_2d = func(tth, phi)
-            int_2d = int_2d.transpose()
-        return int_2d
+            return numpy.zeros((tth.size, phi.size), dtype=float)
+        # intensity: shape (n_gamma, n_nu)
+        return calc_bilinear_interpolation_on_grid(
+            l_tth_b, l_phi_b, numpy.array(self.intensity, dtype=float), tth, phi)
 
     def is_variables(self):
         """

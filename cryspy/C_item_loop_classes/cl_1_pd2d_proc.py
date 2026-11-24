@@ -1,7 +1,7 @@
 from typing import NoReturn
 import numpy
 import scipy
-from scipy.interpolate import interp2d
+from cryspy.A_functions_base.function_1_matrices import calc_bilinear_interpolation_on_grid
 
 from cryspy.A_functions_base.function_1_agreement_factors import calc_chi_sq_by_signal
 from cryspy.A_functions_base.optional_import import optional_module
@@ -608,15 +608,15 @@ class Pd2dProc(ItemN):
         def calc_chi_sq(param):
             offset_gamma = param[0]
             offset_nu = param[1]
-            f_sum = interp2d(gamma, nu, signal_sum.transpose(), kind="linear")
-            model_sum = f_sum(gamma-offset_gamma, nu-offset_nu).transpose()
+            model_sum = calc_bilinear_interpolation_on_grid(
+                gamma, nu, signal_sum, gamma-offset_gamma, nu-offset_nu)
             chi_sq_sum = calc_chi_sq_by_signal(
                 signal_exp_sum, signal_exp_sum_sigma, model_sum,
                 included_points=included_points, flag_skip_nan=True)[0]
             
             if flag_polarized:
-                f_difference = interp2d(gamma, nu, signal_difference.transpose(), kind="linear")
-                model_difference = f_difference(gamma-offset_gamma, nu-offset_nu).transpose()
+                model_difference = calc_bilinear_interpolation_on_grid(
+                    gamma, nu, signal_difference, gamma-offset_gamma, nu-offset_nu)
                 chi_sq_difference = calc_chi_sq_by_signal(
                     signal_exp_difference, signal_exp_sum_sigma, model_difference,
                     flag_skip_nan=True)[0]
