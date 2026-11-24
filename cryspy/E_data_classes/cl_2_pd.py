@@ -34,6 +34,7 @@ from cryspy.C_item_loop_classes.cl_1_pd_meas import PdMeasL
 from cryspy.C_item_loop_classes.cl_1_pd_proc import PdProcL
 from cryspy.C_item_loop_classes.cl_1_pd_peak import PdPeakL
 from cryspy.C_item_loop_classes.cl_1_pd_peak_magnetic_k import PdPeakMagneticKL
+from cryspy.C_item_loop_classes.cl_1_pd_matching import PdMatching, MATCHING_MODES
 from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_range import Range
 from cryspy.C_item_loop_classes.cl_1_texture import TextureL
@@ -111,7 +112,8 @@ class Pd(DataN):
         - setup, pd_instr_resolution, phase, pd_background, pd_meas (mandatory)
         - diffrn_radiation, chi2, range, extinction, pd_instr_reflex_asymmetry
           texture, texture_sh, texture_sh_coefficient, sample_goniometer,
-          magnetic_broadening, layer_correlation, exclude, pd_proc, pd_peak, refine_ls,
+          magnetic_broadening, layer_correlation, exclude, pd_proc, pd_peak,
+          pd_matching, refine_ls,
           refln_#phase_name
           refln_susceptibility_#phase_name (optional)
     """
@@ -139,6 +141,7 @@ class Pd(DataN):
         PdProcL,
         PdPeakL,
         PdPeakMagneticKL,
+        PdMatching,
         RefineLs,
         ReflnL,
         ReflnSusceptibilityL,
@@ -287,7 +290,73 @@ class Pd(DataN):
                     flag_exclude = numpy.logical_or(flag_exclude, flag_in_1)
             ddict["excluded_points"] = flag_exclude
 
+        if ddict.get("matching_mode", "off") == "fixed_intensities":
+            ddict["matching_peaks"] = self.get_matching_peaks()
         return ddict
+
+    def get_matching_peaks(self) -> dict:
+        """Reflections and integrated intensities of the loops pd_peak (one
+        per phase, keys are the phase labels in lower case) for the matching
+        mode 'fixed_intensities'."""
+        d_peaks = {}
+        l_phase_label = [item.label.lower() for item in self.phase.items]
+        for item in self.items:
+            if not (isinstance(item, PdPeakL) and item.loop_name is not None
+                    and item.loop_name.lower() in l_phase_label):
+                continue
+            if not (item.is_attribute("intensity_plus") and item.is_attribute("intensity_minus")):
+                raise ValueError(
+                    f"Matching mode 'fixed_intensities': the loop pd_peak of the phase "
+                    f"'{item.loop_name:}' needs the columns intensity_plus and intensity_minus.")
+            index_hkl = numpy.array(
+                [item.index_h, item.index_k, item.index_l], dtype=int).reshape(3, -1)
+            if item.is_attribute("index_mult"):
+                multiplicity = numpy.array(item.index_mult, dtype=int)
+            else:
+                multiplicity = numpy.ones(index_hkl.shape[1], dtype=int)
+            d_peaks[item.loop_name.lower()] = {
+                "index_hkl": index_hkl,
+                "multiplicity": multiplicity,
+                "intensity_plus": numpy.array(item.intensity_plus, dtype=float),
+                "intensity_minus": numpy.array(item.intensity_minus, dtype=float)}
+        return d_peaks
+
+    def switch_matching_mode(self, mode: str = "refine_intensities") -> None:
+        """Switch the matching mode (profile matching, Le Bail fit) of the powder pattern.
+
+        In the matching mode the integrated intensities of the reflections
+        are not calculated from the crystal structure (the atoms and the
+        scale factor have no effect). 'refine_intensities' fits the
+        intensities of all reflections (>= 0; up and down separately for
+        polarized neutrons) at every calculation and writes them to the loop
+        pd_peak of every phase; the cell, the zero shift, the peak width
+        and asymmetry and the background can be refined with them.
+        'fixed_intensities' keeps the intensities of pd_peak fixed and
+        refines the peak positions and shapes. 'off' returns to the
+        Rietveld refinement.
+
+        Parameters
+        ----------
+        mode : str
+            Matching mode: refine_intensities, fixed_intensities or off.
+        """
+        if mode not in MATCHING_MODES:
+            raise ValueError(
+                f"Unknown matching mode '{mode:}': use one of {', '.join(MATCHING_MODES):}.")
+        if mode == "fixed_intensities":
+            l_phase_label = [item.label.lower() for item in self.phase.items]
+            l_peak_label = [item.loop_name.lower() for item in self.items
+                            if isinstance(item, PdPeakL) and item.loop_name is not None]
+            l_missing = [label for label in l_phase_label if label not in l_peak_label]
+            if len(l_missing) > 0:
+                raise ValueError(
+                    "Matching mode 'fixed_intensities' takes the intensities from the "
+                    f"loop pd_peak, missing for the phase(s) {', '.join(l_missing):}: "
+                    "calculate the pattern or refine with 'refine_intensities' first.")
+        if self.is_attribute("pd_matching"):
+            self.pd_matching.mode = mode
+        else:
+            self.add_items([PdMatching(mode=mode)])
 
     def take_parameters_from_dictionary(
         self, ddict_diffrn, l_parameter_name: list = None, l_sigma: list = None

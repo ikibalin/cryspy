@@ -1,0 +1,25 @@
+# Matching mode with fixed integrated intensities: the intensities of the loop pd_peak
+# (from a profile matching, a Rietveld calculation or given by the user) are kept, the peak
+# positions and shapes are refined.
+Recipe refine_with_fixed_intensities: Refinement of the cell and the peak shape with the fixed integrated intensities of pd_peak
+Requests: fixed intensities, keep the intensities of pd_peak, refine the cell with fixed intensities, refine the peak shape with fixed intensities, matching mode with given intensities
+For: powder_1d, matching
+
+1. start: Fix all, switch the matching mode with the intensities of pd_peak on and read the misfit. Without pd_peak (an error) calculate first, or use the recipe profile_matching.
+   Actions: fix_parameters; call_method {"method": "switch_matching_mode", "mode": "fixed_intensities"}; calculate; diagnose_fit
+   Success: chi_sq/n is a number.
+   Otherwise: Stop and explain the error.
+2. zero: Zero shift alone.
+   Actions: refine_parameters {"pattern": "offset_ttheta"}; refine
+   Otherwise: undo_refinement
+3. cell: Unit cell parameters.
+   Actions: refine_parameters {"pattern": "unit cell"}; refine
+   Otherwise: undo_refinement
+4. width: Peak width W, then U and V.
+   Actions: refine_parameters {"pattern": "pd_instr_resolution.w"}; refine; refine_parameters {"pattern": "pd_instr_resolution.u, pd_instr_resolution.v"}; refine
+   Otherwise: undo_refinement and keep W only.
+5. background: Intensities of the background points.
+   Actions: refine_parameters {"pattern": "pd_background"}; refine
+   Otherwise: undo_refinement
+
+Final answer: chi_sq/n at the start and at the end, the refined parameters with their errors; the intensities of pd_peak are not changed.

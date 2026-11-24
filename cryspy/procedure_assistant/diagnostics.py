@@ -85,6 +85,29 @@ def diagnose_diffrn(cryspy_object, block, n_parameter: int) -> List[tuple]:
                                    columns["intensity_calc"][flag], sthovl, n_parameter)
 
 
+# signatures of the intensities, which the matching mode does not calculate
+# from the structure
+INTENSITY_SIGNATURES = ("SCALE", "INTENSITY_TREND", "INTENSITY_SCATTER")
+
+
+def take_matching_signatures(block, l_sign: List[tuple]) -> List[tuple]:
+    """Signatures of a powder experiment in the matching mode (pd_matching):
+    the intensities of the reflections are fitted (or fixed), so the
+    misfit of the intensities says nothing about the atoms or the scale."""
+    if not block.is_attribute("pd_matching"):
+        return l_sign
+    mode = block.pd_matching.mode
+    if mode == "refine_intensities":
+        l_sign = [(key, text) for key, text in l_sign if key not in INTENSITY_SIGNATURES]
+        l_sign.insert(0, ("MATCHING", "matching mode with free intensities: the misfit "
+                          "comes from the peak positions, shapes and the background only."))
+    elif mode == "fixed_intensities":
+        l_sign = [(key, text) for key, text in l_sign if key not in INTENSITY_SIGNATURES]
+        l_sign.insert(0, ("MATCHING", "matching mode with the intensities of pd_peak "
+                          "fixed: the atoms and the scale factor are not used."))
+    return l_sign
+
+
 def diagnose_object(cryspy_object, experiment: str = "") -> str:
     """Text of the signatures of every experiment (or of the one named)."""
     n_parameter = len(cryspy_object.get_variable_names())
@@ -96,6 +119,7 @@ def diagnose_object(cryspy_object, experiment: str = "") -> str:
         try:
             if block.is_attribute("pd_proc") or block.is_attribute("tof_proc"):
                 l_sign = diagnose_profile(block)
+                l_sign = take_matching_signatures(block, l_sign)
             elif block.is_attribute("diffrn_refln"):
                 l_sign = diagnose_diffrn(cryspy_object, block, n_parameter)
             else:

@@ -180,6 +180,10 @@ from cryspy.C_item_loop_classes.cl_1_pd_peak_magnetic_k import (
 L_ITEM_CLASS.extend([PdPeakMagneticK])
 L_LOOP_CLASS.extend([PdPeakMagneticKL])
 
+from cryspy.C_item_loop_classes.cl_1_pd_matching import PdMatching
+
+L_ITEM_CLASS.extend([PdMatching])
+
 from cryspy.C_item_loop_classes.cl_1_geom import (
     GeomBond, GeomBondL, GeomAngle, GeomAngleL, GeomTorsion, GeomTorsionL,
     GeomHbond, GeomHbondL)

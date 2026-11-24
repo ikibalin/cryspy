@@ -24,6 +24,10 @@ A constant wavelength 1d powder experiment is a `pd` data block:
   without correlations between them: rods (hk), asymmetric saw-tooth
   Warren lines; in-plane correlation length, see the help page on
   two-dimensional correlations).
+- optional `pd_matching` (`_pd_matching_mode refine_intensities` or
+  `fixed_intensities`): profile matching, the integrated intensities are
+  fitted (>= 0) or taken from `pd_peak` instead of the crystal structure;
+  see the help page on the matching mode.
 
 `pd2d` is the 2d version for polarized neutrons (`gamma_nu_...` data),
 `tof` is a time-of-flight pattern with `tof_parameters` (zero, dtt1, ...),
