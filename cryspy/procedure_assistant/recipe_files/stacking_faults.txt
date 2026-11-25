@@ -1,0 +1,27 @@
+# Some powder reflections broad or asymmetric, the others sharp: random stacking faults of the layers.
+# diagnose_peak_widths finds the rule (k odd, h + k odd, h - k not 3n), the layers and the probability.
+Recipe stacking_faults: Random stacking faults of a powder phase (only some reflections broad or asymmetric)
+Requests: some peaks are broad and others sharp, asymmetric peak, asymmetric low angle peak, peak with a tail to high angles, stacking faults, stacking disorder, layer disorder, polytypes, diffuse peaks, broad hkl peaks, which peaks are broader, diagnose peak widths, background under the peaks is too high
+For: any
+
+1. start: Fix all parameters and fit the free intensities of the reflections (profile matching), so that the peak widths are not mixed with the structure.
+   Actions: fix_parameters; profile_matching
+   Success: chi_sq/n is a number.
+   Otherwise: Stop and explain the error.
+2. diagnose: Which reflections are broader than the instrument; the fault rule, the layers and the start probability.
+   Actions: run_procedure {"name": "diagnose_peak_widths"}
+   Success: a line SELECTIVE_WIDTH and a line STACKING_FAULTS.
+   Otherwise: Explain the diagnosis (ALL_BROAD: size or strain of the phase; WIDTHS: no group is broader) and stop.
+3. add: Add the stacking faults suggested by STACKING_FAULTS (normal, shift, probability) and refine the probability with the free intensities.
+   Actions: run_procedure {"name": "add_stacking_fault", "normal": "0 0 1", "shift": "0 1/2 0", "probability": 0.1, "phase_label": ""}; profile_matching
+   Success: chi_sq/n got better.
+   Otherwise: undo_refinement: the broad reflections are not explained by these faults.
+4. background: The background under the broad lines is now free: refine the background points and the peak widths with the probability.
+   Actions: refine_parameters {"pattern": "pd_background.intensity, pd_instr_resolution.w"}; profile_matching
+   Otherwise: undo_refinement
+5. report: The layers, the fault shift, the probability with its error and the correlation length of the stacking.
+   Actions: run_procedure {"name": "report_stacking_fault"}
+6. check: What is still wrong.
+   Actions: use_recipe {"name": "check_result"}
+
+Final answer: which reflections are broad (the rule) and why (stacking faults: layers, fault shift), the probability with its error, the correlation length of the stacking, chi_sq/n before and after. If the cell has n layers along the normal, say that the normal n (h k l) gives the probability per layer.

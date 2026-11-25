@@ -283,6 +283,11 @@ from cryspy.procedure_rhochi.rhochi_layer_correlation import (
     add_layer_correlation,
     report_layer_correlation,
 )
+from cryspy.procedure_rhochi.rhochi_stacking_fault import (
+    add_stacking_fault,
+    report_stacking_fault,
+    diagnose_peak_widths,
+)
 
 from cryspy.procedure_rhochi.rhochi import (
     rhochi_rietveld_refinement,
@@ -517,6 +522,9 @@ L_FUNCTION = [
     suggest_layer_direction,
     add_layer_correlation,
     report_layer_correlation,
+    add_stacking_fault,
+    report_stacking_fault,
+    diagnose_peak_widths,
     rhochi_rietveld_refinement,
     rhochi_rietveld_refinement_with_parameters,
     rhochi_profile_matching,

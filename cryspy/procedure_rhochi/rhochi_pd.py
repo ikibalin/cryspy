@@ -41,6 +41,8 @@ from .rhochi_texture import calc_texture_sh_for_phase
 from .rhochi_magnetic_broadening import form_y_mag_by_hkl
 from .rhochi_layer_correlation import (
     calc_signal_layer_correlation, calc_in_plane_mask)
+from .rhochi_stacking_fault import (
+    take_stacking_fault_of_phase, calc_stacking_fault_profile)
 from .rhochi_pd_matching import (
     take_matching_mode, calc_matching_phase, fit_matching_intensities,
     calc_matching_signal)
@@ -379,11 +381,28 @@ def calc_chi_sq_for_pd_by_dictionary(
             if matching_mode == "refine_intensities":
                 index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_for_phase(
                     dict_crystal, sthovl_min, sthovl_max, unit_cell_parameters)
-            l_matching_phase.append(calc_matching_phase(
+            matching_phase = calc_matching_phase(
                 matching_mode, dict_pd, dict_in_out_phase, p_name, index_hkl,
                 multiplicity_hkl, unit_cell_parameters, wavelength, ttheta_zs,
                 lorentz_factor, resolution_parameters + p_resolution, p_ig,
-                (p_1, p_2, p_3, p_4), k, cthm))
+                (p_1, p_2, p_3, p_4), k, cthm)
+            row_fault = take_stacking_fault_of_phase(dict_pd, p_name)
+            if row_fault is not None:
+                # stacking faults: the spread reflections get their own lines
+                index_matching = dict_in_out_phase["index_hkl"]
+                u, v, w, x, y = resolution_parameters + p_resolution
+                flag_faulted, profile_faulted = calc_stacking_fault_profile(
+                    row_fault, dict_crystal, index_matching, unit_cell_parameters,
+                    wavelength, ttheta_zs, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4)
+                if numpy.any(flag_faulted):
+                    lf_hkl = calc_lorentz_factor(
+                        matching_phase.ttheta_hkl[flag_faulted], k=k, cthm=cthm,
+                        flag_ttheta=None)[0]
+                    matching_phase.column[:, flag_faulted] = (
+                        lorentz_factor[:, na] * profile_faulted / lf_hkl[na, :])
+                    dict_in_out_phase["profile_pv"][:, flag_faulted] = profile_faulted
+                dict_in_out_phase["stacking_fault_flag_hkl"] = flag_faulted
+            l_matching_phase.append(matching_phase)
             continue
 
         if (
@@ -686,6 +705,18 @@ def calc_chi_sq_for_pd_by_dictionary(
             flag_p_4=flag_asymmetry_parameters,
             cutoff_fwhm=dict_pd.get("profile_cutoff_fwhm", 0.),
         )
+
+        # stacking_fault: the reflections that see the fault shift are
+        # spread along the normal of the layers
+        row_fault = take_stacking_fault_of_phase(dict_pd, p_name)
+        if row_fault is not None:
+            flag_faulted, profile_faulted = calc_stacking_fault_profile(
+                row_fault, dict_crystal, index_hkl, unit_cell_parameters,
+                wavelength, ttheta_zs, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4)
+            if numpy.any(flag_faulted):
+                profile_pv = numpy.array(profile_pv, copy=True)
+                profile_pv[:, flag_faulted] = profile_faulted
+            dict_in_out_phase["stacking_fault_flag_hkl"] = flag_faulted
         dict_in_out_phase["profile_pv"] = profile_pv
 
         # magnetic_broadening: the magnetic intensity and the nuclear-magnetic

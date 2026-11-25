@@ -42,6 +42,7 @@ from cryspy.C_item_loop_classes.cl_1_texture_sh import (
 from cryspy.C_item_loop_classes.cl_1_exclude import ExcludeL
 from cryspy.C_item_loop_classes.cl_1_magnetic_broadening import (
     MagneticBroadeningL)
+from cryspy.C_item_loop_classes.cl_1_stacking_fault import StackingFaultL
 from cryspy.C_item_loop_classes.cl_1_layer_correlation import (
     LayerCorrelationL)
 from cryspy.A_functions_base.plot_peak_labels import (
@@ -111,7 +112,7 @@ class Pd(DataN):
         - setup, pd_instr_resolution, phase, pd_background, pd_meas (mandatory)
         - diffrn_radiation, chi2, range, extinction, pd_instr_reflex_asymmetry
           texture, texture_sh, texture_sh_coefficient, sample_goniometer,
-          magnetic_broadening, layer_correlation, exclude, pd_proc, pd_peak, refine_ls,
+          magnetic_broadening, layer_correlation, stacking_fault, exclude, pd_proc, pd_peak, refine_ls,
           refln_#phase_name
           refln_susceptibility_#phase_name (optional)
     """
@@ -135,6 +136,7 @@ class Pd(DataN):
         SampleGoniometer,
         MagneticBroadeningL,
         LayerCorrelationL,
+        StackingFaultL,
         ExcludeL,
         PdProcL,
         PdPeakL,
@@ -321,7 +323,7 @@ class Pd(DataN):
     ):
         keys = ddict_diffrn.keys()
         for name in ("texture_sh", "texture_sh_coefficient", "magnetic_broadening",
-                     "layer_correlation"):
+                     "layer_correlation", "stacking_fault"):
             if self.is_attribute(name):
                 getattr(self, name).take_parameters_from_dictionary(
                     ddict_diffrn, l_parameter_name=list(l_parameter_name or []),

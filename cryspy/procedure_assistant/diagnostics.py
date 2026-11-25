@@ -85,6 +85,32 @@ def diagnose_diffrn(cryspy_object, block, n_parameter: int) -> List[tuple]:
                                    columns["intensity_calc"][flag], sthovl, n_parameter)
 
 
+def diagnose_widths_of_reflections(cryspy_object, block) -> List[str]:
+    """SELECTIVE_WIDTH or ALL_BROAD lines of a 1D powder experiment (no layer scan)."""
+    from cryspy.procedure_rhochi.rhochi_stacking_fault import (
+        calc_peak_width_diagnosis, form_diagnosis_lines)
+    obj_dict = cryspy_object.get_dictionary()
+    dict_pd = obj_dict.get(f"pd_{block.data_name.lower():}")
+    if dict_pd is None:
+        return []
+    dict_crystals = [value for value in obj_dict.values() if isinstance(value, dict)
+                     and str(value.get("type_name", "")).startswith("crystal")]
+    ls_out = []
+    for name in dict_pd["phase_name"]:
+        try:
+            result = calc_peak_width_diagnosis(
+                dict_pd, dict_crystals, name.lower(), flag_scan_layers=False)
+        except (KeyError, ValueError, IndexError):
+            continue
+        line = form_diagnosis_lines(result, name.lower(), flag_table=False)[0]
+        if line.startswith(("SELECTIVE_WIDTH", "ALL_BROAD")):
+            key, rest = line.split(" (", 1)
+            phase, text = rest.split("): ", 1)
+            ls_out.append(f"{key:}: phase {phase:}: {text:} The procedure diagnose_peak_widths "
+                          "gives the table of the reflections and the layers.")
+    return ls_out
+
+
 def diagnose_object(cryspy_object, experiment: str = "") -> str:
     """Text of the signatures of every experiment (or of the one named)."""
     n_parameter = len(cryspy_object.get_variable_names())
@@ -106,6 +132,9 @@ def diagnose_object(cryspy_object, experiment: str = "") -> str:
             continue
         ls_out.append(f"{name:}:")
         ls_out.extend(f"- {key:}: {text:}" for key, text in l_sign)
+        if block.is_attribute("pd_proc") and type(block).__name__ == "Pd":
+            ls_out.extend(f"- {line:}" for line in diagnose_widths_of_reflections(
+                cryspy_object, block))
     if not ls_out:
         return f"Error: no experiment '{experiment:}' in the object."
     return "\n".join(ls_out)

@@ -200,6 +200,12 @@ from cryspy.C_item_loop_classes.cl_1_layer_correlation import (
 L_ITEM_CLASS.extend([LayerCorrelation])
 L_LOOP_CLASS.extend([LayerCorrelationL])
 
+from cryspy.C_item_loop_classes.cl_1_stacking_fault import (
+    StackingFault, StackingFaultL)
+
+L_ITEM_CLASS.extend([StackingFault])
+L_LOOP_CLASS.extend([StackingFaultL])
+
 L_LOOP_CLASS.extend([
     AtomLocalAxesL, AtomElectronConfigurationL, AtomRhoOrbitalRadialSlaterL,
     AtomSiteL, AtomSiteAnisoL, AtomSiteMomentL, AtomSiteScatL,

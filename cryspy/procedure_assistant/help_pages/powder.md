@@ -24,6 +24,9 @@ A constant wavelength 1d powder experiment is a `pd` data block:
   without correlations between them: rods (hk), asymmetric saw-tooth
   Warren lines; in-plane correlation length, see the help page on
   two-dimensional correlations).
+- optional `stacking_fault` (random faults of the stacking of layers: only
+  the reflections with H.t not an integer are broad or asymmetric; see the
+  help page on stacking faults and the procedure `diagnose_peak_widths`).
 
 `pd2d` is the 2d version for polarized neutrons (`gamma_nu_...` data),
 `tof` is a time-of-flight pattern with `tof_parameters` (zero, dtt1, ...),
