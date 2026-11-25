@@ -604,6 +604,40 @@ def parse_triple(text: str, name: str, dtype=float):
     return numpy.array(values, dtype=float)
 
 
+def check_stacking_fault_input(normal: str, shift: str, probability: float,
+                               probability_repeat: float):
+    """Normal (int) and shift of the arguments of add_stacking_fault, or ValueError."""
+    normal_index = parse_triple(normal, "normal", int)
+    if not numpy.any(normal_index):
+        raise ValueError("The normal of the layers is (0 0 0).")
+    shift_vector = parse_triple(shift, "shift")
+    if not 0. <= float(probability) <= 1.:
+        raise ValueError("The probability must be between 0 and 1.")
+    if abs(float(normal_index @ shift_vector)) > 1e-6:
+        raise ValueError(f"The fault shift ({shift:}) is not in the plane of the layers "
+                         f"({normal:}): N.t must be 0.")
+    if float(probability_repeat) > 1.:
+        raise ValueError("probability_repeat must be between 0 and 1 (negative: not used).")
+    return normal_index, shift_vector
+
+
+def form_stacking_fault_row(label: str, normal_index, shift_vector, probability: float,
+                            probability_repeat: float, layer_cut: float) -> StackingFault:
+    """Row of the loop stacking_fault with refined probabilities (negative: attribute not given)."""
+    row = StackingFault(
+        phase_label=label, normal_h=int(normal_index[0]), normal_k=int(normal_index[1]),
+        normal_l=int(normal_index[2]), shift_x=float(shift_vector[0]),
+        shift_y=float(shift_vector[1]), shift_z=float(shift_vector[2]),
+        probability=float(probability))
+    row.probability_refinement = True
+    if float(probability_repeat) >= 0.:
+        row.probability_repeat = float(probability_repeat)
+        row.probability_repeat_refinement = True
+    if float(layer_cut) >= 0.:
+        row.layer_cut = float(layer_cut)
+    return row
+
+
 def add_stacking_fault(
         rcif_object: GlobalN, normal: str = "0 0 1", shift: str = "0 1/2 0",
         probability: float = 0.1, phase_label: str = "", experiment: str = "",
@@ -655,20 +689,8 @@ def add_stacking_fault(
             raise ValueError("The stacking faults are implemented only for the 1D "
                              "powder experiments at constant wavelength (pd).")
         return "No powder experiments" + (f" named '{experiment:}'." if experiment else ".")
-    normal_index = parse_triple(normal, "normal", int)
-    if not numpy.any(normal_index):
-        raise ValueError("The normal of the layers is (0 0 0).")
-    shift_vector = parse_triple(shift, "shift")
-    probability = float(probability)
-    if not 0. <= probability <= 1.:
-        raise ValueError("The probability must be between 0 and 1.")
-    if abs(float(normal_index @ shift_vector)) > 1e-6:
-        raise ValueError(f"The fault shift ({shift:}) is not in the plane of the layers "
-                         f"({normal:}): N.t must be 0.")
-    probability_repeat = float(probability_repeat)
-    if probability_repeat > 1.:
-        raise ValueError("probability_repeat must be between 0 and 1 (negative: not used).")
-    layer_cut = float(layer_cut)
+    normal_index, shift_vector = check_stacking_fault_input(
+        normal, shift, probability, probability_repeat)
     ls_out = []
     for pd in l_experiment:
         l_label = [label for label in pd.phase.label
@@ -688,24 +710,15 @@ def add_stacking_fault(
                 form_stacking_model({"normal_index": normal_index, "shift": shift_vector,
                                      "layer_cut": None}, crystal.get_dictionary(),
                                     crystal.get_dictionary()["unit_cell_parameters"])
-            row = StackingFault(
-                phase_label=label, normal_h=int(normal_index[0]), normal_k=int(normal_index[1]),
-                normal_l=int(normal_index[2]), shift_x=float(shift_vector[0]),
-                shift_y=float(shift_vector[1]), shift_z=float(shift_vector[2]),
-                probability=probability)
-            row.probability_refinement = True
-            if probability_repeat >= 0.:
-                row.probability_repeat = probability_repeat
-                row.probability_repeat_refinement = True
-            if layer_cut >= 0.:
-                row.layer_cut = layer_cut
+            row = form_stacking_fault_row(label, normal_index, shift_vector, probability,
+                                          probability_repeat, layer_cut)
             loop.items.append(row)
             s_line = f"{pd.data_name:}, phase {label:}: "
             if crystal is not None:
                 s_line += form_report_of_row(row, crystal, float(pd.setup.wavelength))[2:]
             else:
                 s_line += (f"layers ({normal.strip():}), fault shift ({shift.strip():}), "
-                           f"probability {probability:.3f}.")
+                           f"probability {float(probability):.3f}.")
             ls_out.append(s_line + " The probabilities are refined.")
     return "\n".join(ls_out)
 

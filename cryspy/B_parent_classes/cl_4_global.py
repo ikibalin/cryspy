@@ -764,7 +764,7 @@ class GlobalN(object):
                 else:
                     item.set_variable(".".join(l_name[1:]), index=index)
 
-    def get_dictionary(self):
+    def get_dictionary(self):  # noqa: C901
         self.refine_constrained_parameters()
         dict_out = {}
         for item in self.items:
@@ -917,7 +917,7 @@ class GlobalN(object):
                         "because of a constraint.")
         return l_name
 
-    def get_constraints(self, l_marked: list):
+    def get_constraints(self, l_marked: list):  # noqa: C901
         """Constraints of the constraint loops.
 
         Parameters
@@ -1020,7 +1020,7 @@ class GlobalN(object):
                 item.take_parameters_from_dictionary(dict_data, l_parameter_name=l_parameter_name_data, l_sigma=l_sigma_data)
 
 
-def transfer_cif_names_to_dict_names(variable_names):
+def transfer_cif_names_to_dict_names(variable_names):  # noqa: C901
     dict_names = []
     for cif_name in variable_names:
         data_block = f"{cif_name[1][0]:}_{cif_name[1][1]:}"

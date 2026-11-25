@@ -18,7 +18,7 @@ from cryspy.A_functions_base.mempy import (
 logger = logging.getLogger(__name__)
 
 
-def save_density_to_den_file(
+def save_density_to_den_file(  # noqa: C901
     dict_in_out, dict_mem_parameters, dict_crystal, l_dict_diffrn
 ):
     dict_in_out_keys = dict_in_out.keys()

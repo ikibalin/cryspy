@@ -39,7 +39,7 @@ def calc_beta_by_u(u_i, cell):
     return beta_11, beta_22, beta_33, beta_12, beta_13, beta_23
 
 
-def vibration_constraints(numb, param_i, sigma_i, ref_i):
+def vibration_constraints(numb, param_i, sigma_i, ref_i):  # noqa: C901
     """
     Constraints on atomic vibrations.
 

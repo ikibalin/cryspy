@@ -188,7 +188,7 @@ def take_rank_candidates(k_group: dict, k_vector, try_superpositions: bool) -> l
         take_model_candidates(k_group, k_vector, try_superpositions))]
 
 
-def rhochi_rank_magnetic_representations(
+def rhochi_rank_magnetic_representations(  # noqa: C901
         rcif_object: GlobalN, k_1: float, k_2: float, k_3: float,
         magnetic_atoms: str, moment: float = 1.0, crystal_name: str = "",
         keep_rank: int = 0, use_minus_k_operations: bool = True,

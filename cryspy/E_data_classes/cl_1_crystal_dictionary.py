@@ -132,7 +132,7 @@ def take_scattering_amplitude_table(type_symbol: str):
             return None
 
 
-def form_crystal_dictionary(crystal, ddict):
+def form_crystal_dictionary(crystal, ddict):  # noqa: C901
     """Body of Crystal.get_dictionary, see its docstring."""
     space_group, cell, atom_site = None, None, None
     atom_site_susceptibility, atom_electron_configuration = None, None
@@ -1173,7 +1173,7 @@ def fill_fourier_symmform_by_symmetry(
             l_symmform[1][i_row] = symmform[3 + axis]
 
 
-def take_crystal_parameters_from_dictionary(crystal, ddict_crystal, l_parameter_name: list = None, l_sigma: list = None):
+def take_crystal_parameters_from_dictionary(crystal, ddict_crystal, l_parameter_name: list = None, l_sigma: list = None):  # noqa: C901
     """Body of Crystal.take_parameters_from_dictionary, see its docstring."""
     keys = ddict_crystal.keys()
 

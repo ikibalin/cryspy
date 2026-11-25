@@ -92,7 +92,7 @@ class TOFBackground(ItemN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
-    def calc_background(self, time):
+    def calc_background(self, time):  # noqa: C901
         """
         y = \\sum_{i=1}^{18} coeff_i cos (pi i * (time/time_max))
 

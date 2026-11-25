@@ -119,7 +119,7 @@ def md_table_to_html(l_line: list) -> str:
     return "".join(ls_html)
 
 
-def md_to_html(s_content: str) -> str:
+def md_to_html(s_content: str) -> str:  # noqa: C901
     """Convert markdown of the reports into html (Qt rich text subset).
 
     Supported: headings (``#``, ``##``, ``###``), tables, bullet and

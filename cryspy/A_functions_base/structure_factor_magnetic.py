@@ -253,7 +253,7 @@ def calc_sft_ccs_by_dictionary(
     return sft_ccs, dder
 
 
-def calc_sft_ccs(
+def calc_sft_ccs(  # noqa: C901
     index_hkl,
     reduced_symm_elems,
     centrosymmetry,
@@ -752,7 +752,7 @@ def calc_f_m_perp_ordered_by_dictionary(
     return f_m_perp_o, dder
 
 
-def calc_f_m_perp_ordered(
+def calc_f_m_perp_ordered(  # noqa: C901
     index_hkl,
     full_mcif_elems,
     unit_cell_parameters,

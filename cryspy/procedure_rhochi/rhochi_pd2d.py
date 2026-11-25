@@ -96,7 +96,7 @@ def calc_background(gamma, nu, background_gamma, background_nu, background_inten
     return signal, dder 
 
 
-def calc_chi_sq_for_pd2d_by_dictionary(
+def calc_chi_sq_for_pd2d_by_dictionary(  # noqa: C901
         dict_pd, dict_crystals, dict_in_out: dict = None, flag_use_precalculated_data: bool=False,
         flag_calc_analytical_derivatives: bool = False):
     """Calculate chi_sq for diffrn experiment.

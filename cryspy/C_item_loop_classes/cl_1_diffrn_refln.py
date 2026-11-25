@@ -176,7 +176,7 @@ class DiffrnReflnL(LoopN):
             + self.report_chi_sq_exp()
         )
 
-    def report_agreement_factor_exp(self):
+    def report_agreement_factor_exp(self):  # noqa: C901
         """
         Make a report about experimental agreement factor in string format.
         """
@@ -302,7 +302,7 @@ class DiffrnReflnL(LoopN):
 
         return (0.0, 0)
 
-    def report_chi_sq_exp(self, cell=None) -> str:
+    def report_chi_sq_exp(self, cell=None) -> str:  # noqa: C901
         """
         Make a report about experimental chi_sq in string format.
 

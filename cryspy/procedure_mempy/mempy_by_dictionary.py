@@ -184,7 +184,7 @@ def form_exp_value_sigma(l_exp_value_sigma: list, l_included: list):
     exp_value_sigma[1, flag_bad] = 1.
     return exp_value_sigma, flag_included
 
-def calc_preliminary_information_by_dictionary(
+def calc_preliminary_information_by_dictionary(  # noqa: C901
     dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out
 ):
     dict_in_out_keys = dict_in_out.keys()
@@ -738,7 +738,7 @@ def calc_preliminary_information_by_dictionary(
     return
 
 
-def mempy_reconstruction_by_dictionary(
+def mempy_reconstruction_by_dictionary(  # noqa: C901
     dict_crystal,
     dict_mem_parameters,
     l_dict_diffrn,

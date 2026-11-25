@@ -174,7 +174,7 @@ def calc_index_hkl_multiplicity_for_phase(
         translation_elems_p1, False, flag_only_nuclear=flag_only_nuclear)
 
 
-def calc_chi_sq_for_pd_by_dictionary(
+def calc_chi_sq_for_pd_by_dictionary(  # noqa: C901
     dict_pd,
     dict_crystals,
     dict_in_out: dict = None,

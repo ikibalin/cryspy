@@ -2,7 +2,7 @@ from typing import Callable
 import numpy
 
 
-def calc_iint(
+def calc_iint(  # noqa: C901
         beam_polarization: float, 
         flipper_efficiency: float, 
         f_nucl, f_m_perp,
@@ -397,7 +397,7 @@ def calc_asymmetry_by_iint(
     return asymmetry, dder
 
 
-def calc_intensities_by_structure_factors(
+def calc_intensities_by_structure_factors(  # noqa: C901
         beam_polarization: float, flipper_efficiency: float, f_nucl, f_m_perp,
         axis_z, func_extinction: Callable = None,
         c_lambda2: float=None, f_nucl_2hkl=None, f_m_perp_2hkl=None,

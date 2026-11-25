@@ -565,7 +565,7 @@ def calc_f_nucl_by_dictionary(
     return f_nucl, dder
 
 
-def calc_f_nucl(
+def calc_f_nucl(  # noqa: C901
     index_hkl,
     reduced_symm_elems,
     centrosymmetry,
@@ -939,7 +939,7 @@ def calc_f_charge_by_dictionary(
     return f_charge, dder
 
 
-def calc_f_charge(
+def calc_f_charge(  # noqa: C901
     index_hkl,
     reduced_symm_elems,
     centrosymmetry,

@@ -547,7 +547,7 @@ UNSUPPORTED_SPLIT = ("atom_site_moment", "atom_site_susceptibility",
                      "atom_site_exchange", "atom_rho_multipole", "atom_local_axes")
 
 
-def split_atoms(crystal, k_group: dict) -> dict:
+def split_atoms(crystal, k_group: dict) -> dict:  # noqa: C901
     """New atom_site, atom_site_aniso and atom_site_scat loops: every atom
     whose orbit in the space group falls into several orbits of the group
     of k gives several atoms ('O1', 'O1_2', ...).
@@ -1174,7 +1174,7 @@ def take_operations_of_superspace(l_operation, l_centring, k_vectors, tolerance:
     return rotation[:, l_index], translation[:, l_index], centring
 
 
-def add_wave_to_superspace(crystal, k_new, l_magnetic, irrep, moment: float,
+def add_wave_to_superspace(crystal, k_new, l_magnetic, irrep, moment: float,  # noqa: C901
                            use_minus_k_operations: bool, mode: int) -> tuple:
     """Add a propagation vector to a crystal with a superspace group (3+d).
 

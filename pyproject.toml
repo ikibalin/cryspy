@@ -82,7 +82,13 @@ distance-dirty = '{base_version}+devdirty{distance}'
 extend-exclude = ['*.ipynb']
 
 [tool.ruff.lint]
-select = ['F', 'E722']
+select = ['F', 'E722', 'C901']
+
+# Cyclomatic complexity (McCabe): a new function with more than 15
+# independent paths fails the check. The older functions above the limit
+# carry `# noqa: C901` until they are split (roadmap, clean code).
+[tool.ruff.lint.mccabe]
+max-complexity = 15
 
 [tool.ruff.lint.per-file-ignores]
 # the package namespace re-exports the public API

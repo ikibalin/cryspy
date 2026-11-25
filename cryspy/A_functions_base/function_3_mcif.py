@@ -145,7 +145,7 @@ D_CENTRING_TYPE_SHIFT = {
                      dtype=int).transpose(),    
         }
 
-def read_magnetic_data():
+def read_magnetic_data():  # noqa: C901
     """Read magnetic data."""
     with open(F_MAG_DATA, "r") as fid:
         l_cont = fid.readlines()

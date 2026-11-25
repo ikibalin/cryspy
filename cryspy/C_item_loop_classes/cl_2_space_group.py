@@ -226,7 +226,7 @@ To defince magnetic space group instead this item use two loops: space_group_sym
         self.form_object_by_it_number_it_coordinate_system_code()
         self.__dict__["shift"] = get_shift_by_centring_type(self.centring_type)
 
-    def define_it_number_and_it_coordinate_system_code(self):
+    def define_it_number_and_it_coordinate_system_code(self):  # noqa: C901
         """Define it number and it coordinate system code."""
         flag = True
         it_coordinate_system_code = None
@@ -292,7 +292,7 @@ To defince magnetic space group instead this item use two loops: space_group_sym
                 it_coordinate_system_code
         return flag
 
-    def form_object_by_it_number_it_coordinate_system_code(self):
+    def form_object_by_it_number_it_coordinate_system_code(self):  # noqa: C901
         """Form object by it number it coordinate system code.
 
         TODO: Solve the problem with centring_type for hexagonal systems
@@ -695,7 +695,7 @@ To defince magnetic space group instead this item use two loops: space_group_sym
     def report(self) -> str:
         return self.report_space_group()
 
-    def report_space_group(self) -> str:
+    def report_space_group(self) -> str:  # noqa: C901
         """Make a report about space group in string format."""
         if self.is_defined:
             self.form_object

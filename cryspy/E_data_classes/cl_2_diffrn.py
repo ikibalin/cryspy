@@ -127,7 +127,7 @@ class Diffrn(DataN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
-    def estimate_FM(
+    def estimate_FM(  # noqa: C901
         self,
         crystal: Crystal,
         max_abs_f_mag: float = 5,
@@ -610,7 +610,7 @@ class Diffrn(DataN):
 
         return ddict
 
-    def take_parameters_from_dictionary(
+    def take_parameters_from_dictionary(  # noqa: C901
         self, ddict_diffrn, l_parameter_name: list = None, l_sigma: list = None
     ):
         keys = ddict_diffrn.keys()

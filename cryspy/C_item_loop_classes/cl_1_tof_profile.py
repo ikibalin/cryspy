@@ -168,7 +168,7 @@ class TOFProfile(ItemN):
                                 f"_{prefix:}{separator:}{name_cif:} {s_val:}")
         return "\n".join(ls_out)
 
-    def get_dictionary(self):
+    def get_dictionary(self):  # noqa: C901
         res = {}
         if self.is_attribute("peak_shape"):
             peak_shape = self.peak_shape

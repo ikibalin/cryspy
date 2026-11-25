@@ -204,7 +204,7 @@ class LoopN(object):
         return cls.from_cif_data(cif_data)
 
     @classmethod
-    def from_cif_data(cls, cif_data: Data):
+    def from_cif_data(cls, cif_data: Data):  # noqa: C901
         """Object from CIF data already read by pycifstar (Data with the
         loops); None when there is no loop of this class. Reading a file
         goes this way without writing the data back to text and reading it

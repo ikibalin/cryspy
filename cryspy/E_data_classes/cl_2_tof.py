@@ -189,7 +189,7 @@ class TOF(DataN):
 
         return dict_tof
 
-    def take_parameters_from_dictionary(self, ddict_diffrn, l_parameter_name: list = None, l_sigma: list = None):
+    def take_parameters_from_dictionary(self, ddict_diffrn, l_parameter_name: list = None, l_sigma: list = None):  # noqa: C901
         keys = ddict_diffrn.keys()
         for name in ("texture_sh", "texture_sh_coefficient"):
             if self.is_attribute(name):

@@ -893,7 +893,7 @@ class Crystal(DataN):
             data_name, self.calc_atoms_in_unit_cell(),
             self.cell.get_unit_cell_parameters(), self.cell.to_cif())
 
-    def form_p1_crystal(self, data_name: str, atoms: dict, ucp, cell_text: str,
+    def form_p1_crystal(self, data_name: str, atoms: dict, ucp, cell_text: str,  # noqa: C901
                         operations: list = None):
         """Crystal in the (magnetic) group P1 with the given atoms.
 

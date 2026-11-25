@@ -155,7 +155,7 @@ All other parameters can be calculated.
         self.__dict__["sc_chi"] = sc_chi
         return sc_chi
 
-    def calc_constr_number(self, space_group):
+    def calc_constr_number(self, space_group):  # noqa: C901
         """
         According to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147.
         """

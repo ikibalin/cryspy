@@ -105,7 +105,7 @@ def get_flags(obj_dict):
     return dict_out_refinement
 
 
-def calc_chi_sq_for_diffrn_by_dictionary(
+def calc_chi_sq_for_diffrn_by_dictionary(  # noqa: C901
         dict_diffrn, dict_crystal, dict_in_out: dict = None,
         flag_use_precalculated_data: bool=False,
         flag_calc_analytical_derivatives: bool = False):
