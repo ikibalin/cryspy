@@ -292,8 +292,20 @@ def form_transfer_matrix(phase, p):
     return t_matrix
 
 
-def calc_rod_intensity(f_layer, phase, alpha: float, beta: float, g: int):
-    """Intensity per cell at points of the rods (Markov chain of the stacking operations).
+COHERENT_TOLERANCE = 1e-7
+
+
+def calc_rod_parts(f_layer, phase, alpha: float, beta: float, g: int):
+    """Diffuse intensity along the rods and the integrated intensity of the sharp (coherent) part.
+
+    The transfer matrix T is split into its eigen components. A component
+    with |lambda| = 1 (the faults do not change the phase of that wave,
+    e.g. a variant invisible for the reflection) gives Bragg peaks: in
+    sum_m T^m it is a comb of delta functions. These components are taken
+    out of the diffuse intensity (where they would be the singular
+    lambda / (1 - lambda) near the reciprocal lattice points) and returned
+    as the integrated intensity of a delta function at the points where
+    lambda = 1.
 
     Parameters
     ----------
@@ -309,23 +321,49 @@ def calc_rod_intensity(f_layer, phase, alpha: float, beta: float, g: int):
 
     Returns
     -------
-    array (n,)
+    diffuse : array (n,)
         In the units of |F_cell|^2 per unit of tau (Q = H + tau P).
+    sharp : array (n,)
+        Integrated intensity (units of |F_cell|^2) of the Bragg peak at Q,
+        non-zero only where a coherent component has lambda = 1.
     """
     n_g, n_op, n_point = phase.shape
     p, pi = calc_markov_probabilities(alpha, beta, n_op - 1)
     n_state = n_g * n_op
     t_matrix = form_transfer_matrix(phase, p)
-    psi = numpy.zeros((n_point, n_state, n_g), dtype=complex)
+    eigenvalue, right = numpy.linalg.eig(t_matrix)
+    left = numpy.linalg.inv(right)  # rows: left eigenvectors
+    psi = numpy.zeros((n_state, n_g))
     for k in range(n_g):
-        psi[:, k * n_op:(k + 1) * n_op, k] = pi[na, :]
-    solution = numpy.linalg.solve(numpy.eye(n_state)[na, :, :] - t_matrix, t_matrix @ psi)
+        psi[k * n_op:(k + 1) * n_op, k] = pi
     v = numpy.repeat(f_layer.transpose(), n_op, axis=1)  # (n, n_state)
-    total = numpy.zeros(n_point)
-    for k in range(n_g):
-        corr = numpy.conj(f_layer[k]) * (v * solution[:, :, k]).sum(axis=1)
-        total += numpy.square(numpy.abs(f_layer[k])) + 2. * corr.real
-    return g * total / n_g
+    # c[n, i, k] = (v . u_i) (w_i . psi_k)
+    coefficient = (v[:, :, na] * right).sum(axis=1)[:, :, na] * (left @ psi)
+    weight = (numpy.conj(f_layer.transpose())[:, na, :] * coefficient).sum(axis=2)  # (n, n_state)
+    flag_coherent = numpy.abs(eigenvalue) > 1. - COHERENT_TOLERANCE
+    factor = numpy.where(flag_coherent, 0., eigenvalue / numpy.where(flag_coherent, 2., 1. - eigenvalue))
+    self_term = numpy.square(numpy.abs(f_layer)).sum(axis=0)
+    coherent = numpy.where(flag_coherent, weight, 0.).sum(axis=1).real
+    diffuse = self_term - coherent + 2. * (weight * factor).sum(axis=1).real
+    # sum over all m of lambda^m with lambda = exp(2 pi i (tau - tau_0) / g):
+    # g delta(tau - tau_0); the peak is at the points where lambda = 1
+    flag_peak = flag_coherent & (numpy.abs(numpy.angle(eigenvalue)) < 1e-6)
+    sharp = g * numpy.where(flag_peak, weight, 0.).sum(axis=1).real
+    return g * diffuse / n_g, g * sharp / n_g
+
+
+def calc_rod_intensity(f_layer, phase, alpha: float, beta: float, g: int):
+    """Diffuse intensity per cell at points of the rods (Markov chain of the stacking operations).
+
+    See calc_rod_parts; the sharp Bragg part (a coherent component with
+    |lambda| = 1) is not included.
+
+    Returns
+    -------
+    array (n,)
+        In the units of |F_cell|^2 per unit of tau (Q = H + tau P).
+    """
+    return calc_rod_parts(f_layer, phase, alpha, beta, g)[0]
 
 
 def calc_rod_width(phase, alpha: float, beta: float, g: int):

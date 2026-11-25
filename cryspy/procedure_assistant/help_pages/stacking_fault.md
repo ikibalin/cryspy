@@ -88,6 +88,14 @@ reflection keeps its Bragg intensity and is spread in the same way);
 profile matching: the shapes come from the model, the intensities are
 free. Neutrons and X-rays, 1D pd only, one kind of fault per phase.
 
+A wave of the chain that no fault changes (|lambda| = 1, for example an
+equivalent of a reflection that does not see the shift) stays a sharp
+Bragg peak of that reflection; a reflection goes to the rods when any of
+its equivalents sees the faults (the faults lower the symmetry). Polarized
+neutrons: I+ and I- get the same line shapes, so I+ + I- is the
+unpolarized pattern; the nuclear-magnetic interference is spread with the
+lines.
+
 ## Procedures
 
 - `diagnose_peak_widths(experiment, phase_label)`: the diagnosis above.

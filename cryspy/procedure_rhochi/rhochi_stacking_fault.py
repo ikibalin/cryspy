@@ -35,7 +35,7 @@ from cryspy.A_functions_base.stacking_faults import (
     calc_layer_structure_factor,
     calc_orientations,
     calc_reciprocal_metric,
-    calc_rod_intensity,
+    calc_rod_parts,
     calc_rod_width,
     calc_symmetry_operations,
     PROBABILITY_MIN,
@@ -283,6 +283,23 @@ def calc_rod_samples(base, primitive, metric, s_max: float, d_tau: float):
     return tau
 
 
+def calc_flag_faulted_of_families(index_hkl, model: dict, reduced_symm_elems,
+                                  centrosymmetry: bool):
+    """True for the reflections with at least one equivalent that sees the faults.
+
+    The faults lower the symmetry: equivalents of one reflection can be
+    sharp and spread at the same time, and then the whole set goes to the
+    rods (a sharp equivalent keeps its Bragg peak there as the coherent part).
+    """
+    index_hkl = numpy.asarray(index_hkl, dtype=int).reshape(3, -1)
+    n_hkl = index_hkl.shape[1]
+    if model["variants"].shape[0] == 0 or n_hkl == 0:
+        return numpy.zeros(n_hkl, dtype=bool)
+    index_eq = calc_equivalent_reflections(index_hkl, reduced_symm_elems, centrosymmetry)
+    flag = calc_flag_faulted(index_eq.reshape(3, -1), model["orientations"], model["variants"])
+    return numpy.any(flag.reshape(n_hkl, -1), axis=1)
+
+
 def form_stacking_fault_setup(model: dict, index_hkl, unit_cell_parameters, wavelength: float,
                               reduced_symm_elems, centrosymmetry: bool, s_max: float,
                               d_s: float) -> dict:
@@ -300,12 +317,11 @@ def form_stacking_fault_setup(model: dict, index_hkl, unit_cell_parameters, wave
         Wanted step in |Q| along the rods (1/angstrom).
     """
     index_hkl = numpy.asarray(index_hkl, dtype=int)
-    n_hkl = index_hkl.shape[1]
     orientations, g = model["orientations"], model["g"]
     primitive = model["primitive"].astype(float)
     metric = model["atoms"]["metric"]
-    flag_faulted = calc_flag_faulted(index_hkl, orientations, model["variants"]) \
-        if model["variants"].shape[0] else numpy.zeros(n_hkl, dtype=bool)
+    flag_faulted = calc_flag_faulted_of_families(index_hkl, model, reduced_symm_elems,
+                                                 centrosymmetry)
     # Bragg |F|^2 of every reflection (perfect crystal, the same model)
     f2_bragg = numpy.square(numpy.abs(calc_layer_structure_factor(
         index_hkl.transpose().astype(float), model["atoms"])))
@@ -334,7 +350,10 @@ def form_stacking_fault_setup(model: dict, index_hkl, unit_cell_parameters, wave
     _, rod_of_point = numpy.unique(key_base, axis=0, return_inverse=True)
     rod_of_point = numpy.ravel(rod_of_point)
     d_tau = d_s / numpy.sqrt(pp) / 2.
-    l_q, l_cell = [], []
+    s_hkl = numpy.sqrt(numpy.einsum("in,ij,jn->n", index_hkl.astype(float), metric,
+                                    index_hkl.astype(float)))
+    s_range = (float(s_hkl.min()) - 1e-9, float(s_hkl.max()) + 1e-9)
+    l_q, l_cell, l_member = [], [], []
     n_total = 0
     for i_rod in range(int(rod_of_point.max()) + 1):
         members = numpy.flatnonzero(rod_of_point == i_rod)
@@ -346,9 +365,19 @@ def form_stacking_fault_setup(model: dict, index_hkl, unit_cell_parameters, wave
         m_present = m_point[members][order]
         member_sorted = members[order]
         tau_mid = 0.5 * (tau[1:] + tau[:-1])
+        # a cell belongs to the nearest spread reflection of the rod; the
+        # cells nearest to a lattice point out of the range of the
+        # reflections of the phase are left out (that intensity is out of
+        # the pattern)
         boundaries = 0.5 * (m_present[1:] + m_present[:-1])
         nearest = member_sorted[numpy.searchsorted(boundaries, tau_mid)]
+        q_near = base_rod[na, :] + numpy.floor(tau_mid + 0.5)[:, na] * primitive[na, :]
+        s_near = numpy.sqrt(numpy.maximum(numpy.einsum("ni,ij,nj->n", q_near, metric, q_near), 0.))
+        nearest = numpy.where((s_near >= s_range[0]) & (s_near <= s_range[1]), nearest, -1)
         l_q.append(base_rod[na, :] + tau[:, na] * primitive[na, :])
+        # the reflections of the list on this rod: only there a sharp peak
+        # belongs to a spread reflection (the others keep their Bragg line)
+        l_member.append(numpy.isin(tau, m_present))
         l_cell.append((n_total + numpy.arange(tau.size - 1), numpy.diff(tau), tau_mid,
                        numpy.full(tau.size - 1, i_rod), nearest, base_rod))
         n_total += tau.size
@@ -359,6 +388,8 @@ def form_stacking_fault_setup(model: dict, index_hkl, unit_cell_parameters, wave
     i_first = numpy.concatenate([item[0] for item in l_cell])
     d_tau_cell = numpy.concatenate([item[1] for item in l_cell])
     nearest = numpy.concatenate([item[4] for item in l_cell])
+    flag_cell = nearest >= 0
+    nearest = numpy.where(flag_cell, nearest, 0)
     q_mid = numpy.concatenate([item[5][na, :] + item[2][:, na] * primitive[na, :] for item in l_cell])
     s_mid = numpy.sqrt(numpy.maximum(numpy.einsum("ni,ij,nj->n", q_mid, metric, q_mid), 0.))
     ttheta_mid = 2. * numpy.arcsin(numpy.clip(0.5 * s_mid * wavelength, 0., 1.))
@@ -377,27 +408,51 @@ def form_stacking_fault_setup(model: dict, index_hkl, unit_cell_parameters, wave
     sthovl_hkl = 0.5 * numpy.sqrt(numpy.einsum(
         "in,ij,jn->n", index_hkl[:, index_f].astype(float), metric, index_hkl[:, index_f].astype(float)))
     ttheta_hkl = 2. * numpy.arcsin(numpy.clip(sthovl_hkl * wavelength, 0., 1.))
+    # every point belongs to a cell starting there (or, at the end of a rod,
+    # ending there): the column of a sharp peak at that point
+    point_cell = numpy.zeros(q.shape[0], dtype=int)
+    point_cell[i_first + 1] = numpy.arange(i_first.size)
+    point_cell[i_first] = numpy.arange(i_first.size)
+    point_member = numpy.concatenate(l_member)
     setup.update({
-        "index_faulted": index_f, "f_layer": f_layer, "phase": phase,
+        "index_faulted": index_f, "f_layer": f_layer, "phase": phase, "point_cell": point_cell,
+        "point_member": point_member,
         "cell_first": i_first, "cell_d_tau": d_tau_cell, "cell_ttheta": ttheta_mid,
-        "cell_column": point_column[nearest], "cell_weight": point_weight[nearest],
+        "cell_column": point_column[nearest],
+        "cell_weight": numpy.where(flag_cell, point_weight[nearest], 0.),
         "ttheta_hkl_faulted": ttheta_hkl, "n_point": q.shape[0],
     })
     return setup
 
 
 def calc_stacking_fault_intensity(setup: dict, alpha: float, beta: float):
-    """Intensity of the cells of the rods (units of |F_cell|^2, per equivalent of the reflection)."""
+    """Diffuse intensity of the cells of the rods and the sharp intensity of the reflections.
+
+    Returns
+    -------
+    cell_mass : array (n_cell,)
+        Diffuse intensity of the cells (units of |F_cell|^2, per
+        equivalent of the reflection).
+    sharp : array (n_faulted,)
+        Intensity of the Bragg peaks that the faults keep (a wave whose
+        phase no fault changes), in the same units.
+    """
     n_point = setup["n_point"]
     intensity = numpy.zeros(n_point)
+    sharp_point = numpy.zeros(n_point)
     for start in range(0, n_point, CHUNK):
         stop = min(start + CHUNK, n_point)
-        intensity[start:stop] = calc_rod_intensity(
+        intensity[start:stop], sharp_point[start:stop] = calc_rod_parts(
             setup["f_layer"][:, start:stop], setup["phase"][:, :, start:stop], alpha, beta,
             setup["g"])
     first = setup["cell_first"]
-    return 0.5 * (intensity[first] + intensity[first + 1]) * setup["cell_d_tau"] * \
+    cell_mass = 0.5 * (intensity[first] + intensity[first + 1]) * setup["cell_d_tau"] * \
         setup["cell_weight"]
+    cell = setup["point_cell"]
+    sharp_point = numpy.where(setup["point_member"], sharp_point, 0.)
+    sharp = numpy.bincount(setup["cell_column"][cell], weights=sharp_point * setup["cell_weight"][cell],
+                           minlength=setup["index_faulted"].size)
+    return cell_mass, sharp
 
 
 def form_setup_key(row: dict, unit_cell_parameters, dict_crystal: dict, index_hkl,
@@ -467,10 +522,14 @@ def calc_stacking_fault_profile(
         flag_faulted = numpy.zeros_like(flag_faulted)
     if not numpy.any(flag_faulted):
         return flag_faulted, numpy.zeros((ttheta_zs.size, 0)), numpy.zeros(0), setup["f2_bragg"]
-    cell_mass = calc_stacking_fault_intensity(setup, row["probability"], row["probability_repeat"])
+    cell_mass, sharp = calc_stacking_fault_intensity(
+        setup, row["probability"], row["probability_repeat"])
     column = setup["cell_column"]
     n_faulted = int(numpy.count_nonzero(flag_faulted))
-    intensity = numpy.bincount(column, weights=cell_mass, minlength=n_faulted)
+    intensity = numpy.bincount(column, weights=cell_mass, minlength=n_faulted) + sharp
+    # a reflection without intensity (extinct in all the stackings) gets no line
+    norm = numpy.where(intensity > 1e-12 * max(float(numpy.max(numpy.abs(intensity))), 1e-300),
+                       intensity, numpy.inf)
     ttheta_cell = setup["cell_ttheta"]
     lf_ratio = calc_lorentz_factor(ttheta_cell, k=k, cthm=cthm)[0] / \
         calc_lorentz_factor(setup["ttheta_hkl_faulted"], k=k, cthm=cthm)[0][column]
@@ -478,10 +537,19 @@ def calc_stacking_fault_profile(
     flag = (position >= 0.) & (position < ttheta_grid.size - 1)
     index_low = numpy.floor(position[flag]).astype(int)
     fraction = position[flag] - index_low
-    weight = (cell_mass * lf_ratio)[flag] / numpy.where(intensity > 0., intensity, 1.)[column[flag]]
+    weight = (cell_mass * lf_ratio)[flag] / norm[column[flag]]
     mass = numpy.zeros((ttheta_grid.size, n_faulted))
     numpy.add.at(mass, (index_low, column[flag]), weight * (1. - fraction))
     numpy.add.at(mass, (index_low + 1, column[flag]), weight * fraction)
+    # the sharp part: a Bragg line at the reflection
+    position = (setup["ttheta_hkl_faulted"] - ttheta_grid[0]) / step
+    flag = (position >= 0.) & (position < ttheta_grid.size - 1) & (sharp != 0.)
+    index_low = numpy.floor(position[flag]).astype(int)
+    fraction = position[flag] - index_low
+    i_column = numpy.flatnonzero(flag)
+    weight = sharp[flag] / norm[flag]
+    numpy.add.at(mass, (index_low, i_column), weight * (1. - fraction))
+    numpy.add.at(mass, (index_low + 1, i_column), weight * fraction)
     profile_grid = calc_profile_pseudo_voight(
         ttheta_zs, ttheta_grid, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4)[0]
     return flag_faulted, profile_grid @ mass, intensity, setup["f2_bragg"]
@@ -745,7 +813,8 @@ def form_report_of_row(row, crystal, wavelength: float) -> str:
         flag_absent = calc_extinction_rule_by_symmetry_elements(
             index_hkl, dict_crystal["full_symm_elems"], dict_crystal["translation_elems"], False)
         index_hkl = index_hkl[:, ~flag_absent]
-    flag = calc_flag_faulted(index_hkl, model["orientations"], model["variants"])
+    reduced_symm_elems, centrosymmetry = take_symmetry_of_crystal(dict_crystal)
+    flag = calc_flag_faulted_of_families(index_hkl, model, reduced_symm_elems, centrosymmetry)
     index_f = index_hkl[:, flag]
     s_line += f". Spread reflections: {describe_rule(shift_vector):}"
     if index_f.shape[1] > 0:

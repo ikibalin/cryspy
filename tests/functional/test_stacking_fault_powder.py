@@ -113,3 +113,43 @@ def test_wrong_layers_are_refused():
         cryspy.add_stacking_fault(rcif, normal="0 0 1", shift="0 1/2 1/2")
     with pytest.raises(ValueError, match="symmetry"):
         cryspy.add_stacking_fault(rcif, normal="0 0 3", shift="0 1/2 0")
+
+
+F_HO2TI2O7 = os.path.join(DIR, "Ho2Ti2O7_5K_1T_powder_1d_test", "main.rcif")
+
+
+def calc_polarized_signals(polarization: float, probability: float):
+    """I+ and I- of Ho2Ti2O7 (paramagnetic, 1 T) with stacking faults of the layers (0 0 4)."""
+    from cryspy.procedure_rhochi.rhochi_by_dictionary import rhochi_calc_chi_sq_by_dictionary
+    rcif = cryspy.file_to_globaln(F_HO2TI2O7)
+    experiment = take_block(rcif, "Pd")
+    experiment.range.ttheta_max = 40.
+    experiment.diffrn_radiation.polarization = polarization
+    if probability > 0.:
+        cryspy.add_stacking_fault(rcif, normal="0 0 4", shift="1/4 1/4 0",
+                                  probability=probability, probability_repeat=0.4)
+    dict_in_out = {}
+    rhochi_calc_chi_sq_by_dictionary(
+        rcif.get_dictionary(), dict_in_out=dict_in_out, flag_use_precalculated_data=False,
+        flag_calc_analytical_derivatives=False)
+    dict_pd = dict_in_out[f"pd_{experiment.data_name.lower():}"]
+    return dict_pd["signal_plus"], dict_pd["signal_minus"]
+
+
+def test_polarized_faults_sum_equals_unpolarized():
+    """I+ + I- of a polarized pattern is the unpolarized one, with the same line shapes.
+
+    Fd-3m with layers (0 0 4): some waves do not see the fault shift
+    (coherent, |lambda| = 1), they stay Bragg peaks instead of a division
+    by zero.
+    """
+    plus, minus = calc_polarized_signals(0.88, 0.2)
+    plus_0, minus_0 = calc_polarized_signals(0., 0.2)
+    plus_b, minus_b = calc_polarized_signals(0.88, 0.)
+    total = plus + minus
+    assert numpy.all(numpy.isfinite(total))
+    assert numpy.allclose(total, plus_0 + minus_0, rtol=1e-10, atol=1e-8 * total.max())
+    # the faults spread the lines but keep the scale and the polarized difference
+    assert total.max() < 3. * (plus_b + minus_b).max()
+    assert total.min() > -1e-6 * total.max()
+    assert numpy.abs(plus - minus).max() > 0.2 * total.max()

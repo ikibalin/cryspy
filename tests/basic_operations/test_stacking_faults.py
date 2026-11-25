@@ -153,3 +153,21 @@ def test_fit_sharp_and_broad_and_the_rule():
 def test_group_reflections():
     group = group_reflections(numpy.array([10., 10.01, 12., 20.]), numpy.full(4, 0.2))
     assert list(group) == [0, 0, 1, 2]
+
+
+def test_coherent_waves_stay_bragg_peaks():
+    """A wave that no fault changes (|lambda| = 1) is a Bragg peak, not a 1/(1 - lambda) pole."""
+    from cryspy.A_functions_base.stacking_faults import calc_rod_parts
+    shifts = [numpy.array([0., 0., 1.]), numpy.array([0.5, 0., 1.])]
+    tau = numpy.linspace(-0.5, 0.5, 20001)
+    for h, sharp_expected in ((2., 1.), (1., 0.)):
+        q = numpy.stack([numpy.full(tau.size, h), numpy.zeros(tau.size), tau], axis=1)
+        f_layer = numpy.ones((1, tau.size), dtype=complex)
+        phase = numpy.array([[numpy.exp(2j * numpy.pi * (q @ shift)) for shift in shifts]])
+        diffuse, sharp = calc_rod_parts(f_layer, phase, 0.2, 0.3, 1)
+        assert numpy.all(numpy.isfinite(diffuse))
+        assert sharp[tau.size // 2] == pytest.approx(sharp_expected, abs=1e-9)
+        assert numpy.delete(sharp, tau.size // 2) == pytest.approx(0., abs=1e-12)
+        # every wave goes either to the Bragg peak or to the rod: one |F|^2 per period
+        integral = numpy.trapezoid(diffuse, tau)
+        assert integral + sharp.sum() == pytest.approx(1., rel=2e-3)
