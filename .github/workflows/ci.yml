@@ -79,6 +79,13 @@ jobs:
           coverage combine .coverage.*
           coverage json -o coverage.json
           python .github/scripts/coverage_summary.py coverage.json > coverage.md
+
+      # code duplication (jscpd) and docstrings: a report only, never a failure
+      - name: Duplication and docstrings
+        run: |
+          npx -y jscpd@4.0.5 cryspy --format python --reporters json --output jscpd \
+            --silent --min-lines 6 --min-tokens 70 || true
+          python .github/scripts/quality_summary.py jscpd/jscpd-report.json cryspy >> coverage.md || true
           cat coverage.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload HTML report

@@ -40,6 +40,13 @@ ruff check --fix .                         # fix what is safe to fix
 pip install pre-commit && pre-commit install   # check on every commit
 ```
 
+ruff also limits the size of a function: cyclomatic complexity 15,
+12 branches, 10 arguments and 50 statements. Split a new function that
+is above a limit instead of adding `# noqa`; the older functions with
+`# noqa` are waiting to be split. The CI comment of a pull request
+shows the test coverage, the code duplication (jscpd) and the share of
+public functions and classes with a docstring.
+
 Dependencies are declared only in `pyproject.toml`; after changing them,
 update `pixi.lock` with `pixi install`. The version is computed from git
 tags by `versioningit`; never write a version number by hand.
