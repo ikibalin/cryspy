@@ -39,8 +39,6 @@ from cryspy.A_functions_base.powder_diffraction_const_wavelength import (
 from .rhochi_diffrn import get_flags
 from .rhochi_texture import calc_texture_sh_for_phase
 from .rhochi_magnetic_broadening import form_y_mag_by_hkl
-from .rhochi_layer_correlation import (
-    calc_signal_layer_correlation, calc_in_plane_mask)
 from .rhochi_stacking_fault import (
     take_stacking_fault_of_phase, calc_stacking_fault_profile, calc_stacking_fault_scale)
 from .rhochi_pd_matching import (
@@ -760,31 +758,10 @@ def calc_chi_sq_for_pd_by_dictionary(
         weight_plus = iint_m_plus * texture_factor
         weight_minus = iint_m_minus * texture_factor
 
-        # layer_correlation: the order of the phase existing only in layers
-        # scatters along rods (Warren line shape) instead of Bragg reflections
-        signal_layer, row_layer = calc_signal_layer_correlation(
-            dict_pd, dict_crystal, dict_in_out_phase, p_name,
-            unit_cell_parameters, wavelength, ttheta_zs, u, v, w, p_ig, x, y,
-            p_1, p_2, p_3, p_4, k, cthm, radiation[0])
-        if row_layer is not None:
-            weight_nucl = numpy.square(numpy.abs(f_nucl)) * multiplicity_hkl * texture_factor
-            if row_layer["contribution"] != "nuclear":
-                # the magnetic intensity is in the rods only
-                weight_plus, weight_minus = weight_nucl, weight_nucl
-                y_mag_by_hkl = None
-            if row_layer["contribution"] != "magnetic":
-                # the nuclear reflections off the 00l line become rods
-                weight_nucl_rod = weight_nucl * calc_in_plane_mask(
-                    index_hkl, row_layer["normal_index"], unit_cell_parameters)
-                weight_plus = weight_plus - weight_nucl_rod
-                weight_minus = weight_minus - weight_nucl_rod
-                weight_nucl = weight_nucl - weight_nucl_rod
-
         if y_mag_by_hkl is not None:
             # |F_N|^2 keeps the profile of the phase, the rest (|F_M|^2, the
             # paramagnetic and the interference terms) is broadened
-            if row_layer is None:
-                weight_nucl = numpy.square(numpy.abs(f_nucl)) * multiplicity_hkl * texture_factor
+            weight_nucl = numpy.square(numpy.abs(f_nucl)) * multiplicity_hkl * texture_factor
             weight_plus_mag = weight_plus - weight_nucl
             weight_minus_mag = weight_minus - weight_nucl
             weight_plus, weight_minus = weight_nucl, weight_nucl
@@ -812,10 +789,6 @@ def calc_chi_sq_for_pd_by_dictionary(
                 profile_magnetic * weight_plus_mag[na, :]).sum(axis=1)
             signal_minus = signal_minus + 0.5 * p_scale * lorentz_factor * (
                 profile_magnetic * weight_minus_mag[na, :]).sum(axis=1)
-
-        if signal_layer is not None:
-            signal_plus = signal_plus + signal_layer
-            signal_minus = signal_minus + signal_layer
 
         if radiation[0].startswith("neutrons") and (
                 "atom_fourier_index" in dict_crystal_keys):

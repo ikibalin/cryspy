@@ -194,12 +194,6 @@ from cryspy.C_item_loop_classes.cl_1_restr import (
 L_ITEM_CLASS.extend([RestrDistance, RestrAngle, RestrTorsion, RestrWeight])
 L_LOOP_CLASS.extend([RestrDistanceL, RestrAngleL, RestrTorsionL])
 
-from cryspy.C_item_loop_classes.cl_1_layer_correlation import (
-    LayerCorrelation, LayerCorrelationL)
-
-L_ITEM_CLASS.extend([LayerCorrelation])
-L_LOOP_CLASS.extend([LayerCorrelationL])
-
 from cryspy.C_item_loop_classes.cl_1_stacking_fault import (
     StackingFault, StackingFaultL)
 

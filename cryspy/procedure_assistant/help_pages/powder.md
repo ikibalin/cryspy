@@ -20,10 +20,6 @@ A constant wavelength 1d powder experiment is a `pd` data block:
   `magnetic_broadening` (extra Lorentzian width of the magnetic reflections
   of a phase, 0 for the nuclear width: magnetic domain size, see the help
   page on the extra broadening of magnetic reflections).
-- optional `layer_correlation` (order only inside layers normal to (h k l),
-  without correlations between them: rods (hk), asymmetric saw-tooth
-  Warren lines; in-plane correlation length, see the help page on
-  two-dimensional correlations).
 - optional `stacking_fault` (faults of the stacking of layers, Hendricks-
   Teller model with independent or correlated faults: only the reflections
   that see the fault shift are broad or asymmetric; see the help page on
