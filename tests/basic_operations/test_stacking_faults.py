@@ -1,70 +1,125 @@
-"""Stacking faults of layers in powder (A_functions_base/stacking_faults.py)
-and the diagnosis of the peak widths (A_functions_base/peak_width_diagnostics.py)."""
+"""Stacking faults of layers in powder (A_functions_base/stacking_faults.py,
+Hendricks-Teller model) and the diagnosis of the peak widths
+(A_functions_base/peak_width_diagnostics.py)."""
 import numpy
 import pytest
 
 from cryspy.A_functions_base.stacking_faults import (
-    calc_fault_beta, calc_flag_faulted, calc_probability_by_width, calc_rod_geometry,
-    calc_rod_mass, calc_rod_width)
+    calc_atoms_of_cell, calc_fault_variants, calc_flag_faulted, calc_layer_cut,
+    calc_layer_structure_factor, calc_orientations, calc_reciprocal_metric,
+    calc_rod_intensity, calc_rod_width, find_stacking_operation, select_layer, split_normal)
 from cryspy.A_functions_base.peak_width_diagnostics import (
     calc_lorentzian_columns, describe_shift, find_fault_rule, fit_sharp_and_broad,
     group_reflections)
 
 UCP = numpy.array([10.36, 8.34, 13.39, 0.5 * numpy.pi, 0.5 * numpy.pi, 0.5 * numpy.pi])
+# Pbcn: x,y,z; -x+1/2,-y+1/2,z+1/2; -x,y,-z+1/2; x+1/2,-y+1/2,-z and the inversion
+PBCN = [(numpy.diag([1, 1, 1]), (0, 0, 0)), (numpy.diag([-1, -1, 1]), (.5, .5, .5)),
+        (numpy.diag([-1, 1, -1]), (0, 0, .5)), (numpy.diag([1, -1, -1]), (.5, .5, 0)),
+        (numpy.diag([-1, -1, -1]), (0, 0, 0)), (numpy.diag([1, 1, -1]), (.5, .5, .5)),
+        (numpy.diag([1, -1, 1]), (0, 0, .5)), (numpy.diag([-1, 1, 1]), (.5, .5, 0))]
+ROTATIONS = numpy.array([op[0] for op in PBCN])
+TRANSLATIONS = numpy.array([op[1] for op in PBCN], dtype=float)
 
 
-def test_faulted_reflections_and_width():
+def form_layer(xyz, metric):
+    n = xyz.shape[0]
+    return {"xyz": xyz, "amplitude": numpy.ones(n, dtype=complex), "b_iso": numpy.zeros(n),
+            "beta": numpy.zeros((n, 3, 3)), "metric": metric}
+
+
+def form_rod(layer, rotation, shifts, orientations, h, k, tau):
+    q = numpy.stack([numpy.full_like(tau, h), numpy.full_like(tau, k), tau], axis=1)
+    f_layer = numpy.array([calc_layer_structure_factor(q @ r, layer) for r in orientations])
+    phase = numpy.array([[numpy.exp(2j * numpy.pi * ((q @ r) @ t)) for t in shifts]
+                         for r in orientations])
+    return f_layer, phase
+
+
+def test_stacking_operation_layer_and_faulted_reflections():
+    xyz, index_atom, _ = calc_atoms_of_cell(
+        numpy.array([[0.], [0.1232], [0.25]]), ROTATIONS, TRANSLATIONS)
+    assert xyz.shape == (4, 3) and numpy.all(index_atom == 0)
+    assert split_normal((0, 0, 2))[1] == 2
+    rotation, translation = find_stacking_operation((0, 0, 2), ROTATIONS, TRANSLATIONS)
+    assert (0, 0, 2) @ translation == pytest.approx(1.)
+    assert calc_orientations(rotation).shape[0] == 2
+    rotation_1, translation_1 = find_stacking_operation((0, 0, 1), ROTATIONS, TRANSLATIONS)
+    assert numpy.array_equal(rotation_1, numpy.eye(3)) and translation_1[2] == pytest.approx(1.)
+    # Fe at z = 1/4 and 3/4: the cut is in the gap at z = 0 (N.r = 0) or 1/2
+    cut = calc_layer_cut(xyz, (0, 0, 2))
+    assert min(abs(cut), abs(cut - 1.)) < 1e-6
+    xyz_layer = select_layer(xyz, (0, 0, 2), cut)[0]
+    assert xyz_layer.shape[0] == 2
+    variants = calc_fault_variants((0., 0.5, 0.), (0, 0, 2), ROTATIONS, TRANSLATIONS)
+    assert variants.shape[0] == 1
     index_hkl = numpy.array([[0, 0, 2], [1, 1, 0], [1, 2, 1], [1, 1, 1]]).T
-    shift = numpy.array([0., 0.5, 0.])
-    assert list(calc_flag_faulted(index_hkl, shift)) == [False, True, False, True]
-    beta = calc_fault_beta(index_hkl, shift, 0.2)
-    assert beta[0] == pytest.approx(1.) and beta[1] == pytest.approx(0.6)
-    d_layer = calc_rod_geometry(index_hkl, (0, 0, 2), UCP)[2]
-    assert d_layer == pytest.approx(13.39 / 2.)
-    gamma, delta = calc_rod_width(beta, d_layer)
-    assert gamma[0] == pytest.approx(0.)
-    assert gamma[1] == pytest.approx(-numpy.log(0.6) / (2. * numpy.pi * d_layer))
-    assert numpy.allclose(delta, 0.)
-    assert calc_probability_by_width(gamma[1], d_layer) == pytest.approx(0.2, abs=1e-4)
+    flag = calc_flag_faulted(index_hkl, calc_orientations(rotation), variants)
+    assert list(flag) == [False, True, False, True]
 
 
-def test_shift_not_half_moves_the_lorentzian():
-    beta = calc_fault_beta(numpy.array([[1], [0], [0]]), numpy.array([1. / 3., 0., 0.]), 0.2)
-    gamma, delta = calc_rod_width(beta, 5.)
-    assert gamma[0] > 0. and abs(delta[0]) > 0.
+def test_hexagonal_shift_has_two_variants():
+    rotations = numpy.array([numpy.eye(3, dtype=int), [[0, -1, 0], [1, -1, 0], [0, 0, 1]],
+                             [[-1, 1, 0], [-1, 0, 0], [0, 0, 1]]])
+    translations = numpy.zeros((3, 3))
+    variants = calc_fault_variants((1. / 3., 2. / 3., 0.), (0, 0, 1), rotations, translations)
+    assert variants.shape[0] == 1  # (1/3, 2/3) is kept by the 3-fold axis
+    variants = calc_fault_variants((1. / 3., 0., 0.), (0, 0, 1), rotations, translations)
+    assert variants.shape[0] == 3
 
 
-def test_rod_geometry():
-    g, z, _ = calc_rod_geometry(numpy.array([[1, 1, 0], [0, 0, 2]]).T, (0, 0, 1), UCP)
-    assert z[0] == pytest.approx(0.) and g[1] == pytest.approx(0., abs=1e-12)
-    assert z[1] == pytest.approx(2. / 13.39)
-    assert g[0] == pytest.approx(numpy.hypot(1. / 10.36, 1. / 8.34))
+def test_random_faults_of_a_translation_stacking_are_the_lorentzian_formula():
+    """Identical layers, S0 = translation c: I = |F|^2 (1 - |b|^2) / |1 - b e^(2 pi i l)|^2."""
+    metric = calc_reciprocal_metric(UCP)[0]
+    layer = form_layer(numpy.array([[0.1, 0.2, 0.3], [0.4, 0.1, 0.6]]), metric)
+    alpha, shift = 0.2, numpy.array([0., 0.5, 0.])
+    orientations = numpy.array([numpy.eye(3, dtype=int)])
+    shifts = [numpy.array([0., 0., 1.]), numpy.array([0., 0.5, 1.])]
+    tau = numpy.linspace(-0.5, 0.5, 201)
+    f_layer, phase = form_rod(layer, None, shifts, orientations, 1, 1, tau)
+    intensity = calc_rod_intensity(f_layer, phase, alpha, alpha, 1)
+    b = 1. - alpha + alpha * numpy.exp(2j * numpy.pi * (shift @ [1, 1, 0]))
+    expected = numpy.abs(f_layer[0]) ** 2 * (1. - abs(b) ** 2) / numpy.abs(
+        1. - b * numpy.exp(2j * numpy.pi * tau)) ** 2
+    assert numpy.allclose(intensity, expected, rtol=1e-8)
+    # the width of the rod
+    width = calc_rod_width(phase[:, :, 100:101], alpha, alpha, 1)[0]
+    assert width == pytest.approx(-numpy.log(abs(b)) / (2. * numpy.pi))
 
 
-def test_rod_mass_keeps_the_intensity_and_matches_sampling():
-    g = numpy.array([0.15, 0.15, 0.0])
-    z = numpy.array([0.0, 0.1, 0.2])
-    gamma = numpy.array([0.01, 0.01, 0.005])
-    s_edges = numpy.linspace(0.01, 3., 30001)
-    mass = calc_rod_mass(s_edges, g, z, gamma)
-    assert numpy.all(mass >= -1e-12)
-    assert numpy.allclose(mass.sum(axis=0), 1., atol=0.01)
-    # sampling of the Lorentzian along the rod
-    rng = numpy.random.default_rng(1)
-    z_sample = z[1] + gamma[1] * numpy.tan(numpy.pi * (rng.random(400000) - 0.5))
-    s_sample = numpy.sqrt(g[1] ** 2 + z_sample ** 2)
-    hist = numpy.histogram(s_sample, bins=s_edges[::300])[0] / z_sample.size
-    coarse = mass[:, 1][:30000].reshape(100, 300).sum(axis=1)
-    assert numpy.abs(hist - coarse).max() < 0.005
-    # a rod in the plane: sharp front at s = g, nothing below
-    assert mass[s_edges[1:] < g[0] - 1e-9, 0].sum() == pytest.approx(0., abs=1e-12)
+@pytest.mark.parametrize("alpha, beta", [(0.2, 0.2), (0.1, 0.6), (0.3, 0.05)])
+def test_rod_keeps_the_intensity_of_the_bragg_reflections(alpha, beta):
+    """Layers related by the c-glide (x, -y, z+1/2), two per cell."""
+    metric = calc_reciprocal_metric(UCP)[0]
+    xyz_cell, _, _ = calc_atoms_of_cell(
+        numpy.array([[0.0, 0.2633, 0.73], [0.1232, 0.1269, 0.1259], [0.25, 0.3509, 0.5013]]),
+        ROTATIONS, TRANSLATIONS)
+    cut = calc_layer_cut(xyz_cell, (0, 0, 2))
+    xyz_layer = select_layer(xyz_cell, (0, 0, 2), cut)[0]
+    rotation, translation = find_stacking_operation((0, 0, 2), ROTATIONS, TRANSLATIONS)
+    orientations = calc_orientations(rotation)
+    shifts = [translation, translation + numpy.array([0., 0.5, 0.])]
+    # the intensity moves between the reflections of a rod, the total over
+    # many of them is kept (no displacements: no decay along the rod)
+    tau = numpy.linspace(-20., 20., 200001)[:-1]
+    f_layer, phase = form_rod(form_layer(xyz_layer, metric), rotation, shifts, orientations,
+                              1, 1, tau)
+    intensity = calc_rod_intensity(f_layer, phase, alpha, beta, 2)
+    assert numpy.all(intensity > -1e-9)
+    hkl = numpy.array([[1., 1., float(l)] for l in range(-20, 20)])
+    f2_bragg = numpy.abs(calc_layer_structure_factor(hkl, form_layer(xyz_cell, metric))) ** 2
+    assert intensity.mean() == pytest.approx(f2_bragg.mean(), rel=0.03)
 
 
-def test_narrow_lorentzian_is_a_bragg_peak():
-    s_edges = numpy.linspace(0.1, 0.5, 401)
-    mass = calc_rod_mass(s_edges, numpy.array([0.2]), numpy.array([0.16]), numpy.array([1e-9]))
-    i_bin = numpy.searchsorted(s_edges, numpy.hypot(0.2, 0.16)) - 1
-    assert mass[i_bin, 0] == pytest.approx(1., abs=1e-5)
+def test_small_probability_gives_bragg_peaks():
+    metric = calc_reciprocal_metric(UCP)[0]
+    layer = form_layer(numpy.array([[0.1, 0.2, 0.3]]), metric)
+    orientations = numpy.array([numpy.eye(3, dtype=int)])
+    shifts = [numpy.array([0., 0., 1.]), numpy.array([0., 0.5, 1.])]
+    tau = numpy.array([0., 0.05, 0.5])
+    f_layer, phase = form_rod(layer, None, shifts, orientations, 1, 1, tau)
+    intensity = calc_rod_intensity(f_layer, phase, 1e-4, 1e-4, 1)
+    assert intensity[0] > 1e3 * intensity[1] > 1e3 * intensity[2] * 0.
 
 
 def test_describe_shift():

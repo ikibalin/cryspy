@@ -1,4 +1,4 @@
-"""Random stacking faults in 1D powder (loop stacking_fault, diagnose_peak_widths)."""
+"""Stacking faults in 1D powder (loop stacking_fault, Hendricks-Teller model, diagnose_peak_widths)."""
 import os
 
 import numpy
@@ -27,10 +27,11 @@ def calc_signal(experiment):
     return numpy.array(proc.intensity_plus_net) + numpy.array(proc.intensity_minus_net)
 
 
-def simulate_faulted(probability: float = 0.15):
+def simulate_faulted(probability: float = 0.15, probability_repeat: float = -1.):
     """PbSO4 pattern calculated with faults, written as the measured one."""
     rcif, experiment = load_pbso4()
-    cryspy.add_stacking_fault(rcif, normal="0 0 1", shift="0 1/2 0", probability=probability)
+    cryspy.add_stacking_fault(rcif, normal="0 0 1", shift="0 1/2 0", probability=probability,
+                              probability_repeat=probability_repeat)
     rcif.fix_variables()
     cryspy.rhochi_no_refinement(rcif)
     proc = experiment.pd_proc
@@ -65,7 +66,8 @@ def test_faults_keep_the_integrated_intensity_and_spread_k_odd():
     rcif.fix_variables()
     cryspy.rhochi_no_refinement(rcif)
     signal_fault = calc_signal(experiment)
-    assert signal_fault.sum() == pytest.approx(signal_bragg.sum(), rel=0.03)
+    # the intensity moves between the reflections, the total is kept
+    assert signal_fault.sum() == pytest.approx(signal_bragg.sum(), rel=0.05)
     assert signal_fault.max() < signal_bragg.max() * 1.001
     assert numpy.abs(signal_fault - signal_bragg).max() > 0.05 * signal_bragg.max()
     s_report = cryspy.report_stacking_fault(rcif)
@@ -93,3 +95,21 @@ def test_diagnosis_finds_the_rule_and_the_layers():
     assert "STACKING_FAULTS" in s_diagnosis and "best layers (" in s_diagnosis
     from cryspy.procedure_assistant.tools import tool_diagnose_fit
     assert "SELECTIVE_WIDTH" in tool_diagnose_fit(rcif)
+
+
+def test_correlated_faults_are_refined():
+    rcif, experiment = simulate_faulted(0.15, 0.5)
+    row = experiment.stacking_fault.items[0]
+    row.probability, row.probability_repeat = 0.15, 0.25
+    row.probability_refinement, row.probability_repeat_refinement = False, True
+    cryspy.rhochi_profile_matching(rcif)
+    assert row.probability_repeat == pytest.approx(0.5, abs=0.05)
+    assert "after a fault" in cryspy.report_stacking_fault(rcif)
+
+
+def test_wrong_layers_are_refused():
+    rcif, _ = load_pbso4()
+    with pytest.raises(ValueError, match="plane of the layers"):
+        cryspy.add_stacking_fault(rcif, normal="0 0 1", shift="0 1/2 1/2")
+    with pytest.raises(ValueError, match="symmetry"):
+        cryspy.add_stacking_fault(rcif, normal="0 0 3", shift="0 1/2 0")

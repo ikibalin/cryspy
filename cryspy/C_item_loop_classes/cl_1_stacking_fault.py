@@ -1,11 +1,15 @@
-"""Random stacking faults of a powder phase (loop stacking_fault).
+"""Stacking faults of a powder phase (loop stacking_fault).
 
 StackingFault: one row for each phase whose layers normal to
-(normal_h normal_k normal_l) are shifted at random by the fault vector
-(shift_x shift_y shift_z) with the probability `probability` (refinable)
-between two neighbour layers. The reflections H with H.t not an integer
-are spread along the normal of the layers (asymmetric or broad lines),
-the others stay sharp. See cryspy/A_functions_base/stacking_faults.py.
+(normal_h normal_k normal_l) are stacked by a symmetry operation of the
+crystal and, at a fault, with the extra in-plane shift
+(shift_x shift_y shift_z). probability is the probability of a fault after
+a normal contact, probability_repeat the one after a fault (not given: the
+same, independent faults); both refinable. layer_cut is the position
+N.r of the cut between the layers (not given: the widest gap between the
+atoms). The reflections that see the faults are spread along rods normal
+to the layers with the intensity of the Hendricks-Teller model, the
+others stay sharp. See cryspy/A_functions_base/stacking_faults.py.
 
 loop_
 _stacking_fault_phase_label
@@ -16,7 +20,9 @@ _stacking_fault_shift_x
 _stacking_fault_shift_y
 _stacking_fault_shift_z
 _stacking_fault_probability
-Pbcn  0 0 2  0.0 0.5 0.0  0.19(1)
+_stacking_fault_probability_repeat
+_stacking_fault_layer_cut
+Pbcn  0 0 2  0.0 0.5 0.0  0.19(1) 0.40(10) .
 """
 from typing import NoReturn
 import numpy
@@ -30,25 +36,34 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 class StackingFault(ItemN):
     """
-    Random stacking faults of the layers of a powder phase.
+    Stacking faults of the layers of a powder phase (Hendricks-Teller model).
 
     Attributes
     ----------
         - phase_label (mandatory): label of the phase of the experiment
         - normal_h, normal_k, normal_l (mandatory): Miller indices of the
-          layer planes; (0 0 2) are layers at c/2, two per cell
-        - shift_x, shift_y, shift_z: fault vector, fractional coordinates
-          of the cell (the extra shift of the layers above a fault)
-        - probability: probability of a fault between two neighbour
-          layers, 0 ... 1 (refinable)
+          layer planes; (0 0 2) are layers at c/2, two per cell (they must
+          be related by a symmetry operation of the crystal)
+        - shift_x, shift_y, shift_z: fault vector in the plane of the
+          layers, fractional coordinates of the cell of the layer below
+          (the extra shift of the next layer at a fault)
+        - probability: probability of a fault after a normal contact,
+          0 ... 1 (refinable)
+        - probability_repeat: probability of a fault after a fault (not
+          given: equal to probability, independent faults; larger: runs of
+          faults, domains of the other stacking), refinable
+        - layer_cut: N.r of the cut between two layers (not given: the
+          widest gap between the atoms)
     """
     ATTR_MANDATORY_NAMES = ("phase_label", "normal_h", "normal_k", "normal_l")
     ATTR_MANDATORY_TYPES = (str, int, int, int)
     ATTR_MANDATORY_CIF = ("phase_label", "normal_h", "normal_k", "normal_l")
 
-    ATTR_OPTIONAL_NAMES = ("shift_x", "shift_y", "shift_z", "probability")
-    ATTR_OPTIONAL_TYPES = (float, float, float, float)
-    ATTR_OPTIONAL_CIF = ("shift_x", "shift_y", "shift_z", "probability")
+    ATTR_OPTIONAL_NAMES = ("shift_x", "shift_y", "shift_z", "probability",
+                           "probability_repeat", "layer_cut")
+    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float)
+    ATTR_OPTIONAL_CIF = ("shift_x", "shift_y", "shift_z", "probability",
+                         "probability_repeat", "layer_cut")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -57,14 +72,15 @@ class StackingFault(ItemN):
     ATTR_INT_NAMES = ()
     ATTR_INT_PROTECTED_NAMES = ()
 
-    ATTR_REF = ("probability", )
+    ATTR_REF = ("probability", "probability_repeat")
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
     ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     D_FORMATS = {"shift_x": "{:.5f}", "shift_y": "{:.5f}", "shift_z": "{:.5f}",
-                 "probability": "{:.5f}"}
+                 "probability": "{:.5f}", "probability_repeat": "{:.5f}",
+                 "layer_cut": "{:.4f}"}
 
     D_CONSTRAINTS = {}
 
@@ -80,8 +96,8 @@ class StackingFault(ItemN):
 
     def __init__(self, **kwargs) -> NoReturn:
         super(StackingFault, self).__init__()
-        self.__dict__["D_MIN"] = {"probability": 0.}
-        self.__dict__["D_MAX"] = {"probability": 1.}
+        self.__dict__["D_MIN"] = {"probability": 0., "probability_repeat": 0.}
+        self.__dict__["D_MAX"] = {"probability": 1., "probability_repeat": 1.}
         for key, attr in self.D_DEFAULT.items():
             setattr(self, key, attr)
         for key, attr in kwargs.items():
@@ -94,6 +110,14 @@ class StackingFault(ItemN):
     def get_shift(self):
         """Fault vector t, fractional coordinates of the cell."""
         return numpy.array([self.shift_x, self.shift_y, self.shift_z], dtype=float)
+
+    def get_probability_repeat(self) -> float:
+        """Probability of a fault after a fault (nan: equal to probability)."""
+        return float(self.probability_repeat) if self.is_attribute("probability_repeat") else numpy.nan
+
+    def get_layer_cut(self) -> float:
+        """N.r of the cut between the layers (nan: automatic)."""
+        return float(self.layer_cut) if self.is_attribute("layer_cut") else numpy.nan
 
 
 class StackingFaultL(LoopN):
@@ -121,18 +145,27 @@ class StackingFaultL(LoopN):
                 [float(item.probability) for item in self.items], dtype=float),
             "flags_stacking_fault_probability": numpy.array(
                 [bool(item.probability_refinement) for item in self.items], dtype=bool),
+            "stacking_fault_probability_repeat": numpy.array(
+                [item.get_probability_repeat() for item in self.items], dtype=float),
+            "flags_stacking_fault_probability_repeat": numpy.array(
+                [bool(item.probability_repeat_refinement) and item.is_attribute("probability_repeat")
+                 for item in self.items], dtype=bool),
+            "stacking_fault_layer_cut": numpy.array(
+                [item.get_layer_cut() for item in self.items], dtype=float),
         }
 
     def take_parameters_from_dictionary(self, ddict_diffrn, l_parameter_name: list = None,
                                         l_sigma: list = None):
-        key = "stacking_fault_probability"
-        if key in ddict_diffrn.keys():
-            for item, value in zip(self.items, ddict_diffrn[key]):
-                item.probability = float(value)
-        if l_parameter_name is not None:
-            for name, sigma in zip(l_parameter_name, l_sigma):
-                if name[0] == key:
-                    self.items[name[1][0]].probability_sigma = float(sigma)
+        for key, attr in (("stacking_fault_probability", "probability"),
+                          ("stacking_fault_probability_repeat", "probability_repeat")):
+            if key in ddict_diffrn.keys():
+                for item, value in zip(self.items, ddict_diffrn[key]):
+                    if numpy.isfinite(value):
+                        setattr(item, attr, float(value))
+            if l_parameter_name is not None:
+                for name, sigma in zip(l_parameter_name, l_sigma):
+                    if name[0] == key:
+                        setattr(self.items[name[1][0]], f"{attr:}_sigma", float(sigma))
 
     def take_row(self, phase_label: str):
         """Row of the phase or None."""
