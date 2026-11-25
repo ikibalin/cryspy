@@ -217,7 +217,7 @@ def form_parameter_name(way: tuple, parameter_paths: dict = None) -> str:
     return f"{way_sh[0]:}, {way_sh[1]:}, {way_sh[2]:}"
 
 
-def rhochi_rietveld_refinement_by_dictionary(  # noqa: C901
+def rhochi_rietveld_refinement_by_dictionary(  # noqa: C901, PLR0912, PLR0915
         global_dict: dict, method: str = "BFGS", callback: Callable = None,
         *, progress_callback: Callable = None, parameter_paths: dict = None):
     """Refine the parameters of global_dict by minimization of chi_sq.
@@ -423,7 +423,7 @@ def rhochi_lsq_by_dictionary(global_dict):
     return chi_sq_sum, n_point, delta_p, parameter_name_sum, der_chi_sq_sum, dder_chi_sq_sum, dict_in_out
 
 
-def rhochi_calc_chi_sq_by_dictionary(  # noqa: C901
+def rhochi_calc_chi_sq_by_dictionary(  # noqa: C901, PLR0912, PLR0915
         global_dict, dict_in_out:dict=None, flag_use_precalculated_data: bool=False,
         flag_calc_analytical_derivatives: bool = False):
     """Calculate chi_sq.

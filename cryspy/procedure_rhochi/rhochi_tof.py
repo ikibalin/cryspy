@@ -70,7 +70,7 @@ def calc_spectrum_incident(time, coefficients, type: str = "Maxwell", flag_coeff
     return res, dder
 
 
-def calc_chi_sq_for_tof_by_dictionary(  # noqa: C901
+def calc_chi_sq_for_tof_by_dictionary(  # noqa: C901, PLR0912, PLR0915
         dict_tof, dict_crystals, dict_in_out: dict = None, flag_use_precalculated_data: bool = False,
         flag_calc_analytical_derivatives: bool = False):
     """Calculate chi_sq for diffrn experiment.

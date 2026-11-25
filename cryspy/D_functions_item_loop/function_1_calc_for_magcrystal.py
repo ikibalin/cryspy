@@ -168,7 +168,7 @@ def calc_f_nucl(
     return f_hkl_as, dder
 
 
-def calc_f_mag(
+def calc_f_mag(  # noqa: PLR0915
         index_hkl,
         space_group_symop_magn_operation: SpaceGroupSymopMagnOperationL,
         space_group_symop_magn_centering: SpaceGroupSymopMagnCenteringL,

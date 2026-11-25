@@ -112,7 +112,7 @@ def calc_chi_sq_per_n(chi_sq: float, n_point: int) -> float:
     return float(chi_sq) / n_point
 
 
-def refine_one_by_one(cryspy_object, pattern: str, significance: float = SIGNIFICANCE,  # noqa: C901
+def refine_one_by_one(cryspy_object, pattern: str, significance: float = SIGNIFICANCE,  # noqa: C901, PLR0912, PLR0915
                       correlation_limit: float = CORRELATION_LIMIT,
                       start_value: Optional[float] = None,
                       rejected_value: Optional[float] = None, *,

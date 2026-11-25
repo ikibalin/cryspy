@@ -90,7 +90,7 @@ def find_changed_dict_name(block, block_name: str, d_before: dict, set_value, va
     return entry[0]
 
 
-def take_marked_variable_names(obj) -> list:
+def take_marked_variable_names(obj) -> list:  # noqa: PLR0912
     """Names (as get_variable_names gives them) and marks of all marked
     parameters of the object, refined or not.
 
@@ -666,7 +666,7 @@ class GlobalN(object):
         return "\n".join(ls_out)
 
     @classmethod
-    def from_cif(cls, string: str):
+    def from_cif(cls, string: str):  # noqa: PLR0912
         """Generate object from string of CIF format."""
         cif_global = Global()
         flag = cif_global.take_from_string(string)
@@ -764,7 +764,7 @@ class GlobalN(object):
                 else:
                     item.set_variable(".".join(l_name[1:]), index=index)
 
-    def get_dictionary(self):  # noqa: C901
+    def get_dictionary(self):  # noqa: C901, PLR0912
         self.refine_constrained_parameters()
         dict_out = {}
         for item in self.items:
@@ -917,7 +917,7 @@ class GlobalN(object):
                         "because of a constraint.")
         return l_name
 
-    def get_constraints(self, l_marked: list):  # noqa: C901
+    def get_constraints(self, l_marked: list):  # noqa: C901, PLR0912
         """Constraints of the constraint loops.
 
         Parameters
@@ -1020,7 +1020,7 @@ class GlobalN(object):
                 item.take_parameters_from_dictionary(dict_data, l_parameter_name=l_parameter_name_data, l_sigma=l_sigma_data)
 
 
-def transfer_cif_names_to_dict_names(variable_names):  # noqa: C901
+def transfer_cif_names_to_dict_names(variable_names):  # noqa: C901, PLR0912, PLR0915
     dict_names = []
     for cif_name in variable_names:
         data_block = f"{cif_name[1][0]:}_{cif_name[1][1]:}"

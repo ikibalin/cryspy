@@ -132,7 +132,7 @@ def calc_beta_1_prime(d, beta_10):
     return y
 
 
-def calc_profile_by_zcode_parameters(
+def calc_profile_by_zcode_parameters(  # noqa: PLR0913
         delta_t, d,
         sigma_0_sq, sigma_1_sq, sigma_2_sq,
         gamma_0, gamma_1, gamma_2,

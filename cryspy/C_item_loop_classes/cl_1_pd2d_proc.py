@@ -109,7 +109,7 @@ class Pd2dProc(ItemN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
-    def form_object(self) -> NoReturn:
+    def form_object(self) -> NoReturn:  # noqa: PLR0912, PLR0915
         flag = True
         if not(self.is_attribute("gamma_nu_intensity_plus_net")):
             return False
@@ -302,7 +302,7 @@ class Pd2dProc(ItemN):
     def plots(self):
         return [self.plot_gamma_nu()]
     
-    def plot_gamma_nu(self):
+    def plot_gamma_nu(self):  # noqa: PLR0915
         if not(self.is_attribute("gamma") & self.is_attribute("nu") &
                self.is_attribute("intensity_plus_net") & 
                self.is_attribute("intensity_minus_net")):
@@ -450,7 +450,7 @@ class Pd2dProc(ItemN):
         
         return (fig, ax1)
 
-    def calc_projections_sum_difference(self):
+    def calc_projections_sum_difference(self):  # noqa: PLR0915
         gamma = self.gamma 
         nu = self.nu 
 

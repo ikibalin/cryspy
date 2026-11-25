@@ -382,7 +382,7 @@ def _calc_generated_positions(
     return xyz[:, :, na, :] + centring_translations[:, na, :, na]
 
 
-def calc_f_m_k(
+def calc_f_m_k(  # noqa: PLR0913
         index_hkl, k_vector, unit_cell_parameters,
         op_rotation, op_translation, op_moment, op_phase,
         centring_translations,
@@ -496,7 +496,7 @@ def calc_f_m_perp_k(index_hkl, unit_cell_parameters, f_m_ccs):
     return f_m_ccs - eq_ccs * (eq_ccs * f_m_ccs).sum(axis=0)[na, :]
 
 
-def calc_powder_iint_magnetic_k(
+def calc_powder_iint_magnetic_k(  # noqa: PLR0913
         sthovl_min: float, sthovl_max: float, unit_cell_parameters,
         k_vector, op_rotation, op_translation, op_moment, op_phase,
         centring_translations,
@@ -544,7 +544,7 @@ def calc_powder_iint_magnetic_k(
     return index_hkl, iint, f_m_perp
 
 
-def calc_f_m_perp_k_at_index_hkl(
+def calc_f_m_perp_k_at_index_hkl(  # noqa: PLR0913
         index_hkl, unit_cell_parameters, k_vector, op_rotation,
         op_translation, op_moment, op_phase, centring_translations,
         atom_fract_xyz, atom_occupancy, atom_b_iso, form_factor_function,

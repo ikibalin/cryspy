@@ -46,7 +46,7 @@ def calc_extinction_sphere_primary(
     return y_p, dder
 
 
-def calc_extinction_sphere_secondary_gauss(
+def calc_extinction_sphere_secondary_gauss(  # noqa: PLR0913
         f_sq, radius, mosaicity, volume_unit_cell, cos_2theta, wavelength,
         flag_f_sq: bool = False, flag_radius: bool = False,
         flag_mosaicity: bool = False,
@@ -115,7 +115,7 @@ def calc_extinction_sphere_secondary_gauss(
     return y_s, dder
 
 
-def calc_extinction_sphere_secondary_lorentz(
+def calc_extinction_sphere_secondary_lorentz(  # noqa: PLR0913
         f_sq, radius, mosaicity, volume_unit_cell, cos_2theta, wavelength,
         flag_f_sq: bool = False, flag_radius: bool = False,
         flag_mosaicity: bool = False,
@@ -164,7 +164,7 @@ def calc_extinction_sphere_secondary_lorentz(
     return y_s, dder
 
 
-def calc_extinction_sphere(
+def calc_extinction_sphere(  # noqa: PLR0913
         f_sq, radius, mosaicity, volume_unit_cell, cos_2theta, wavelength,
         model: str, flag_f_sq: bool = False, flag_radius: bool = False,
         flag_mosaicity: bool = False,
@@ -224,7 +224,7 @@ def calc_extinction_sphere(
     return y, dder
 
 
-def calc_extinction_qani(np_hkl,
+def calc_extinction_qani(np_hkl,  # noqa: PLR0913
         f_sq, q_hh, q_kk, q_ll, q_hk, q_hl, q_kl, cos_2theta, wavelength,
         flag_f_sq: bool = False, flag_q_hh: bool = False,
         flag_q_kk: bool = False, flag_q_ll: bool = False,

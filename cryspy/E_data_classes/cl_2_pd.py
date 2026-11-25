@@ -315,7 +315,7 @@ class Pd(DataN):
                 "intensity_minus": numpy.array(item.intensity_minus, dtype=float)}
         return d_peaks
 
-    def take_parameters_from_dictionary(  # noqa: C901
+    def take_parameters_from_dictionary(  # noqa: C901, PLR0912, PLR0915
         self, ddict_diffrn, l_parameter_name: list = None, l_sigma: list = None
     ):
         keys = ddict_diffrn.keys()

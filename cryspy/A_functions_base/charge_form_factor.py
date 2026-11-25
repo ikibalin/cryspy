@@ -49,7 +49,7 @@ def get_atom_name_ion_charge_shell(ion_name: str):
     full_shell = get_full_shell(atom_name, ion_charge)
     return atom_name, ion_charge, full_shell
 
-def add_ion_charge_to_shell(shell: str, ion_charge: int):
+def add_ion_charge_to_shell(shell: str, ion_charge: int):  # noqa: PLR0912
     shells = ["s", "p", "d", "f"]
     max_electrons = [2, 6, 10, 14]
     if ion_charge == 0:

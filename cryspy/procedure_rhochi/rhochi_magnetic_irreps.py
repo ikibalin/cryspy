@@ -128,7 +128,7 @@ def calc_satellite_agreement(rcif_object: GlobalN, k_vector):
     return sum_diff / sum_obs, n_satellite
 
 
-def refine_representation(rcif_object: GlobalN, crystal_name: str, k_vector,
+def refine_representation(rcif_object: GlobalN, crystal_name: str, k_vector,  # noqa: PLR0913
                           magnetic_atoms: str, number, mode, moment: float,
                           use_minus_k_operations: bool, magnetic_ion: str = "",
                           lande: float = 0., with_domains: bool = True) -> dict:
@@ -188,7 +188,7 @@ def take_rank_candidates(k_group: dict, k_vector, try_superpositions: bool) -> l
         take_model_candidates(k_group, k_vector, try_superpositions))]
 
 
-def rhochi_rank_magnetic_representations(  # noqa: C901
+def rhochi_rank_magnetic_representations(  # noqa: C901, PLR0912, PLR0913, PLR0915
         rcif_object: GlobalN, k_1: float, k_2: float, k_3: float,
         magnetic_atoms: str, moment: float = 1.0, crystal_name: str = "",
         keep_rank: int = 0, use_minus_k_operations: bool = True,

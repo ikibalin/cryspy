@@ -53,7 +53,7 @@ def calc_symm_elem_points_by_index_points(index_point, n_abc):
     return symm_elem_points
 
 
-def calc_mem_col(
+def calc_mem_col(  # noqa: PLR0912, PLR0913
     index_hkl,
     unit_cell_parameters,
     eh_ccs,
@@ -323,7 +323,7 @@ def calc_mem_m(
     return mem_ani
 
 
-def calc_mem_chi(
+def calc_mem_chi(  # noqa: PLR0913
     index_hkl,
     unit_cell_parameters,
     h_ccs,

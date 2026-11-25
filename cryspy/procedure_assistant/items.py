@@ -138,7 +138,7 @@ def fill_columns(loop: LoopN, item: ItemN):
                 setattr(row, name, value)
 
 
-def add_item(cryspy_object, category: str, values: dict, block: str = "") -> Tuple[str, object]:
+def add_item(cryspy_object, category: str, values: dict, block: str = "") -> Tuple[str, object]:  # noqa: PLR0912
     """Add an item of the category to a data block; for a loop category the
     item is a new row (the loop is created when there is none).
 

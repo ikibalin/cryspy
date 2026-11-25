@@ -169,7 +169,7 @@ class Pd2d(DataN):
             return self.pd2d_meas.plots()
         return []
 
-    def get_dictionary(self):
+    def get_dictionary(self):  # noqa: PLR0915
         """Form dictionary. See documentation moduel CrysPy using Jupyter notebook.
         """
         ddict = super(Pd2d, self).get_dictionary()
@@ -260,7 +260,7 @@ class Pd2d(DataN):
 
         return ddict
 
-    def take_parameters_from_dictionary(self, ddict_diffrn, l_parameter_name: list=None, l_sigma: list=None):  # noqa: C901
+    def take_parameters_from_dictionary(self, ddict_diffrn, l_parameter_name: list=None, l_sigma: list=None):  # noqa: C901, PLR0912, PLR0915
         keys = ddict_diffrn.keys()
         for name in ("texture_sh", "texture_sh_coefficient"):
             if self.is_attribute(name):

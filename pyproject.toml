@@ -82,13 +82,19 @@ distance-dirty = '{base_version}+devdirty{distance}'
 extend-exclude = ['*.ipynb']
 
 [tool.ruff.lint]
-select = ['F', 'E722', 'C901']
+select = ['F', 'E722', 'C901', 'PLR0912', 'PLR0913', 'PLR0915']
 
-# Cyclomatic complexity (McCabe): a new function with more than 15
-# independent paths fails the check. The older functions above the limit
-# carry `# noqa: C901` until they are split (roadmap, clean code).
+# Size of the functions: a new function above these limits fails the check
+# (cyclomatic complexity C901, branches PLR0912, arguments PLR0913,
+# statements PLR0915). The older functions above the limits carry
+# `# noqa: ...` until they are split (roadmap, clean code).
 [tool.ruff.lint.mccabe]
 max-complexity = 15
+
+[tool.ruff.lint.pylint]
+max-args = 10
+max-branches = 12
+max-statements = 50
 
 [tool.ruff.lint.per-file-ignores]
 # the package namespace re-exports the public API

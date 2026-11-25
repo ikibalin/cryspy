@@ -85,7 +85,7 @@ def test_wrong_lm():
 
 
 # Implementation of realsphharm2df before it used the shared harmonics.
-def old_realsphharm2df(n, m, theta, phi):  # noqa: C901
+def old_realsphharm2df(n, m, theta, phi):  # noqa: C901, PLR0912, PLR0915
     """Real spherical harmonics taken from [International tables] normalized for density functions\n
     n is order or real spherical harmonics up to 4\n
     m is in range [-n:n]\n

@@ -9,7 +9,7 @@ from cryspy.A_functions_base.unit_cell import (
     calc_volume_uc_by_unit_cell_parameters,
 )
 
-def calc_extinction(radius:float, mosaicity:float, model:str,
+def calc_extinction(radius:float, mosaicity:float, model:str,  # noqa: PLR0913
                     a:float, b:float, c:float, alpha:float, beta:float, gamma:float,
                     h:float, k:float, l:float, 
                     f_sq:float, wavelength:float, flag_derivative_f_sq=False):
@@ -48,7 +48,7 @@ def calc_extinction(radius:float, mosaicity:float, model:str,
     return yext, dder 
     
 
-def calc_extinction_2(radius:float, mosaicity:float, model:str,
+def calc_extinction_2(radius:float, mosaicity:float, model:str,  # noqa: PLR0915
                     f_sq:float, volume_unit_cell:float, sthovl:float, 
                     wavelength:float):
     """

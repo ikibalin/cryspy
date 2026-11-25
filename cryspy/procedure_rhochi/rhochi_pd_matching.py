@@ -94,7 +94,7 @@ def take_fixed_peaks(dict_pd: dict, p_name: str) -> dict:
     return dict_peaks
 
 
-def calc_matching_phase(
+def calc_matching_phase(  # noqa: PLR0913
         matching_mode: str, dict_pd: dict, dict_in_out_phase: dict, p_name: str,
         index_hkl: numpy.ndarray, multiplicity_hkl: numpy.ndarray,
         unit_cell_parameters: numpy.ndarray, wavelength: float,

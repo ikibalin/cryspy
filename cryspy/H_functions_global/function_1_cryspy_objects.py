@@ -281,7 +281,7 @@ def write_package_lines(l_line: list):
                       stacklevel=2)
 
 
-def load_packages():  # noqa: C901
+def load_packages():  # noqa: C901, PLR0912
     """Load external packages."""
     l_content = read_package_lines()
     if len(l_content) == 0:
@@ -429,7 +429,7 @@ def take_modern_space_group_tags(cif_text: str) -> str:
     return "".join(l_part_new)
 
 
-def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),  # noqa: C901
+def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),  # noqa: C901, PLR0912, PLR0915
                    data_classes=(), global_classes=()) -> GlobalN:
     """Transfer string of cif format to cryspy objects."""
     global_cif = Global()
@@ -533,7 +533,7 @@ def find_name_prefix(loop_name, l_item_cls):
 
 # TODO: l_item_class should be added as not necessary l_loop_class fully
 #       correspond to l_item_class
-def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:  # noqa: C901
+def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:  # noqa: C901, PLR0912, PLR0915
     """Transform Loop object to ItemN objects."""
     # l_item_class for future.
     l_item_class = []

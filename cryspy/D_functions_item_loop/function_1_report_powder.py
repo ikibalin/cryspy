@@ -13,7 +13,7 @@ SIGNAL_NAMES = (
 EXCLUDED_NAMES = ("excluded", "excluded_points")
 
 
-def report_powder_experiment(experiment: DataN) -> str:
+def report_powder_experiment(experiment: DataN) -> str:  # noqa: PLR0912
     """Report (markdown) of a powder experiment.
 
     Agreement of the processed profile (``pd_proc``, ``tof_proc`` or

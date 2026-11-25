@@ -150,7 +150,7 @@ class Setup(ItemN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
-    def get_dictionary(self):  # noqa: C901
+    def get_dictionary(self):  # noqa: C901, PLR0912
         res = {}
         if self.is_attribute("field"):
             res["magnetic_field"] = numpy.array([self.field], dtype=float)

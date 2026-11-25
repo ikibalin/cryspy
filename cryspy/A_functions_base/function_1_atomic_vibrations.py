@@ -39,7 +39,7 @@ def calc_beta_by_u(u_i, cell):
     return beta_11, beta_22, beta_33, beta_12, beta_13, beta_23
 
 
-def vibration_constraints(numb, param_i, sigma_i, ref_i):  # noqa: C901
+def vibration_constraints(numb, param_i, sigma_i, ref_i):  # noqa: C901, PLR0912, PLR0915
     """
     Constraints on atomic vibrations.
 
@@ -303,7 +303,7 @@ def vibration_constraints(numb, param_i, sigma_i, ref_i):  # noqa: C901
     return param_i, sigma_i, ref_i, constr_i
 
 
-def apply_constraint_on_cell_by_type_cell(
+def apply_constraint_on_cell_by_type_cell(  # noqa: PLR0915
         cell_param: Tuple[float], cell_sigma: Tuple[float],
         cell_ref: Tuple[bool], type_cell: str,
         it_coordinate_system_code: str) -> (Tuple[float], Tuple[float],

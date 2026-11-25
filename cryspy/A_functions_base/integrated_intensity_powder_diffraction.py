@@ -373,7 +373,7 @@ def calc_powder_iint_1d_ordered(f_nucl, f_m_perp,
     return iint, dder
 
 
-def calc_powder_iint_1d_mix(f_nucl, f_m_perp, tensor_sigma, polarization, flipper, magnetic_field,
+def calc_powder_iint_1d_mix(f_nucl, f_m_perp, tensor_sigma, polarization, flipper, magnetic_field,  # noqa: PLR0913
         flag_f_nucl: bool = False, flag_f_m_perp_ordered: bool = False, flag_tensor_sigma: bool = False,
         flag_polarization: bool = False, flag_flipper: bool = False,
         flag_magnetic_field: bool = False):
@@ -424,7 +424,7 @@ def calc_powder_iint_1d_mix(f_nucl, f_m_perp, tensor_sigma, polarization, flippe
     return iint_plus, iint_minus, dder_plus, dder_minus
 
 
-def calc_powder_iint_2d_para(f_nucl, tensor_sigma, beam_polarization, flipper_efficiency, magnetic_field,
+def calc_powder_iint_2d_para(f_nucl, tensor_sigma, beam_polarization, flipper_efficiency, magnetic_field,  # noqa: PLR0913
         alpha_det, dict_in_out,
         flag_f_nucl: bool = False, flag_tensor_sigma: bool = False,
         flag_polarization: bool = False, flag_flipper: bool = False):
@@ -525,7 +525,7 @@ def calc_powder_iint_2d_ordered(f_nucl, f_m_perp, beam_polarization, flipper_eff
 
 
 
-def calc_powder_iint_2d_mix(f_nucl, tensor_sigma, f_m_perp_ordered, beam_polarization, flipper_efficiency, magnetic_field,
+def calc_powder_iint_2d_mix(f_nucl, tensor_sigma, f_m_perp_ordered, beam_polarization, flipper_efficiency, magnetic_field,  # noqa: PLR0913
         alpha_det, dict_in_out_phase,
         flag_f_nucl: bool = False, flag_tensor_sigma: bool = False, flag_f_m_perp_ordered: bool = False,
         flag_polarization: bool = False, flag_flipper: bool = False):

@@ -360,7 +360,7 @@ from cryspy.procedure_assistant.constraints import (
 from cryspy.A_functions_base.linear_constraints import parse_linear_constraint
 
 
-def repr_function(function, flag_long: bool = False):
+def repr_function(function, flag_long: bool = False):  # noqa: PLR0912
     ls_out = []
     name = function.__name__
     code = function.__code__

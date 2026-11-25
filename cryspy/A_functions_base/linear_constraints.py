@@ -12,7 +12,7 @@ from typing import Dict, List, Tuple
 import numpy
 
 
-def _parse_linear_node(node) -> Tuple[Dict[str, float], float]:
+def _parse_linear_node(node) -> Tuple[Dict[str, float], float]:  # noqa: PLR0912
     """Linear form of an expression node: (coefficients of marks, constant)."""
     if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)) \
             and not isinstance(node.value, bool):

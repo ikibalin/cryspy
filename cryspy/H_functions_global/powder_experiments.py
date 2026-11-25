@@ -15,7 +15,7 @@ from cryspy.E_data_classes.cl_2_tof import TOF
 COEFF_N_A_MU_B = 6.022*0.927*1000.
 
 
-def report_powder_experiments(rcif_object: GlobalN):
+def report_powder_experiments(rcif_object: GlobalN):  # noqa: PLR0915
     """Report about the powder and single crystal experiments.
 
     Parameters

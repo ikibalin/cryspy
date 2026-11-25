@@ -12,7 +12,7 @@ from cryspy.A_functions_base.function_2_sym_elems import \
     form_symm_elems_by_b_i_r_ij, calc_numerators_denominator_for_b_i
 
 
-def read_den_file(file_name: str):
+def read_den_file(file_name: str):  # noqa: PLR0915
     """Read density file.
     
     Arguments

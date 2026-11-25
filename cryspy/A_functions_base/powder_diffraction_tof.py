@@ -236,7 +236,7 @@ def calc_sigma(d, sigma0, sigma1, sigma2, size_g:float=0., strain_g:float=0.):
     return h_g
 
 
-def calc_sigma_gamma(
+def calc_sigma_gamma(  # noqa: PLR0913
         d, sigma0, sigma1, sigma2, gamma0, gamma1, gamma2,
         size_g: float = 0., size_l: float = 0., strain_g: float = 0.,
         strain_l: float = 0.):
@@ -269,7 +269,7 @@ def calc_y_z_u_v(alpha, beta, sigma, delta_2d):
     return y, z, u, v
 
 
-def calc_peak_shape_function(alphas, betas, sigmas,
+def calc_peak_shape_function(alphas, betas, sigmas,  # noqa: PLR0913
         d, time, time_hkl, gammas = None, size_g: float = 0., strain_g: float = 0.,
         size_l: float = 0., strain_l: float = 0., peak_shape: str = "pseudo-Voigt", cutoff_fwhm: float = 0.):
     """Calculate peak-shape function F(DELTA)

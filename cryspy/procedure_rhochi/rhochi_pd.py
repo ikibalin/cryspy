@@ -93,7 +93,7 @@ def calc_background(
     return intensity, dder
 
 
-def calc_signal_magnetic_k(
+def calc_signal_magnetic_k(  # noqa: PLR0913
         dict_crystal, dict_in_out_phase, sthovl_min, sthovl_max,
         unit_cell_parameters, wavelength, ttheta_zs, offset_ttheta,
         offset_sycos, offset_sysin, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4,
@@ -174,7 +174,7 @@ def calc_index_hkl_multiplicity_for_phase(
         translation_elems_p1, False, flag_only_nuclear=flag_only_nuclear)
 
 
-def calc_chi_sq_for_pd_by_dictionary(  # noqa: C901
+def calc_chi_sq_for_pd_by_dictionary(  # noqa: C901, PLR0912, PLR0915
     dict_pd,
     dict_crystals,
     dict_in_out: dict = None,
@@ -391,9 +391,9 @@ def calc_chi_sq_for_pd_by_dictionary(  # noqa: C901
                 u, v, w, x, y = resolution_parameters + p_resolution
                 flag_faulted, profile_faulted = calc_stacking_fault_profile(
                     row_fault, dict_crystal, index_matching, unit_cell_parameters,
-                    wavelength, ttheta_zs, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4,
+                    wavelength, ttheta_zs, (u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4),
                     dict_cache=dict_in_out_phase,
-                    flag_xrays=radiation[0].startswith("X-rays"), k=k, cthm=cthm)[:2]
+                    flag_xrays=radiation[0].startswith("X-rays"), lorentz_parameters=(k, cthm))[:2]
                 if numpy.any(flag_faulted):
                     # the lines of the rods already have the Lorentz factor
                     # relative to the one of the reflection
@@ -711,8 +711,8 @@ def calc_chi_sq_for_pd_by_dictionary(  # noqa: C901
             flag_xrays = radiation[0].startswith("X-rays")
             flag_faulted, profile_faulted, iint_faulted, f2_model = calc_stacking_fault_profile(
                 row_fault, dict_crystal, index_hkl, unit_cell_parameters,
-                wavelength, ttheta_zs, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4,
-                dict_cache=dict_in_out_phase, flag_xrays=flag_xrays, k=k, cthm=cthm)
+                wavelength, ttheta_zs, (u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4),
+                dict_cache=dict_in_out_phase, flag_xrays=flag_xrays, lorentz_parameters=(k, cthm))
             if numpy.any(flag_faulted):
                 profile_pv = numpy.array(profile_pv, copy=True)
                 profile_pv[:, flag_faulted] = profile_faulted

@@ -115,7 +115,7 @@ Only one site can be given for each special position but the remainder can be ge
                 break
         return flag_res
 
-    def give_default_xyz(self, xyz_0):
+    def give_default_xyz(self, xyz_0):  # noqa: PLR0915
 
         b_float = self.b.astype(float)
         r_float = self.r.astype(float)

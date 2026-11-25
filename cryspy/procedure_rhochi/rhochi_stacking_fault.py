@@ -300,6 +300,78 @@ def calc_flag_faulted_of_families(index_hkl, model: dict, reduced_symm_elems,
     return numpy.any(flag.reshape(n_hkl, -1), axis=1)
 
 
+def form_points_of_reflections(index_hkl, reduced_symm_elems, centrosymmetry: bool):
+    """Reciprocal lattice points of the reflections (all equivalents and Friedel mates).
+
+    Returns
+    -------
+    points : array (n_p, 3)
+    point_column : array (n_p,) of int
+        Reflection (column of index_hkl) of every point.
+    point_weight : array (n_p,)
+        Share of the point in its reflection (1 / number of equivalents).
+    """
+    index_eq = calc_equivalent_reflections(index_hkl, reduced_symm_elems, centrosymmetry)
+    index_eq = numpy.concatenate([index_eq, -index_eq], axis=2)
+    n_eq = index_eq.shape[2]
+    d_point = {}
+    for i_column in range(index_hkl.shape[1]):
+        for i_eq in range(n_eq):
+            key = tuple(int(v) for v in index_eq[:, i_column, i_eq])
+            d_point.setdefault(key, [i_column, 0.])
+            d_point[key][1] += 1. / n_eq
+    points = numpy.array(list(d_point.keys()), dtype=float)
+    point_column = numpy.array([value[0] for value in d_point.values()], dtype=int)
+    point_weight = numpy.array([value[1] for value in d_point.values()], dtype=float)
+    return points, point_column, point_weight
+
+
+def assign_cells_of_rod(tau_mid, m_present, member_sorted, base_rod, primitive, metric,
+                        s_range):
+    """Point (member) of the nearest spread reflection for every cell of a rod, -1 for none.
+
+    The cells nearest to a lattice point out of the range of the
+    reflections of the phase are left out (that intensity is out of the
+    pattern).
+    """
+    boundaries = 0.5 * (m_present[1:] + m_present[:-1])
+    nearest = member_sorted[numpy.searchsorted(boundaries, tau_mid)]
+    q_near = base_rod[na, :] + numpy.floor(tau_mid + 0.5)[:, na] * primitive[na, :]
+    s_near = numpy.sqrt(numpy.maximum(numpy.einsum("ni,ij,nj->n", q_near, metric, q_near), 0.))
+    return numpy.where((s_near >= s_range[0]) & (s_near <= s_range[1]), nearest, -1)
+
+
+def combine_cells_of_rods(l_cell: list, primitive):
+    """First point, length in tau, nearest member and middle point Q of the cells of all the rods."""
+    i_first = numpy.concatenate([item[0] for item in l_cell])
+    d_tau_cell = numpy.concatenate([item[1] for item in l_cell])
+    nearest = numpy.concatenate([item[4] for item in l_cell])
+    q_mid = numpy.concatenate([item[5][na, :] + item[2][:, na] * primitive[na, :] for item in l_cell])
+    return i_first, d_tau_cell, nearest, q_mid
+
+
+def calc_ttheta_of_points(q, metric, wavelength: float):
+    """Scattering angle 2theta (radians) of the points q (n, 3) of the reciprocal space."""
+    s = numpy.sqrt(numpy.maximum(numpy.einsum("ni,ij,nj->n", q, metric, q), 0.))
+    return 2. * numpy.arcsin(numpy.clip(0.5 * s * wavelength, 0., 1.))
+
+
+def calc_terms_at_points(model: dict, q):
+    """F_L(R_k^T Q) (n_g, n) and the phases exp(2 pi i (R_k^T Q).t_j) (n_g, n_op, n)."""
+    shifts = [model["translation"]] + [model["translation"] + v for v in model["variants"]]
+    orientations = model["orientations"]
+    f_layer = numpy.zeros((orientations.shape[0], q.shape[0]), dtype=complex)
+    phase = numpy.zeros((orientations.shape[0], len(shifts), q.shape[0]), dtype=complex)
+    for k, rotation in enumerate(orientations):
+        q_rot = q @ rotation  # R_k^T Q
+        for start in range(0, q.shape[0], CHUNK):
+            f_layer[k, start:start + CHUNK] = calc_layer_structure_factor(
+                q_rot[start:start + CHUNK], model["layer"])
+        for j, shift in enumerate(shifts):
+            phase[k, j] = numpy.exp(2j * numpy.pi * (q_rot @ shift))
+    return f_layer, phase
+
+
 def form_stacking_fault_setup(model: dict, index_hkl, unit_cell_parameters, wavelength: float,
                               reduced_symm_elems, centrosymmetry: bool, s_max: float,
                               d_s: float) -> dict:
@@ -317,7 +389,7 @@ def form_stacking_fault_setup(model: dict, index_hkl, unit_cell_parameters, wave
         Wanted step in |Q| along the rods (1/angstrom).
     """
     index_hkl = numpy.asarray(index_hkl, dtype=int)
-    orientations, g = model["orientations"], model["g"]
+    g = model["g"]
     primitive = model["primitive"].astype(float)
     metric = model["atoms"]["metric"]
     flag_faulted = calc_flag_faulted_of_families(index_hkl, model, reduced_symm_elems,
@@ -329,19 +401,8 @@ def form_stacking_fault_setup(model: dict, index_hkl, unit_cell_parameters, wave
     index_f = numpy.flatnonzero(flag_faulted)
     if index_f.size == 0:
         return setup
-    index_eq = calc_equivalent_reflections(index_hkl[:, index_f], reduced_symm_elems, centrosymmetry)
-    index_eq = numpy.concatenate([index_eq, -index_eq], axis=2)
-    n_eq = index_eq.shape[2]
-    # points of the rods: column of the reflection and its weight
-    d_point = {}
-    for i_column in range(index_f.size):
-        for i_eq in range(n_eq):
-            key = tuple(int(v) for v in index_eq[:, i_column, i_eq])
-            d_point.setdefault(key, [i_column, 0.])
-            d_point[key][1] += 1. / n_eq
-    points = numpy.array(list(d_point.keys()), dtype=float)  # (n_p, 3)
-    point_column = numpy.array([value[0] for value in d_point.values()], dtype=int)
-    point_weight = numpy.array([value[1] for value in d_point.values()], dtype=float)
+    points, point_column, point_weight = form_points_of_reflections(
+        index_hkl[:, index_f], reduced_symm_elems, centrosymmetry)
     pp = float(primitive @ metric @ primitive)
     tau_point = (points @ metric @ primitive) / pp
     m_point = numpy.floor(tau_point + 0.5 - 1e-9)
@@ -362,22 +423,13 @@ def form_stacking_fault_setup(model: dict, index_hkl, unit_cell_parameters, wave
         if tau.size < 2:
             continue
         order = numpy.argsort(m_point[members])
-        m_present = m_point[members][order]
-        member_sorted = members[order]
         tau_mid = 0.5 * (tau[1:] + tau[:-1])
-        # a cell belongs to the nearest spread reflection of the rod; the
-        # cells nearest to a lattice point out of the range of the
-        # reflections of the phase are left out (that intensity is out of
-        # the pattern)
-        boundaries = 0.5 * (m_present[1:] + m_present[:-1])
-        nearest = member_sorted[numpy.searchsorted(boundaries, tau_mid)]
-        q_near = base_rod[na, :] + numpy.floor(tau_mid + 0.5)[:, na] * primitive[na, :]
-        s_near = numpy.sqrt(numpy.maximum(numpy.einsum("ni,ij,nj->n", q_near, metric, q_near), 0.))
-        nearest = numpy.where((s_near >= s_range[0]) & (s_near <= s_range[1]), nearest, -1)
+        nearest = assign_cells_of_rod(tau_mid, m_point[members][order], members[order],
+                                      base_rod, primitive, metric, s_range)
         l_q.append(base_rod[na, :] + tau[:, na] * primitive[na, :])
         # the reflections of the list on this rod: only there a sharp peak
         # belongs to a spread reflection (the others keep their Bragg line)
-        l_member.append(numpy.isin(tau, m_present))
+        l_member.append(numpy.isin(tau, m_point[members]))
         l_cell.append((n_total + numpy.arange(tau.size - 1), numpy.diff(tau), tau_mid,
                        numpy.full(tau.size - 1, i_rod), nearest, base_rod))
         n_total += tau.size
@@ -385,29 +437,13 @@ def form_stacking_fault_setup(model: dict, index_hkl, unit_cell_parameters, wave
         logger.warning("Stacking faults: %d points along the rods (more than %d), the "
                        "calculation is slow.", n_total, MAX_ROD_POINTS)
     q = numpy.concatenate(l_q, axis=0)
-    i_first = numpy.concatenate([item[0] for item in l_cell])
-    d_tau_cell = numpy.concatenate([item[1] for item in l_cell])
-    nearest = numpy.concatenate([item[4] for item in l_cell])
+    i_first, d_tau_cell, nearest, q_mid = combine_cells_of_rods(l_cell, primitive)
     flag_cell = nearest >= 0
     nearest = numpy.where(flag_cell, nearest, 0)
-    q_mid = numpy.concatenate([item[5][na, :] + item[2][:, na] * primitive[na, :] for item in l_cell])
-    s_mid = numpy.sqrt(numpy.maximum(numpy.einsum("ni,ij,nj->n", q_mid, metric, q_mid), 0.))
-    ttheta_mid = 2. * numpy.arcsin(numpy.clip(0.5 * s_mid * wavelength, 0., 1.))
-    # terms of the model at the points
-    shifts = [model["translation"]] + [model["translation"] + v for v in model["variants"]]
-    n_g = orientations.shape[0]
-    f_layer = numpy.zeros((n_g, q.shape[0]), dtype=complex)
-    phase = numpy.zeros((n_g, len(shifts), q.shape[0]), dtype=complex)
-    for k, rotation in enumerate(orientations):
-        q_rot = q @ rotation  # R_k^T Q
-        for start in range(0, q.shape[0], CHUNK):
-            f_layer[k, start:start + CHUNK] = calc_layer_structure_factor(
-                q_rot[start:start + CHUNK], model["layer"])
-        for j, shift in enumerate(shifts):
-            phase[k, j] = numpy.exp(2j * numpy.pi * (q_rot @ shift))
-    sthovl_hkl = 0.5 * numpy.sqrt(numpy.einsum(
-        "in,ij,jn->n", index_hkl[:, index_f].astype(float), metric, index_hkl[:, index_f].astype(float)))
-    ttheta_hkl = 2. * numpy.arcsin(numpy.clip(sthovl_hkl * wavelength, 0., 1.))
+    ttheta_mid = calc_ttheta_of_points(q_mid, metric, wavelength)
+    f_layer, phase = calc_terms_at_points(model, q)
+    ttheta_hkl = calc_ttheta_of_points(index_hkl[:, index_f].transpose().astype(float), metric,
+                                       wavelength)
     # every point belongs to a cell starting there (or, at the end of a rod,
     # ending there): the column of a sharp peak at that point
     point_cell = numpy.zeros(q.shape[0], dtype=int)
@@ -471,8 +507,8 @@ def form_setup_key(row: dict, unit_cell_parameters, dict_crystal: dict, index_hk
 
 def calc_stacking_fault_profile(
         row: dict, dict_crystal: dict, index_hkl, unit_cell_parameters, wavelength,
-        ttheta_zs, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4, dict_cache: dict = None,
-        flag_xrays: bool = False, k: float = 0., cthm: float = 0.91):
+        ttheta_zs, profile_parameters, dict_cache: dict = None, flag_xrays: bool = False,
+        lorentz_parameters=(0., 0.91)):
     """Profiles of the spread reflections of a phase at the points (Hendricks-Teller model).
 
     The intensity along the rods is put on a fine grid of 2theta and
@@ -481,9 +517,14 @@ def calc_stacking_fault_profile(
 
     Parameters
     ----------
+    profile_parameters : tuple
+        (u, v, w, i_g, x, y, p_1, p_2, p_3, p_4) of the instrumental
+        pseudo-Voigt profile (calc_profile_pseudo_voight).
     dict_cache : dict, optional
         The setup of the rods is kept there ("stacking_fault_setup") and
         used again while only alpha, beta or the profile change.
+    lorentz_parameters : tuple
+        (k, cthm) of the Lorentz factor (calc_lorentz_factor).
 
     Returns
     -------
@@ -500,6 +541,8 @@ def calc_stacking_fault_profile(
         |F|^2 of the reflections of the perfect crystal (the same units).
     """
     wavelength = float(numpy.atleast_1d(wavelength)[0])
+    u, v, w, p_ig, x, y = profile_parameters[:6]
+    k, cthm = lorentz_parameters
     ttheta_grid = take_virtual_grid(ttheta_zs, u, v, w, p_ig, x, y, dict_cache)
     s_max = 2. * numpy.sin(0.5 * min(float(ttheta_grid[-1]), numpy.pi)) / wavelength
     step = float(ttheta_grid[1] - ttheta_grid[0]) if ttheta_grid.size > 1 else 1e-3
@@ -550,8 +593,7 @@ def calc_stacking_fault_profile(
     weight = sharp[flag] / norm[flag]
     numpy.add.at(mass, (index_low, i_column), weight * (1. - fraction))
     numpy.add.at(mass, (index_low + 1, i_column), weight * fraction)
-    profile_grid = calc_profile_pseudo_voight(
-        ttheta_zs, ttheta_grid, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4)[0]
+    profile_grid = calc_profile_pseudo_voight(ttheta_zs, ttheta_grid, *profile_parameters)[0]
     return flag_faulted, profile_grid @ mass, intensity, setup["f2_bragg"]
 
 
@@ -901,26 +943,9 @@ def merge_columns(column, group, multiplicity):
     return column @ weight
 
 
-def calc_peak_width_diagnosis(
-        dict_pd: dict, dict_crystals: list, phase_name: str, flag_scan_layers: bool = True):
-    """Sharp and broad reflection groups of a phase, the fault rule and the layers.
-
-    Returns
-    -------
-    dict
-        "groups": list of (2theta in degrees, hkl list, intensity, broad part,
-        significance); "rules": find_fault_rule; "chi_sq_n": chi_sq/n of the
-        model with the instrumental width only, with broad peaks and (when
-        scanned) with the best stacking faults; "faults": the best
-        (normal, shift, probability) or None.
-    """
-    from cryspy.procedure_rhochi.rhochi_pd import (
-        calc_chi_sq_for_pd_by_dictionary, calc_index_hkl_multiplicity_for_phase)
-    from cryspy.A_functions_base.peak_width_diagnostics import (
-        BROAD_FACTORS, MIN_SEPARATION, MAX_SHARP_PART, MIN_SIGNIFICANCE,
-        calc_lorentzian_columns, find_fault_rule, fit_sharp_and_broad, group_reflections)
-    from cryspy.A_functions_base.powder_diffraction_const_wavelength import calc_lorentz_factor
-
+def take_net_signal_of_phase(dict_pd: dict, dict_crystals: list, phase_name: str):
+    """2theta (radians), the measured signal less the background and the other phases, sigma, the points used."""
+    from cryspy.procedure_rhochi.rhochi_pd import calc_chi_sq_for_pd_by_dictionary
     dict_in_out = {}
     calc_chi_sq_for_pd_by_dictionary(dict_pd, dict_crystals, dict_in_out=dict_in_out)
     ttheta_zs = dict_in_out["ttheta_corrected"]
@@ -933,11 +958,14 @@ def calc_peak_width_diagnosis(
             if "signal_plus" in d_phase:
                 y_net = y_net - d_phase["signal_plus"] - d_phase["signal_minus"]
     flag_point = ~numpy.asarray(dict_pd["excluded_points"], dtype=bool) & (sigma > 0)
+    return ttheta_zs, y_net, sigma, flag_point
 
-    dict_crystal = [d for d in dict_crystals if d["name"].lower() == phase_name][0]
-    ind_phase = [name.lower() for name in dict_pd["phase_name"]].index(phase_name)
+
+def take_present_reflections(dict_crystal: dict, ttheta_zs, wavelength: float):
+    """Reflections in the range of the data without the systematically absent ones, multiplicity, 2theta."""
+    from cryspy.procedure_rhochi.rhochi_pd import calc_index_hkl_multiplicity_for_phase
+    from cryspy.A_functions_base.unit_cell import calc_sthovl_by_unit_cell_parameters
     ucp = dict_crystal["unit_cell_parameters"]
-    wavelength = float(numpy.atleast_1d(dict_pd["wavelength"])[0])
     sthovl_min = max(numpy.sin(0.5 * ttheta_zs.min()) / wavelength, 1e-4)
     sthovl_max = numpy.sin(min(0.5 * ttheta_zs.max(), 0.5 * numpy.pi - 1e-6)) / wavelength
     index_hkl, multiplicity = calc_index_hkl_multiplicity_for_phase(
@@ -951,36 +979,22 @@ def calc_peak_width_diagnosis(
             index_hkl, dict_crystal["full_symm_elems"], dict_crystal["translation_elems"],
             False)
         index_hkl, multiplicity = index_hkl[:, ~flag_absent], multiplicity[~flag_absent]
-    from cryspy.A_functions_base.unit_cell import calc_sthovl_by_unit_cell_parameters
     sthovl_hkl = calc_sthovl_by_unit_cell_parameters(index_hkl, ucp)[0]
     ttheta_hkl = 2. * numpy.arcsin(numpy.clip(sthovl_hkl * wavelength, 0., 1.))
-    u, v, w, x, y = dict_pd["resolution_parameters"] + dict_pd["phase_resolution_parameters"][:, ind_phase]
-    p_ig = dict_pd["phase_ig"][ind_phase]
+    return index_hkl, multiplicity, ttheta_hkl
+
+
+def take_profile_of_phase(dict_pd: dict, ind_phase: int):
+    """(u, v, w, i_g, x, y, p_1, p_2, p_3, p_4) of a phase and (k, cthm)."""
+    u, v, w, x, y = dict_pd["resolution_parameters"] + \
+        dict_pd["phase_resolution_parameters"][:, ind_phase]
     p_1, p_2, p_3, p_4 = dict_pd.get("asymmetry_parameters", numpy.zeros(4))
-    k, cthm = dict_pd["k"], dict_pd["cthm"]
+    return ((u, v, w, dict_pd["phase_ig"][ind_phase], x, y, p_1, p_2, p_3, p_4),
+            (dict_pd["k"], dict_pd["cthm"]))
 
-    x_deg = numpy.degrees(ttheta_zs)
-    lf_point = calc_lorentz_factor(ttheta_zs, k=k, cthm=cthm, flag_ttheta=None)[0]
-    lf_hkl = calc_lorentz_factor(ttheta_hkl, k=k, cthm=cthm, flag_ttheta=None)[0]
-    factor = lf_point[:, na] / lf_hkl[na, :]
-    fwhm = calc_h_pv(calc_h_g(u, v, w, p_ig, ttheta_hkl)[0], calc_h_l(x, y, ttheta_hkl)[0])[0]
-    column = calc_profile_pseudo_voight(
-        ttheta_zs, ttheta_hkl, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4)[0] * factor
-    group = group_reflections(numpy.degrees(ttheta_hkl), fwhm)
-    column_sharp = merge_columns(column, group, multiplicity)
-    column_broad = [merge_columns(calc_lorentzian_columns(
-        x_deg, numpy.degrees(ttheta_hkl), factor_b * fwhm) * factor, group, multiplicity)
-        for factor_b in BROAD_FACTORS]
-    fp = flag_point
-    i_sharp, i_broad, s_int, chi_sq_broad = fit_sharp_and_broad(
-        y_net[fp], sigma[fp], column_sharp[fp], [c[fp] for c in column_broad], x_deg[fp])
-    _, _, _, chi_sq_sharp = fit_sharp_and_broad(
-        y_net[fp], sigma[fp], column_sharp[fp], [], x_deg[fp])
-    n_point = max(int(numpy.count_nonzero(fp)), 1)
-    total = i_sharp + i_broad
-    significance = total / s_int
-    broad_part = numpy.where(total > 0., i_broad / numpy.where(total > 0., total, 1.), 0.)
 
+def summarize_groups(index_hkl, ttheta_hkl, group, total, broad_part, significance) -> tuple:
+    """Rows of the groups and the hkl of every group."""
     l_group, l_index_group = [], []
     for i_group in range(int(group.max()) + 1 if group.size else 0):
         members = numpy.flatnonzero(group == i_group)
@@ -989,6 +1003,87 @@ def calc_peak_width_diagnosis(
                         [tuple(int(v) for v in index_hkl[:, m]) for m in members],
                         float(total[i_group]), float(broad_part[i_group]),
                         float(significance[i_group])))
+    return l_group, l_index_group
+
+
+def scan_stacking_layers(data: dict, dict_crystal: dict, shift, flag_xrays: bool):
+    """(chi_sq, normal, alpha) of the best layers for the fault shift, or None."""
+    from cryspy.A_functions_base.peak_width_diagnostics import fit_sharp_and_broad
+    fp = data["flag_point"]
+    best = None
+    for normal in form_candidate_normals(shift, dict_crystal):
+        dict_cache = {}
+        for alpha in ALPHA_GRID:
+            row = {"normal_index": normal, "shift": shift, "probability": alpha,
+                   "probability_repeat": alpha, "layer_cut": None}
+            try:
+                flag_faulted, profile_faulted = calc_stacking_fault_profile(
+                    row, dict_crystal, data["index_hkl"], dict_crystal["unit_cell_parameters"],
+                    data["wavelength"], data["ttheta"], data["profile"], dict_cache=dict_cache,
+                    flag_xrays=flag_xrays, lorentz_parameters=data["lorentz"])[:2]
+            except ValueError:
+                break
+            column_f = numpy.array(data["column"], copy=True)
+            column_f[:, flag_faulted] = profile_faulted
+            # the spread and the sharp members of a group have their own
+            # intensities (their lines differ)
+            group_f = numpy.unique(2 * data["group"] + flag_faulted, return_inverse=True)[1].ravel()
+            chi_sq = fit_sharp_and_broad(
+                data["y_net"][fp], data["sigma"][fp],
+                merge_columns(column_f, group_f, data["multiplicity"])[fp], [],
+                numpy.degrees(data["ttheta"])[fp])[3]
+            if best is None or chi_sq < best[0]:
+                best = (chi_sq, normal, alpha)
+    return best
+
+
+def calc_peak_width_diagnosis(
+        dict_pd: dict, dict_crystals: list, phase_name: str, flag_scan_layers: bool = True):
+    """Sharp and broad reflection groups of a phase, the fault rule and the layers.
+
+    Returns
+    -------
+    dict
+        "groups": list of (2theta in degrees, hkl list, intensity, broad part,
+        significance); "rules": find_fault_rule; "chi_sq_n": chi_sq/n of the
+        model with the instrumental width only, with broad peaks and (when
+        scanned) with the best stacking faults; "faults": the best
+        (normal, shift, probability) or None.
+    """
+    from cryspy.A_functions_base.peak_width_diagnostics import (
+        BROAD_FACTORS, MIN_SEPARATION, MAX_SHARP_PART, MIN_SIGNIFICANCE,
+        calc_lorentzian_columns, find_fault_rule, fit_sharp_and_broad, group_reflections)
+    from cryspy.A_functions_base.powder_diffraction_const_wavelength import calc_lorentz_factor
+
+    ttheta_zs, y_net, sigma, fp = take_net_signal_of_phase(dict_pd, dict_crystals, phase_name)
+    dict_crystal = [d for d in dict_crystals if d["name"].lower() == phase_name][0]
+    wavelength = float(numpy.atleast_1d(dict_pd["wavelength"])[0])
+    index_hkl, multiplicity, ttheta_hkl = take_present_reflections(dict_crystal, ttheta_zs,
+                                                                   wavelength)
+    profile, (k, cthm) = take_profile_of_phase(
+        dict_pd, [name.lower() for name in dict_pd["phase_name"]].index(phase_name))
+    u, v, w, p_ig, x, y = profile[:6]
+
+    x_deg = numpy.degrees(ttheta_zs)
+    factor = calc_lorentz_factor(ttheta_zs, k=k, cthm=cthm, flag_ttheta=None)[0][:, na] / \
+        calc_lorentz_factor(ttheta_hkl, k=k, cthm=cthm, flag_ttheta=None)[0][na, :]
+    fwhm = calc_h_pv(calc_h_g(u, v, w, p_ig, ttheta_hkl)[0], calc_h_l(x, y, ttheta_hkl)[0])[0]
+    column = calc_profile_pseudo_voight(ttheta_zs, ttheta_hkl, *profile)[0] * factor
+    group = group_reflections(numpy.degrees(ttheta_hkl), fwhm)
+    column_broad = [merge_columns(calc_lorentzian_columns(
+        x_deg, numpy.degrees(ttheta_hkl), factor_b * fwhm) * factor, group, multiplicity)
+        for factor_b in BROAD_FACTORS]
+    column_sharp = merge_columns(column, group, multiplicity)[fp]
+    i_sharp, i_broad, s_int, chi_sq_broad = fit_sharp_and_broad(
+        y_net[fp], sigma[fp], column_sharp, [c[fp] for c in column_broad], x_deg[fp])
+    chi_sq_sharp = fit_sharp_and_broad(y_net[fp], sigma[fp], column_sharp, [], x_deg[fp])[3]
+    n_point = max(int(numpy.count_nonzero(fp)), 1)
+    total = i_sharp + i_broad
+    significance = total / s_int
+    broad_part = numpy.where(total > 0., i_broad / numpy.where(total > 0., total, 1.), 0.)
+
+    l_group, l_index_group = summarize_groups(index_hkl, ttheta_hkl, group, total, broad_part,
+                                              significance)
     flag_sig = significance > MIN_SIGNIFICANCE
     l_rule = find_fault_rule([l_index_group[i] for i in numpy.flatnonzero(flag_sig)],
                              broad_part[flag_sig], numpy.sqrt(significance[flag_sig])) \
@@ -1005,33 +1100,13 @@ def calc_peak_width_diagnosis(
         return result
 
     # the layers: the normal and the probability with the best chi_sq
-    shift = l_rule[0]["shift"]
-    best = None
+    data = {"flag_point": fp, "index_hkl": index_hkl, "wavelength": wavelength,
+            "ttheta": ttheta_zs, "profile": profile, "lorentz": (k, cthm), "column": column,
+            "group": group, "y_net": y_net, "sigma": sigma, "multiplicity": multiplicity}
     flag_xrays = str(numpy.atleast_1d(dict_pd.get("radiation", ["neutrons"]))[0]).startswith("X-rays")
-    for normal in form_candidate_normals(shift, dict_crystal):
-        dict_cache = {}
-        for alpha in ALPHA_GRID:
-            row = {"normal_index": normal, "shift": shift, "probability": alpha,
-                   "probability_repeat": alpha, "layer_cut": None}
-            try:
-                flag_faulted, profile_faulted = calc_stacking_fault_profile(
-                    row, dict_crystal, index_hkl, ucp, wavelength, ttheta_zs,
-                    u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4, dict_cache=dict_cache,
-                    flag_xrays=flag_xrays, k=k, cthm=cthm)[:2]
-            except ValueError:
-                break
-            column_f = numpy.array(column, copy=True)
-            column_f[:, flag_faulted] = profile_faulted
-            # the spread and the sharp members of a group have their own
-            # intensities (their lines differ)
-            group_f = numpy.unique(2 * group + flag_faulted, return_inverse=True)[1].ravel()
-            chi_sq = fit_sharp_and_broad(
-                y_net[fp], sigma[fp], merge_columns(column_f, group_f, multiplicity)[fp], [],
-                x_deg[fp])[3]
-            if best is None or chi_sq < best[0]:
-                best = (chi_sq, normal, alpha)
+    best = scan_stacking_layers(data, dict_crystal, l_rule[0]["shift"], flag_xrays)
     if best is not None:
-        result["faults"] = {"normal": best[1], "shift": shift, "probability": best[2]}
+        result["faults"] = {"normal": best[1], "shift": l_rule[0]["shift"], "probability": best[2]}
         result["chi_sq_n"]["stacking faults"] = best[0] / n_point
     return result
 

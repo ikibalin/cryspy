@@ -893,7 +893,7 @@ class Crystal(DataN):
             data_name, self.calc_atoms_in_unit_cell(),
             self.cell.get_unit_cell_parameters(), self.cell.to_cif())
 
-    def form_p1_crystal(self, data_name: str, atoms: dict, ucp, cell_text: str,  # noqa: C901
+    def form_p1_crystal(self, data_name: str, atoms: dict, ucp, cell_text: str,  # noqa: C901, PLR0912, PLR0915
                         operations: list = None):
         """Crystal in the (magnetic) group P1 with the given atoms.
 
@@ -1536,7 +1536,7 @@ class Crystal(DataN):
             ls_out.append(f"| {i_domain + 1} | {l_operation[i_domain]} | {rows} |")
         return "\n".join(ls_out)
 
-    def report_ellipsoids(self, kind: str = "ADP", flag_unit_cell: bool = False,
+    def report_ellipsoids(self, kind: str = "ADP", flag_unit_cell: bool = False,  # noqa: PLR0912
                           field: float = 1.) -> str:
         """Principal axes of the atomic ellipsoids in markdown.
 
