@@ -40,7 +40,7 @@ The reflections come from the cell and the space group of the phase.
 
 The atoms, the scale factor and the texture of the phases have no effect:
 don't refine them. The magnetic satellites of k ≠ 0 structures,
-`magnetic_broadening` and `layer_correlation` are not used. Other
+and `magnetic_broadening` are not used. Other
 experiments of the object (single crystal, `pd2d`, `tof`) are refined as
 in the Rietveld refinement.
 
