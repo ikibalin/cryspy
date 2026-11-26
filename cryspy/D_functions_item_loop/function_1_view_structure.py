@@ -264,7 +264,7 @@ def _add_non_positive_atom(view, xyz, matrix, u_xyz, color: str,
                           "fromCap": 1, "toCap": 1})
 
 
-def make_structure_view(
+def make_structure_view(  # noqa: C901, PLR0912, PLR0915
         scene: dict, atom_element, atom_label,
         settings: StructureViewSettings = None, js: str = None):
     """Draw a structure scene with py3Dmol.

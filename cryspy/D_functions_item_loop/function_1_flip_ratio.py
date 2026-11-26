@@ -14,7 +14,7 @@ from cryspy.A_functions_base.function_3_extinction import calc_extinction_2
 
 
 
-def calc_flip_ratio(
+def calc_flip_ratio(  # noqa: PLR0913
         sthovl: numpy.ndarray, wavelength: float, field_norm: float,
         u_matrix: numpy.ndarray, polarization: float,
         flipper_efficiency: float, volume_unit_cell: float,
@@ -48,7 +48,7 @@ def calc_flip_ratio(
     return flip_ratio, dder
 
 
-def calc_intensity_plus_down(
+def calc_intensity_plus_down(  # noqa: PLR0913
         sthovl: numpy.ndarray, wavelength: float, field_norm: float,
         u_matrix: numpy.ndarray, polarization: float,
         flipper_efficiency: float, f_nucl: numpy.array,

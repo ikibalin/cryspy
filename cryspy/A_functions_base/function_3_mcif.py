@@ -145,7 +145,7 @@ D_CENTRING_TYPE_SHIFT = {
                      dtype=int).transpose(),    
         }
 
-def read_magnetic_data():
+def read_magnetic_data():  # noqa: C901, PLR0912, PLR0915
     """Read magnetic data."""
     with open(F_MAG_DATA, "r") as fid:
         l_cont = fid.readlines()
@@ -404,7 +404,7 @@ def get_sym_elems_magn_centering_for_bns(part_1: int, part_2: int):
     return sym_elems, magn_centering
 
 
-def get_str_for_sym_elem(sym_elem, labels=("x", "y", "z", "mx", "my", "mz")):
+def get_str_for_sym_elem(sym_elem, labels=("x", "y", "z", "mx", "my", "mz")):  # noqa: PLR0915
     """Get str for sym element."""
     flag_moment = sym_elem.shape[0] > 12
     sym_elem_zero = 0*sym_elem

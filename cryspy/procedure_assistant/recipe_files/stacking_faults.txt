@@ -1,0 +1,31 @@
+# Some powder reflections broad or asymmetric, the others sharp: stacking faults of the layers (Hendricks-Teller model).
+# diagnose_peak_widths finds the rule (k odd, h + k odd, h - k not 3n), the layers and the probability.
+Recipe stacking_faults: Stacking faults of a powder phase (only some reflections broad or asymmetric)
+Requests: some peaks are broad and others sharp, asymmetric peak, asymmetric low angle peak, peak with a tail to high angles, stacking faults, stacking disorder, layer disorder, polytypes, diffuse peaks, broad hkl peaks, which peaks are broader, diagnose peak widths, background under the peaks is too high
+For: any
+
+1. start: Fix all parameters and fit the free intensities of the reflections (profile matching), so that the peak widths are not mixed with the structure.
+   Actions: fix_parameters; profile_matching
+   Success: chi_sq/n is a number.
+   Otherwise: Stop and explain the error.
+2. diagnose: Which reflections are broader than the instrument; the fault rule, the layers and the start probability.
+   Actions: run_procedure {"name": "diagnose_peak_widths"}
+   Success: a line SELECTIVE_WIDTH and a line STACKING_FAULTS.
+   Otherwise: Explain the diagnosis (ALL_BROAD: size or strain of the phase; WIDTHS: no group is broader) and stop.
+3. add: Add the stacking faults suggested by STACKING_FAULTS (normal, shift, probability) and refine the probability with the free intensities.
+   Actions: run_procedure {"name": "add_stacking_fault", "normal": "0 0 1", "shift": "0 1/2 0", "probability": 0.1, "phase_label": ""}; profile_matching
+   Success: chi_sq/n got better.
+   Otherwise: undo_refinement: the broad reflections are not explained by these faults.
+4. background: The background under the broad lines is now free: refine the background points and the peak widths with the probability.
+   Actions: refine_parameters {"pattern": "pd_background.intensity, pd_instr_resolution.w"}; profile_matching
+   Otherwise: undo_refinement
+5. correlation: Are the faults independent? Refine the probability of a fault after a fault too.
+   Actions: set_attribute {"path": "stacking_fault.probability_repeat", "value": "0.3"}; refine_parameters {"pattern": "stacking_fault.probability_repeat"}; profile_matching
+   Success: chi_sq/n got better and probability_repeat differs from probability by more than 3 sigma.
+   Otherwise: undo_refinement: the faults are independent.
+6. report: The layers, the stacking operation, the fault shift, the probabilities with their errors and the correlation length of the stacking.
+   Actions: run_procedure {"name": "report_stacking_fault"}
+7. check: What is still wrong.
+   Actions: use_recipe {"name": "check_result"}
+
+Final answer: which reflections are broad (the rule) and why (stacking faults: layers, stacking operation, fault shift), the probabilities with their errors (independent faults, or runs of faults when probability_repeat > probability), the correlation length of the stacking, chi_sq/n before and after.

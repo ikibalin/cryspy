@@ -39,6 +39,8 @@ from cryspy.A_functions_base.powder_diffraction_const_wavelength import (
 from .rhochi_diffrn import get_flags
 from .rhochi_texture import calc_texture_sh_for_phase
 from .rhochi_magnetic_broadening import form_y_mag_by_hkl
+from .rhochi_stacking_fault import (
+    take_stacking_fault_of_phase, calc_stacking_fault_profile, calc_stacking_fault_scale)
 from .rhochi_pd_matching import (
     take_matching_mode, calc_matching_phase, fit_matching_intensities,
     calc_matching_signal)
@@ -91,7 +93,7 @@ def calc_background(
     return intensity, dder
 
 
-def calc_signal_magnetic_k(
+def calc_signal_magnetic_k(  # noqa: PLR0913
         dict_crystal, dict_in_out_phase, sthovl_min, sthovl_max,
         unit_cell_parameters, wavelength, ttheta_zs, offset_ttheta,
         offset_sycos, offset_sysin, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4,
@@ -172,7 +174,7 @@ def calc_index_hkl_multiplicity_for_phase(
         translation_elems_p1, False, flag_only_nuclear=flag_only_nuclear)
 
 
-def calc_chi_sq_for_pd_by_dictionary(
+def calc_chi_sq_for_pd_by_dictionary(  # noqa: C901, PLR0912, PLR0915
     dict_pd,
     dict_crystals,
     dict_in_out: dict = None,
@@ -377,11 +379,28 @@ def calc_chi_sq_for_pd_by_dictionary(
             if matching_mode == "refine_intensities":
                 index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_for_phase(
                     dict_crystal, sthovl_min, sthovl_max, unit_cell_parameters)
-            l_matching_phase.append(calc_matching_phase(
+            matching_phase = calc_matching_phase(
                 matching_mode, dict_pd, dict_in_out_phase, p_name, index_hkl,
                 multiplicity_hkl, unit_cell_parameters, wavelength, ttheta_zs,
                 lorentz_factor, resolution_parameters + p_resolution, p_ig,
-                (p_1, p_2, p_3, p_4), k, cthm))
+                (p_1, p_2, p_3, p_4), k, cthm)
+            row_fault = take_stacking_fault_of_phase(dict_pd, p_name)
+            if row_fault is not None:
+                # stacking faults: the spread reflections get their own lines
+                index_matching = dict_in_out_phase["index_hkl"]
+                u, v, w, x, y = resolution_parameters + p_resolution
+                flag_faulted, profile_faulted = calc_stacking_fault_profile(
+                    row_fault, dict_crystal, index_matching, unit_cell_parameters,
+                    wavelength, ttheta_zs, (u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4),
+                    dict_cache=dict_in_out_phase,
+                    flag_xrays=radiation[0].startswith("X-rays"), lorentz_parameters=(k, cthm))[:2]
+                if numpy.any(flag_faulted):
+                    # the lines of the rods already have the Lorentz factor
+                    # relative to the one of the reflection
+                    matching_phase.column[:, flag_faulted] = profile_faulted
+                    dict_in_out_phase["profile_pv"][:, flag_faulted] = profile_faulted
+                dict_in_out_phase["stacking_fault_flag_hkl"] = flag_faulted
+            l_matching_phase.append(matching_phase)
             continue
 
         if (
@@ -684,6 +703,31 @@ def calc_chi_sq_for_pd_by_dictionary(
             flag_p_4=flag_asymmetry_parameters,
             cutoff_fwhm=dict_pd.get("profile_cutoff_fwhm", 0.),
         )
+
+        # stacking_fault: the reflections that see the fault shift are
+        # spread along the normal of the layers
+        row_fault = take_stacking_fault_of_phase(dict_pd, p_name)
+        if row_fault is not None:
+            flag_xrays = radiation[0].startswith("X-rays")
+            flag_faulted, profile_faulted, iint_faulted, f2_model = calc_stacking_fault_profile(
+                row_fault, dict_crystal, index_hkl, unit_cell_parameters,
+                wavelength, ttheta_zs, (u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4),
+                dict_cache=dict_in_out_phase, flag_xrays=flag_xrays, lorentz_parameters=(k, cthm))
+            if numpy.any(flag_faulted):
+                profile_pv = numpy.array(profile_pv, copy=True)
+                profile_pv[:, flag_faulted] = profile_faulted
+                # the intensity of a spread reflection is the one of its part
+                # of the rods (the Bragg |F|^2 is replaced, the magnetic part
+                # is kept and spread in the same way)
+                f2_structure = numpy.square(numpy.abs(f_charge if flag_xrays else f_nucl))
+                change = calc_stacking_fault_scale(
+                    f2_structure, f2_model, multiplicity_hkl) * iint_faulted - \
+                    f2_structure[flag_faulted]
+                iint_plus = numpy.array(iint_plus, dtype=float, copy=True)
+                iint_minus = numpy.array(iint_minus, dtype=float, copy=True)
+                iint_plus[flag_faulted] += change
+                iint_minus[flag_faulted] += change
+            dict_in_out_phase["stacking_fault_flag_hkl"] = flag_faulted
         dict_in_out_phase["profile_pv"] = profile_pv
 
         # magnetic_broadening: the magnetic intensity and the nuclear-magnetic

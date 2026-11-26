@@ -42,6 +42,7 @@ from cryspy.C_item_loop_classes.cl_1_texture_sh import (
 from cryspy.C_item_loop_classes.cl_1_exclude import ExcludeL
 from cryspy.C_item_loop_classes.cl_1_magnetic_broadening import (
     MagneticBroadeningL)
+from cryspy.C_item_loop_classes.cl_1_stacking_fault import StackingFaultL
 from cryspy.A_functions_base.plot_peak_labels import (
     add_interactive_peak_labels, form_hkl_labels, form_fractional_hkl_labels)
 from cryspy.A_functions_base.structure_factor_magnetic_k import (
@@ -109,7 +110,7 @@ class Pd(DataN):
         - setup, pd_instr_resolution, phase, pd_background, pd_meas (mandatory)
         - diffrn_radiation, chi2, range, extinction, pd_instr_reflex_asymmetry
           texture, texture_sh, texture_sh_coefficient, sample_goniometer,
-          magnetic_broadening, exclude, pd_proc, pd_peak, refine_ls,
+          magnetic_broadening, stacking_fault, exclude, pd_proc, pd_peak, refine_ls,
           refln_#phase_name
           refln_susceptibility_#phase_name (optional)
     """
@@ -132,6 +133,7 @@ class Pd(DataN):
         TextureShCoefficientL,
         SampleGoniometer,
         MagneticBroadeningL,
+        StackingFaultL,
         ExcludeL,
         PdProcL,
         PdPeakL,
@@ -313,11 +315,12 @@ class Pd(DataN):
                 "intensity_minus": numpy.array(item.intensity_minus, dtype=float)}
         return d_peaks
 
-    def take_parameters_from_dictionary(
+    def take_parameters_from_dictionary(  # noqa: C901, PLR0912, PLR0915
         self, ddict_diffrn, l_parameter_name: list = None, l_sigma: list = None
     ):
         keys = ddict_diffrn.keys()
-        for name in ("texture_sh", "texture_sh_coefficient", "magnetic_broadening"):
+        for name in ("texture_sh", "texture_sh_coefficient", "magnetic_broadening",
+                     "stacking_fault"):
             if self.is_attribute(name):
                 getattr(self, name).take_parameters_from_dictionary(
                     ddict_diffrn, l_parameter_name=list(l_parameter_name or []),

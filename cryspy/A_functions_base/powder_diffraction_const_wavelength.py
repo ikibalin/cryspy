@@ -44,7 +44,7 @@ def func_asymmetry_f_b(z, flag_z: bool = False):
     return res, dder
 
 
-def calc_asymmetry_factor(z, ttheta, p_1, p_2, p_3, p_4, 
+def calc_asymmetry_factor(z, ttheta, p_1, p_2, p_3, p_4,  # noqa: PLR0913
         flag_z: bool = False, flag_p_1: bool = False, flag_p_2: bool = False,
         flag_p_3: bool = False, flag_p_4: bool = False):
     """Asymmetry factor for 1D powder diffraction profile.
@@ -205,7 +205,7 @@ def calc_eta(h_l, h_pv, flag_h_l: bool = False, flag_h_pv: bool = False):
     return res, dder
 
 
-def calc_profile_pseudo_voight(ttheta, ttheta_hkl, u, v, w, i_g, x, y,
+def calc_profile_pseudo_voight(ttheta, ttheta_hkl, u, v, w, i_g, x, y,  # noqa: PLR0913
         p_1, p_2, p_3, p_4, 
         flag_ttheta: bool=False, 
         flag_ttheta_hkl: bool=False, flag_u: bool=False,
@@ -250,7 +250,7 @@ def calc_profile_pseudo_voight(ttheta, ttheta_hkl, u, v, w, i_g, x, y,
     return res, dder
 
 
-def calc_profile_pseudo_voight_extra_lorentz(
+def calc_profile_pseudo_voight_extra_lorentz(  # noqa: PLR0913
         ttheta, ttheta_hkl, u, v, w, i_g, x, y, y_hkl, p_1, p_2, p_3, p_4,
         cutoff_fwhm: float = 0.):
     """Pseudo-Voigt profile with an extra Lorentzian width for every reflection.
@@ -350,7 +350,7 @@ def calc_ttheta_phi_by_gamma_nu(gamma, nu, flag_gamma: bool = False, flag_nu: bo
     return ttheta, phi, dder_ttheta, dder_phi
 
 
-def calc_profile_pseudo_voight_2d(ttheta, phi,
+def calc_profile_pseudo_voight_2d(ttheta, phi,  # noqa: PLR0913
         ttheta_hkl, u, v, w, i_g, x, y,
         p_1, p_2, p_3, p_4, p_phi,
         flag_ttheta: bool=False, 

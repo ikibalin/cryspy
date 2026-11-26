@@ -386,7 +386,7 @@ def calc_transmission_sphere_zero_angle(mu_radius):
     return numpy.where(x < 1e-2, 1. - 3. * x / 4. + 3. * x**2 / 10. - x**3 / 12., exact)
 
 
-def calc_transmission_by_dictionary(
+def calc_transmission_by_dictionary(  # noqa: C901, PLR0912, PLR0915
         dict_diffrn: dict, index_hkl, unit_cell_parameters, wavelength,
         flag_half_wavelength: bool = False, d_parameter: dict = None,
         flag_warn: bool = True, dict_crystal: dict = None):

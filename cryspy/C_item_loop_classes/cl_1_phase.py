@@ -73,7 +73,7 @@ class Phase(ItemN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
-    def get_dictionary(self):
+    def get_dictionary(self):  # noqa: PLR0912
         res = {}
         res["phase_name"] = numpy.array([self.label,], dtype=str)
         n_items = 1
@@ -178,7 +178,7 @@ class PhaseL(LoopN):
             ls_out.append(f"| {item.label:} | " + " | ".join(l_val) + " |")
         return "\n".join(ls_out)
 
-    def get_dictionary(self):
+    def get_dictionary(self):  # noqa: PLR0912
         res = {}
         res["phase_name"] = numpy.array(self.label, dtype=str)
         n_items = len(self.items)

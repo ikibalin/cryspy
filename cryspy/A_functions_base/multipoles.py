@@ -325,7 +325,7 @@ def calc_transformation_matrix_from_global_to_local(
     return r_g_to_l
 
 
-def calc_multipole_density(
+def calc_multipole_density(  # noqa: PLR0913
     point_atom_symm_elems_auc,
     symm_elem_auc,
     unit_cell_parameters,

@@ -302,7 +302,7 @@ def form_correction_dict(dict_diffrn: dict, correction_type: str,
     return dict_out
 
 
-def estimate_absorption_of_diffrn(rcif_object: GlobalN, diffrn: Diffrn,
+def estimate_absorption_of_diffrn(rcif_object: GlobalN, diffrn: Diffrn,  # noqa: C901, PLR0912, PLR0915
                                   crystal_size: float = 0., dict_global: dict = None) -> dict:
     """Estimate of the absorption correction of one experiment; see the
     module docs. crystal_size: mean size (diameter of the sphere) in mm, 0 to

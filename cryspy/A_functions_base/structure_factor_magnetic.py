@@ -45,7 +45,7 @@ from .magnetic_form_factor import (
 na = numpy.newaxis
 
 
-def calc_sft_ccs_by_dictionary(
+def calc_sft_ccs_by_dictionary(  # noqa: PLR0915
     dict_crystal, dict_in_out, flag_use_precalculated_data: bool = False
 ):
     """Calculate structure factor tensor in CCS (X||a*, Z||c) based on the information given in dictionary.
@@ -253,7 +253,7 @@ def calc_sft_ccs_by_dictionary(
     return sft_ccs, dder
 
 
-def calc_sft_ccs(
+def calc_sft_ccs(  # noqa: C901, PLR0912, PLR0913, PLR0915
     index_hkl,
     reduced_symm_elems,
     centrosymmetry,
@@ -526,7 +526,7 @@ def calc_sft_ccs(
     return sft_ccs, dder
 
 
-def calc_f_m_perp_ordered_by_dictionary(
+def calc_f_m_perp_ordered_by_dictionary(  # noqa: PLR0915
     dict_crystal, dict_in_out, flag_use_precalculated_data: bool = False
 ):
     dict_crystal_keys = dict_crystal.keys()
@@ -715,7 +715,7 @@ def calc_f_m_perp_ordered_by_dictionary(
     return f_m_perp_o, dder
 
 
-def calc_f_m_perp_ordered(
+def calc_f_m_perp_ordered(  # noqa: C901, PLR0912, PLR0913, PLR0915
     index_hkl,
     full_mcif_elems,
     unit_cell_parameters,
@@ -1064,7 +1064,7 @@ def calc_bulk_susceptibility_by_dictionary(
     return bulk_susceptibility, error_bars
 
 
-def calc_bulk_susceptibility(
+def calc_bulk_susceptibility(  # noqa: PLR0913
     reduced_symm_elems,
     centrosymmetry,
     centrosymmetry_position,

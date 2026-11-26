@@ -128,7 +128,7 @@ CUBIC_COEFFICIENTS = {
 ORDER_MAX_CUBIC = max(CUBIC_COEFFICIENTS)
 
 
-def is_allowed_harmonic(symmetry: str, l: int, m: int) -> bool:
+def is_allowed_harmonic(symmetry: str, l: int, m: int) -> bool:  # noqa: PLR0912
     """Selection rule of the symmetrized harmonics k_l^m (GSAS-II OdfChk).
 
     Parameters

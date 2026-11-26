@@ -145,7 +145,7 @@ class Cell(ItemN):
         self.form_object(flag_constraint=False)
         return
 
-    def form_object(self, flag_constraint: bool = True):
+    def form_object(self, flag_constraint: bool = True):  # noqa: PLR0915
         """Form object."""
         if flag_constraint:
             self.apply_constraints()

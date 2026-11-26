@@ -113,7 +113,7 @@ def calc_numerators_and_common_denominator(*argv):
     return (*l_res, den_common)
 
 
-def transform_to_p1(points_abc, sym_elems, shift, centrosymmetry, indexes_xyz,
+def transform_to_p1(points_abc, sym_elems, shift, centrosymmetry, indexes_xyz,  # noqa: PLR0915
                     densities):
     """Transoform indexes_xyz and densities to P1 space group.
     
@@ -260,7 +260,7 @@ shifting parameters")
     return indexes_xyz_p1_uniq, densities_p1_uniq
 
 
-def get_string_by_symm_elem(symm_elem):
+def get_string_by_symm_elem(symm_elem):  # noqa: PLR0915
     """Represent symmetry element by string."""
     labels = ("x", "y", "z")
    

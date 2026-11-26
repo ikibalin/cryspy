@@ -325,7 +325,7 @@ def define_centring_type_by_symm_elems(symm_elems):
     return centring_type
 
 
-def define_bravais_type_by_symm_elems(symm_elems):
+def define_bravais_type_by_symm_elems(symm_elems):  # noqa: PLR0912, PLR0915
     n_symm_elems = symm_elems.shape[1]
     
     symm_elem_inversion = numpy.array([-1,0,0,0,-1,0,0,0,-1], dtype=int)

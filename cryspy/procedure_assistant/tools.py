@@ -866,7 +866,7 @@ def tool_ask_user(cryspy_object, question: str = "", questions: Optional[List[st
     return "\n".join(ls_out)
 
 
-def tool_check_flip_ratio_model(cryspy_object, experiment: str = "",
+def tool_check_flip_ratio_model(cryspy_object, experiment: str = "",  # noqa: C901, PLR0912
                                 field: Optional[float] = None,
                                 polarization: Optional[float] = None,
                                 magnetic_atoms: Optional[List[str]] = None,
@@ -1024,7 +1024,7 @@ def tool_estimate_absorption(cryspy_object, experiment: str = "",
     return "\n".join(ls_out)
 
 
-def tool_apply_absorption_correction(cryspy_object, correction_type: str = "",
+def tool_apply_absorption_correction(cryspy_object, correction_type: str = "",  # noqa: PLR0912
                                      sizes: Optional[List[float]] = None,
                                      direction_max: Optional[List[float]] = None,
                                      direction_mid: Optional[List[float]] = None,
@@ -1218,7 +1218,7 @@ def format_method_line(function) -> str:
     return f"{function.__name__:}: {sentence:}"
 
 
-def tool_list_methods(cryspy_object, path: str = "", pattern: str = "") -> str:
+def tool_list_methods(cryspy_object, path: str = "", pattern: str = "") -> str:  # noqa: C901, PLR0912, PLR0915
     """The methods of the data blocks, loops and items (methods.py), the
     same methods of blocks of one class listed once. The methods matching
     the pattern best come first with their arguments and descriptions;
@@ -1348,7 +1348,7 @@ def add_new_data_block(cryspy_object, block) -> str:
     return f"The new data block {name:} is added to the object."
 
 
-def tool_call_method(cryspy_object, method: str, path: str = "", **arguments) -> str:
+def tool_call_method(cryspy_object, method: str, path: str = "", **arguments) -> str:  # noqa: PLR0912
     """Call a method of the blocks given by the path (every block that has
     it when the path is a class, a category or empty); items of the object
     for its parameters are found by their classes, the other values
@@ -2041,7 +2041,7 @@ def assistant_tools_as_text() -> str:
     return "\n".join(tool.to_short_text() for tool in L_ASSISTANT_TOOLS)
 
 
-def convert_argument(value, d_param: dict):
+def convert_argument(value, d_param: dict):  # noqa: C901, PLR0912
     """Value of the argument of the type given by its JSON schema; raises
     ValueError or TypeError when it does not fit.
 
@@ -2186,7 +2186,7 @@ def call_assistant_tool(cryspy_object, name: str,
     return result
 
 
-def run_assistant_tool(cryspy_object, name: str, arguments: Optional[dict] = None,
+def run_assistant_tool(cryspy_object, name: str, arguments: Optional[dict] = None,  # noqa: PLR0912
                        ask_required: bool = False, progress: Optional[Callable] = None) -> dict:
     tool = take_assistant_tool(name)
     if tool is None:

@@ -207,7 +207,7 @@ def form_name(words: str) -> str:
     return re.sub(r"[\s\-]+", "_", words).strip("_").lower()
 
 
-def parse_recipe(text: str, path: str = "") -> Recipe:
+def parse_recipe(text: str, path: str = "") -> Recipe:  # noqa: PLR0912
     """The recipe of the text (the format is in the module docstring);
     raises ValueError with the number of the wrong line."""
     recipe, d_step, s_field, d_field = None, None, "", None
@@ -629,7 +629,7 @@ def check_condition_kinds(cryspy_object, condition: str) -> Optional[bool]:
     return any(set(group) <= kinds for group in l_group for kinds in l_kinds)
 
 
-def run_recipe_steps(cryspy_object, recipe: Recipe, l_step: list, l_metrics: list, callback=None,
+def run_recipe_steps(cryspy_object, recipe: Recipe, l_step: list, l_metrics: list, callback=None,  # noqa: PLR0912
                      prefix: str = "", depth: int = 0) -> bool:
     """Do the steps of the recipe (run_recipe); the steps of a recipe used
     by a step (use_recipe) are done in their place and reported as
