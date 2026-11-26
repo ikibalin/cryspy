@@ -211,16 +211,15 @@ def test_category_of_a_request_is_found():
     request = "Add description of magnetic form factor through multipoles for Cu atom in cula2o4 crystal"
     text = form_matching_methods_text(crystal, request)
     l_line = text.split("\n")
-    assert l_line[0].startswith("Categories that may describe this")
-    assert l_line[1].startswith("- atom_rho_multipole in crystal_cula2o4:")
-    assert '[add_item {"category": "atom_rho_multipole"}]' in l_line[1]
+    # the method of #198 adds the row with its local axes; it comes first
+    assert l_line[1].startswith("- add_multipole_form_factor of crystal_cula2o4:")
     assert "add_magnetic_model" not in text and "rhochi_rank" not in text
     assert "add_atom" not in form_matching_tools_text(request)
     text = form_matching_methods_text(crystal, "Add multipoles for Cu")
-    assert text.split("\n")[1].startswith("- atom_rho_multipole in")
+    assert '[add_item {"category": "atom_rho_multipole"}]' in text
     # a short category name: the words are in the summary of its class
     text = form_matching_methods_text(crystal, "Define the magnetic form factor of Cu by Lande factor")
-    assert text.split("\n")[1].startswith("- atom_site_scat in")
+    assert '[add_item {"category": "atom_site_scat"}]' in text
     assert form_matching_methods_text(crystal, "Refine the structure") == ""
 
 
