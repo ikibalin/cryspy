@@ -596,14 +596,16 @@ def split_atoms(crystal, k_group: dict) -> dict:
                     d_new[loop_name].append(new_other)
         if len(representatives) > 1:
             for loop_name in UNSUPPORTED_SPLIT:
+                # atom_rho_multipole and atom_local_axes name the atom by atom_label
                 if crystal.is_attribute(loop_name) and item.label in [
-                        other.label for other in getattr(crystal, loop_name).items
-                        if hasattr(other, "label")]:
+                        getattr(other, "label", getattr(other, "atom_label", None))
+                        for other in getattr(crystal, loop_name).items]:
                     raise CrysPyError(
                         f"Atom '{item.label}' splits into "
                         f"{len(representatives)} atoms in the group of k, and "
                         f"its {loop_name} cannot be converted. Remove "
-                        f"{loop_name} of this atom first.")
+                        f"{loop_name} of this atom first (multipoles can be "
+                        "added again by add_multipole_form_factor).")
     out = {"labels": d_labels}
     for loop_name, l_item in d_new.items():
         if l_item:

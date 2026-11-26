@@ -173,3 +173,79 @@ def test_procedures_matching_a_request_are_found(powder):
     # the method stays first when its name fits better
     text = form_matching_methods_text(powder, "Add the propagation vector")
     assert "- add_propagation_vector of " in text.split("\n")[1]
+
+
+LA2CUO4 = """global_
+data_cula2o4
+_space_group_name_H-M_alt 'B m a b'
+_cell_length_a 5.35
+_cell_length_b 5.40
+_cell_length_c 13.15
+_cell_angle_alpha 90
+_cell_angle_beta 90
+_cell_angle_gamma 90
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+Cu Cu2+ 0 0 0 1
+La La 0 0 0.36 1
+O1 O 0.25 0.25 0 1
+O2 O 0 0 0.18 1
+"""
+
+
+def test_category_of_a_request_is_found():
+    """'Add description of magnetic form factor through multipoles for Cu
+    atom' gave only add_magnetic_model (by 'add', 'magnetic' and 'form
+    factor' of its argument magnetic_ion) and add_atom, and the model
+    asked for the propagation vector: the category atom_rho_multipole
+    (action add_item) must be given, and common words ('add', 'magnetic',
+    'atom') or the Parameters section must not select a method."""
+    from cryspy.procedure_assistant.methods import form_matching_methods_text
+    from cryspy.procedure_assistant.tools import form_matching_tools_text
+    crystal = cryspy.str_to_globaln(LA2CUO4)
+    request = "Add description of magnetic form factor through multipoles for Cu atom in cula2o4 crystal"
+    text = form_matching_methods_text(crystal, request)
+    l_line = text.split("\n")
+    assert l_line[0].startswith("Categories that may describe this")
+    assert l_line[1].startswith("- atom_rho_multipole in crystal_cula2o4:")
+    assert '[add_item {"category": "atom_rho_multipole"}]' in l_line[1]
+    assert "add_magnetic_model" not in text and "rhochi_rank" not in text
+    assert "add_atom" not in form_matching_tools_text(request)
+    text = form_matching_methods_text(crystal, "Add multipoles for Cu")
+    assert text.split("\n")[1].startswith("- atom_rho_multipole in")
+    # a short category name: the words are in the summary of its class
+    text = form_matching_methods_text(crystal, "Define the magnetic form factor of Cu by Lande factor")
+    assert text.split("\n")[1].startswith("- atom_site_scat in")
+    assert form_matching_methods_text(crystal, "Refine the structure") == ""
+
+
+def test_description_without_numpydoc_sections():
+    from cryspy.procedure_assistant.methods import take_description
+
+    def function(magnetic_ion: str = ""):
+        """Give the crystal a magnetic model.
+
+        Details.
+
+        Parameters
+        ----------
+        magnetic_ion : str
+            Magnetic ion of the form factor.
+        """
+    assert take_description(function) == "Give the crystal a magnetic model.\n\nDetails."
+
+
+def test_report_for_a_question_operation_for_an_order():
+    from cryspy.procedure_assistant.methods import asks_for_report, find_matching_procedures
+    assert asks_for_report("What is the magnetic broadening?")
+    assert asks_for_report("Show the magnetic broadening")
+    assert not asks_for_report("Set magnetic domain size")
+    names = [item["name"] for item in find_matching_procedures("Show the magnetic broadening")]
+    assert names[0] == "report_magnetic_broadening"
+    names = [item["name"] for item in find_matching_procedures("Set magnetic domain size")]
+    assert names[0] == "add_magnetic_broadening"
