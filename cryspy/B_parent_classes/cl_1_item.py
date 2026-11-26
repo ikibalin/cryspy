@@ -100,6 +100,31 @@ class ItemN(object):
     You should use it only to create your own classes.
     """
 
+    # How a row of the category depends on the other categories of its data
+    # block; AI assistants add rows from these definitions only
+    # (procedure_assistant/dependencies.py):
+    # - D_REFERENCES: attribute -> "category.column" whose value it is
+    #   ({"atom_label": "atom_site.label"}); the first one is the key of
+    #   the row (one row per atom, per phase);
+    # - REQUIRED_CATEGORIES: categories that need a row with the same key
+    #   for this row to be used (multipoles need atom_site_scat and
+    #   atom_local_axes of the atom);
+    # - D_PROPOSALS: attribute -> "category.column" of the row with the
+    #   same key whose value is proposed, or a value proposed as it is
+    #   ({"atom_type_symbol": "atom_site_scat.type_symbol", "coeff_P00": 1.}).
+    D_REFERENCES = {}
+    REQUIRED_CATEGORIES = ()
+    D_PROPOSALS = {}
+
+    @classmethod
+    def propose_values(cls, data, d_value: dict) -> dict:
+        """Values of attributes found from the data block and the values
+        known already, for a new row: {attribute: {"proposal", "options",
+        "reason"}}; "proposal" is "" when only the options are known. A
+        class whose values can be found by a calculation or the knowledge
+        base redefines it (the orbital of the ion of a multipole row)."""
+        return {}
+
     def __repr__(self):
         """
         Magic method print() is redefined.

@@ -174,11 +174,6 @@ def add_magnetic_broadening(
     str
         The phases with the parameters to refine.
 
-    Needs
-    -----
-    phase : label = phase_label
-        The magnetic phase in the pd experiments.
-
     Adds
     ----
     magnetic_broadening : phase_label = phase_label

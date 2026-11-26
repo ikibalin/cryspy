@@ -63,6 +63,9 @@ The label of ion should be the same as label in atom_site_susceptibility loop (f
 
     PREFIX = "atom_site_scat"
 
+    D_REFERENCES = {"label": "atom_site.label"}
+    D_PROPOSALS = {"type_symbol": "atom_site.type_symbol"}
+
     def __init__(self, **kwargs) -> NoReturn:
         super(AtomSiteScat, self).__init__()
 

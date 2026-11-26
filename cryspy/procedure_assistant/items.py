@@ -29,10 +29,6 @@ class ValuesNeeded(Exception):
     """Mandatory attributes have no value; args: their names."""
 
 
-# attributes which hold the label of an atom of atom_site
-ATOM_LABEL_ATTRIBUTES = ("atom_label", )
-
-
 def take_data_blocks(cryspy_object) -> List[DataN]:
     if isinstance(cryspy_object, GlobalN):
         return [item for item in cryspy_object.items if isinstance(item, DataN)]
@@ -100,21 +96,19 @@ def form_item(item_class: type, path: str, values: dict) -> Tuple[ItemN, List[st
     return item, l_missing
 
 
-def take_atom_labels(data: DataN) -> Optional[List[str]]:
-    atom_site = next((obj for obj in data.items if obj.get_name() == "atom_site"), None)
-    if not isinstance(atom_site, LoopN):
-        return None
-    return [str(atom.label) for atom in atom_site.items]
-
-
-def check_atom_labels(data: DataN, item: ItemN):
-    l_label = take_atom_labels(data)
-    if l_label is None:
-        return
-    for name in ATOM_LABEL_ATTRIBUTES:
-        if item.is_attribute(name) and str(getattr(item, name)) not in l_label:
-            raise ValueError(f"atom '{getattr(item, name):}' is not in atom_site of {data.get_name():}; "
-                             f"the atoms are {', '.join(l_label):}.")
+def check_references(data: DataN, item: ItemN):
+    """The attributes of D_REFERENCES of the item class (atom_label ->
+    atom_site.label) must name a row of the data block."""
+    for name, reference in getattr(type(item), "D_REFERENCES", {}).items():
+        category, _, column = reference.partition(".")
+        if not item.is_attribute(name) or not data.is_attribute(category):
+            continue
+        container = getattr(data, category)
+        l_row = container.items if isinstance(container, LoopN) else [container]
+        l_value = [str(getattr(row, column)) for row in l_row if row.is_attribute(column)]
+        if str(getattr(item, name)).lower() not in [value.lower() for value in l_value]:
+            raise ValueError(f"'{getattr(item, name):}' ({name:}) is not in {category:}.{column:} "
+                             f"of {data.get_name():}; the values are {', '.join(l_value):}.")
 
 
 def fill_columns(loop: LoopN, item: ItemN):
@@ -138,7 +132,27 @@ def fill_columns(loop: LoopN, item: ItemN):
                 setattr(row, name, value)
 
 
-def add_item(cryspy_object, category: str, values: dict, block: str = "") -> Tuple[str, object]:  # noqa: PLR0912
+def choose_data_block(cryspy_object, item_class: type, block: str = "") -> DataN:
+    """Data block of the object that gets the item: the named one, or the
+    only one that may have it. Raises ValueError, BlockNeeded."""
+    l_data = [data for data in take_data_blocks(cryspy_object) if accepts(data, item_class)]
+    if block.strip() != "":
+        data = take_block(cryspy_object, block.strip())
+        if not isinstance(data, DataN):
+            raise ValueError(f"there is no data block '{block:}'.")
+        if data not in l_data:
+            raise ValueError(f"the data block {data.get_name():} ({type(data).__name__:}) cannot have "
+                             f"{item_class.PREFIX:}.")
+    elif len(l_data) == 1:
+        data = l_data[0]
+    elif len(l_data) == 0:
+        raise ValueError(f"no data block of the object can have {item_class.PREFIX:}.")
+    else:
+        raise BlockNeeded([data.get_name() for data in l_data])
+    return data
+
+
+def add_item(cryspy_object, category: str, values: dict, block: str = "") -> Tuple[str, object]:
     """Add an item of the category to a data block; for a loop category the
     item is a new row (the loop is created when there is none).
 
@@ -163,25 +177,12 @@ def add_item(cryspy_object, category: str, values: dict, block: str = "") -> Tup
     no value.
     """
     item_class = take_category_class(category)
-    l_data = [data for data in take_data_blocks(cryspy_object) if accepts(data, item_class)]
-    if block.strip() != "":
-        data = take_block(cryspy_object, block.strip())
-        if not isinstance(data, DataN):
-            raise ValueError(f"there is no data block '{block:}'.")
-        if data not in l_data:
-            raise ValueError(f"the data block {data.get_name():} ({type(data).__name__:}) cannot have "
-                             f"{item_class.PREFIX:}.")
-    elif len(l_data) == 1:
-        data = l_data[0]
-    elif len(l_data) == 0:
-        raise ValueError(f"no data block of the object can have {item_class.PREFIX:}.")
-    else:
-        raise BlockNeeded([data.get_name() for data in l_data])
+    data = choose_data_block(cryspy_object, item_class, block)
     prefix = item_class.PREFIX
     item, l_missing = form_item(item_class, f"{data.get_name():}.{prefix:}", values)
     if l_missing:
         raise ValuesNeeded(*l_missing)
-    check_atom_labels(data, item)
+    check_references(data, item)
     loop_class = take_loop_class(data, item_class)
     container = next((obj for obj in data.items if isinstance(obj, loop_class or item_class)), None)
     path = f"{data.get_name():}.{prefix:}"

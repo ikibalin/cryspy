@@ -2171,13 +2171,6 @@ class Crystal(DataN):
         str
             Markdown report of the rows added.
 
-        Needs
-        -----
-        atom_site : label = atom_label
-            The atoms.
-        atom_site_scat : label = atom_label
-            The magnetic ion of the atom: the multipoles describe magnetic atoms only.
-
         Adds
         ----
         atom_rho_multipole : atom_label = atom_label

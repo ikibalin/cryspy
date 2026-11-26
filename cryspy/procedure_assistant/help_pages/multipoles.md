@@ -1,12 +1,39 @@
 ---
 title: Multipole model of the magnetization (form factor)
-keywords: multipole, multipoles, add multipoles, check requirements, propagation vector, superspace, aspherical, anisotropic form factor, pseudoatom, hansen-coppens, kappa, plm, orbital, local axes, dummy atom
+keywords: multipole, multipoles, add multipoles, check requirements, propagation vector, superspace, aspherical, anisotropic form factor, pseudoatom, hansen-coppens, kappa, plm, orbital, local axes, dummy atom, core, valence, electron configuration, open shell, what is needed
 categories: atom_rho_multipole, atom_local_axes, atom_site, atom_electron_configuration
 ---
 The anisotropic magnetic form factor of an atom can be described by the
 multipole (Hansen-Coppens) model. Two loops of the crystal data block are
 needed: `atom_rho_multipole` with the coefficients and `atom_local_axes`
 with the local coordinate system of each atom.
+
+What a magnetic atom needs for its form factor through multipoles:
+
+1. a row of `atom_site` (the atom itself) and of `atom_site_scat` (its
+   magnetic ion);
+2. local axes: a row of `atom_local_axes`. The coefficients `coeff_Plm`
+   are given in the local coordinate system of the atom, so without the
+   axes they have no meaning. The axes are best aligned with the bonds
+   or the symmetry axes of the site; dummy atoms give directions without
+   an atom;
+3. the radial part: the ion (`atom_type_symbol`) and its open shell
+   (`orbital`: 3d for Mn2+, 4f for rare earths, 2p for a spin transferred
+   to O2- or F1-), with `kappa`;
+4. the populations `coeff_P00` (1 for a spherical start) and the other
+   `coeff_Plm` allowed by the site symmetry.
+
+The core electrons (the closed shells, loop `atom_electron_configuration`
+with `core` and `valence`) are not needed for the magnetic form factor:
+their spins are paired, only the open shell given by `orbital` carries
+the magnetization, and the polarisation of the core is neglected. The
+core part is used for the electron (charge) density and for the core
+prior density of MEM (`_mem_parameters_prior_density core`); give it
+only there.
+
+`add_item {"category": "atom_rho_multipole"}` adds the missing rows of
+items 1 and 2 together with the multipoles and asks the values it cannot
+find (the local axes are proposed from the nearest atoms).
 
 `atom_rho_multipole` (one row per atom):
 

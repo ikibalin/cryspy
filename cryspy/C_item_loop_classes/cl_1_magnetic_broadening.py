@@ -91,6 +91,8 @@ class MagneticBroadening(ItemN):
 
     PREFIX = "magnetic_broadening"
 
+    D_REFERENCES = {"phase_label": "phase.label"}
+
     def __init__(self, **kwargs) -> NoReturn:
         super(MagneticBroadening, self).__init__()
         self.__dict__["D_MIN"] = {}

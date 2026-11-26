@@ -100,6 +100,9 @@ The susceptibility tensor is given in Cartezian coordinate system (x||a*, z||c).
 
     PREFIX = "atom_site_susceptibility"
 
+    D_REFERENCES = {"label": "atom_site.label"}
+    REQUIRED_CATEGORIES = ("atom_site_scat", )
+
     def __init__(self, **kwargs) -> NoReturn:
         super(AtomSiteSusceptibility, self).__init__()
 

@@ -15,7 +15,7 @@ from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.procedure_assistant.attributes import (
     describe_item_class, explain_allowed_value, find_attribute_records, find_item_classes,
     take_attribute_record, take_block, take_object_item_classes)
-from cryspy.procedure_assistant import items
+from cryspy.procedure_assistant import dependencies, items
 from cryspy.procedure_assistant.procedures import (
     D_BASIC_TYPE)
 
@@ -168,6 +168,11 @@ def tool_add_item(cryspy_object, category: str, block: str = "",
     # the values may come as a dict or as separate arguments
     d_value = dict(values or {}, **extra_values)
     try:
+        # rows that refer to other rows (one per atom, per phase): added with
+        # the rows they need, values found or asked (dependencies.py)
+        text = dependencies.add_rows(cryspy_object, category, d_value, block)
+        if text is not None:
+            return text
         path, container = items.add_item(cryspy_object, category, d_value, block)
     except items.BlockNeeded as error:
         raise ArgumentsNeeded([{

@@ -12,8 +12,9 @@ from typing import Optional, Tuple
 
 import numpy
 
-from cryspy.A_functions_base.function_1_strings import split_list_text
-from cryspy.A_functions_base.knowledge_tables import take_magnetic_ions
+from cryspy.A_functions_base.function_1_strings import parse_values_by_label, split_list_text
+from cryspy.A_functions_base.charge_form_factor import (
+    propose_orbital_of_ion, take_element_of_symbol)
 from cryspy.C_item_loop_classes.cl_1_atom_local_axes import (
     AtomLocalAxes, AtomLocalAxesL)
 from cryspy.C_item_loop_classes.cl_1_atom_rho_multipole import (
@@ -27,30 +28,6 @@ DUMMY_DISTANCE = 0.5
 MAX_DUMMY_DISTANCE = 1.0
 # cos of the angle below which a direction is taken as parallel to c (~5°)
 COS_PARALLEL = 0.996
-
-
-def take_element_of(type_symbol: str) -> str:
-    match = re.match(r"\s*\d*([A-Za-z][a-z]?)", str(type_symbol))
-    return match.group(1).capitalize() if match else ""
-
-
-def parse_values_of_atoms(text: str, l_label: list) -> dict:
-    """{label: value} of 'Mn: Mn3+, F: O2-'; a value without a label
-    ('Mn3+') is for every atom. Labels and values have no spaces."""
-    d_value = {}
-    for part in re.split(r"[,;]", str(text)):
-        part = part.strip()
-        if part == "":
-            continue
-        match = re.fullmatch(r"(\S+)\s*[:=]\s*(\S+)", part)
-        if match is None:
-            d_value.update({label: part for label in l_label if label not in d_value})
-            continue
-        label, value = match.groups()
-        if label not in l_label:
-            raise CrysPyError(f"'{part}': no atom {label} among {', '.join(l_label)}.")
-        d_value[label] = value
-    return d_value
 
 
 def take_magnetic_ion_of_atom(crystal, label: str, magnetic_ion: str = "") -> Tuple[str, Optional[dict]]:
@@ -69,7 +46,7 @@ def take_magnetic_ion_of_atom(crystal, label: str, magnetic_ion: str = "") -> Tu
     if crystal.is_attribute("atom_site_scat") and \
             label in list(crystal.atom_site_scat.label):
         ion = str(crystal.atom_site_scat[label].type_symbol).strip()
-    if ion != "" and take_element_of(ion) != take_element_of(type_symbol):
+    if ion != "" and take_element_of_symbol(ion) != take_element_of_symbol(type_symbol):
         l_option = [ion] + ([site_ion] if site_ion else [])
         return ion, {"label": label, "options": l_option, "proposal": ion,
                      "reason": f"{ion} of atom_site_scat (its dipole form factor), "
@@ -83,42 +60,15 @@ def take_magnetic_ion_of_atom(crystal, label: str, magnetic_ion: str = "") -> Tu
     return ion, None
 
 
-def take_orbitals_of_element(element: str) -> list:
-    """Orbitals of the element with radial Slater functions in CrysPy."""
-    from cryspy.A_functions_base.charge_form_factor import DATABASE
-    return [orbital for name, orbital in DATABASE["Orbitals by radial Slater functions"]
-            if name == element]
-
-
 def take_orbital_of_ion(ion: str) -> Tuple[str, Optional[dict]]:
     """Orbital of the radial function of an ion and, when it is not sure,
-    the choice to ask.
-
-    The open shell of a magnetic ion of the knowledge base (Cu2+ 3d9 ->
-    3d) is sure. For another ion (an anion with a transferred spin, as
-    O2- or F1-) the orbitals with Slater functions in CrysPy are the
-    options and the outer shell of its configuration (2p) the proposal."""
-    from cryspy.A_functions_base.charge_form_factor import get_atom_name_ion_charge_shell
-    d_ion = take_magnetic_ions().get(ion)
-    if d_ion is not None:
-        match = re.match(r"\s*(\d[spdf])", d_ion["configuration"])
-        if match is not None:
-            return match.group(1), None
-    try:
-        element, _, configuration = get_atom_name_ion_charge_shell(ion)
-    except Exception:  # noqa: BLE001 (any unknown symbol: the orbital is asked)
-        element, configuration = take_element_of(ion), ""
-    l_orbital = take_orbitals_of_element(element)
-    if len(l_orbital) == 0:
-        raise CrysPyError(f"No radial (Slater) functions of {element} in CrysPy: "
-                          "the multipoles of this atom cannot be described.")
-    l_shell = [re.match(r"(\d[spdf])", item).group(1) for item in configuration.split()
-               if re.match(r"(\d[spdf])", item)]
-    outer = l_shell[-1] if l_shell and l_shell[-1] in l_orbital else ""
-    reason = f"{ion} is not a magnetic ion of the knowledge base"
-    if outer:
-        reason += f"; {outer} is its outer shell ({configuration})"
-    return outer, {"options": l_orbital, "proposal": outer, "reason": reason}
+    the choice to ask (propose_orbital_of_ion)."""
+    d_orbital = propose_orbital_of_ion(ion)
+    if len(d_orbital["options"]) == 0:
+        raise CrysPyError(f"{d_orbital['reason']}: the multipoles of {ion} cannot be described.")
+    if d_orbital["sure"]:
+        return d_orbital["proposal"], None
+    return d_orbital["proposal"], {key: d_orbital[key] for key in ("options", "proposal", "reason")}
 
 
 def find_dummy_atom_near(crystal, label: str) -> Optional[Tuple[str, bool]]:
@@ -218,8 +168,8 @@ def add_multipole_form_factor(
 
     # every value is found before anything is changed: one round of
     # questions when an ion or an orbital is not sure
-    d_ion_given = parse_values_of_atoms(magnetic_ion, l_label)
-    d_orbital_given = parse_values_of_atoms(orbital, l_label)
+    d_ion_given = parse_values_by_label(magnetic_ion, l_label)
+    d_orbital_given = parse_values_by_label(orbital, l_label)
     d_ion, l_ion_doubt = {}, []
     for label in l_label:
         d_ion[label], d_doubt = take_magnetic_ion_of_atom(

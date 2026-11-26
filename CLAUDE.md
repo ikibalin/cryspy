@@ -81,20 +81,30 @@ Public API is re-exported from `cryspy/__init__.py`.
   `list_methods`, `call_method`): give them type hints and a numpydoc
   docstring that says what they really do. A method without a docstring is
   not offered; internal steps start with `get_`, `form_`, `take_` or `_`.
-- A procedure or a method that adds a description to the object
-  (multipoles, texture, magnetic broadening, a propagation vector) names in
-  its docstring the CIF categories it needs and adds, in the sections
-  `Needs` and `Adds` after `Returns`, one category per line, with the
-  column given by a parameter: `atom_site_scat : label = atom_label`
-  (indented description below). AI assistants check the object from these
-  sections alone (`procedure_assistant/requirements.py`, tool
-  `check_requirements`): values without a needed row are refused with the
-  category to add first, a missing parameter is asked with the possible
-  values as options (several values when its description says "one or
-  several" or "separated by commas"). When the function itself is not
-  sure of a value (an ion of another element, a guessed orbital), it
-  raises `cryspy.ArgumentsNeeded` with the options and a proposal instead
-  of guessing silently.
+- How the rows of a category depend on the other categories is said by
+  its class (`ItemN`): `D_REFERENCES` (attribute -> `"category.column"`
+  it names, the first one is the key of the row: `{"atom_label":
+  "atom_site.label"}`), `REQUIRED_CATEGORIES` (rows needed with the same
+  key: multipoles need `atom_site_scat` and `atom_local_axes`),
+  `D_PROPOSALS` (a value taken from the row with the same key, or a fixed
+  one) and the classmethod `propose_values` for values found by a
+  calculation or the knowledge base (`"sure": False` when the user should
+  confirm). From these alone an AI assistant adds any item or loop
+  (`add_item`, `procedure_assistant/dependencies.py`): the possible keys,
+  the missing rows of the required categories, the known values, and one
+  round of questions with options for the values in doubt. Give a new
+  category these definitions instead of writing a method to add it.
+- A procedure or a method is still written when it computes rows a user
+  would have to type (dummy atoms of local axes, the allowed texture
+  coefficients). It names the categories it adds in the docstring section
+  `Adds` after `Returns` (`atom_rho_multipole : atom_label = atom_label`
+  for a row keyed by a parameter); the categories it needs come from the
+  classes of these rows, `Needs` lists only what they cannot say. The
+  assistant checks the object with them (`requirements.py`, tool
+  `check_requirements`, also for a category) and offers `add_item` for
+  the same rows. When a function is not sure of a value (an ion of
+  another element, a guessed orbital), it raises `cryspy.ArgumentsNeeded`
+  with options and a proposal instead of guessing silently.
 - A request to an AI assistant gets the procedures, methods and categories
   (CIF items and loops, action `add_item`) whose names and descriptions fit
   it (`methods.form_matching_methods_text`, BM25 weights: rare words count

@@ -12,6 +12,10 @@ class AtomElectronConfiguration(ItemN):
     """An atom’s electron configuration is defined by AtomElectronConfiguration, which is divided into the core and valence parts.
 The core is spherical while the valence is non-spherical.
 The orientation and population of the valence region are described by AtomRhoOrbitalValence (this is not yet realised).
+
+The core part is used for the electron density and for the core prior
+density of MEM; the magnetic form factor (atom_site_scat or the multipoles
+of atom_rho_multipole) does not need it.
     """
     ATTR_MANDATORY_NAMES = ("label", )
     ATTR_MANDATORY_TYPES = (str, )
@@ -48,6 +52,7 @@ The orientation and population of the valence region are described by AtomRhoOrb
         D_DEFAULT[key] = ""
 
     PREFIX = "atom_electron_configuration"
+    D_REFERENCES = {"label": "atom_site.label"}
 
     def __init__(self, **kwargs) -> NoReturn:
         super(AtomElectronConfiguration, self).__init__()
@@ -97,6 +102,10 @@ class AtomElectronConfigurationL(LoopN):
     """An atom’s electron configuration is defined by AtomElectronConfiguration, which is divided into the core and valence parts.
 The core is spherical while the valence is non-spherical.
 The orientation and population of the valence region are described by AtomRhoOrbitalValence (this is not yet realised).
+
+The core part is used for the electron density and for the core prior
+density of MEM; the magnetic form factor (atom_site_scat or the multipoles
+of atom_rho_multipole) does not need it.
     """
     ITEM_CLASS = AtomElectronConfiguration
     ATTR_INDEX = "label"

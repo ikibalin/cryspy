@@ -4,7 +4,7 @@ values (procedure_assistant/requirements.py)."""
 import cryspy
 from cryspy.procedure_assistant.methods import form_matching_methods_text
 from cryspy.procedure_assistant.procedures import parse_docstring
-from cryspy.procedure_assistant.requirements import check_requirements
+from cryspy.procedure_assistant.requirements import check_requirements, take_requirements
 
 # MnF2 as in the file of the user: msCIF superspace group with k = 0, the
 # ion of atom_site_scat of F is O2- (its dipole form factor), two dummy
@@ -92,10 +92,12 @@ def call_method(obj, **arguments):
 
 def test_parse_needs_and_adds():
     d_doc = parse_docstring(cryspy.Crystal.add_multipole_form_factor.__doc__)
-    assert [(item["category"], item["column"], item["parameter"]) for item in d_doc["needs"]] == [
-        ("atom_site", "label", "atom_label"), ("atom_site_scat", "label", "atom_label")]
     assert [item["category"] for item in d_doc["adds"]] == ["atom_rho_multipole", "atom_local_axes"]
-    assert "magnetic atoms only" in d_doc["needs"][1]["description"]
+    # the needed categories come from the class of the added rows
+    d_requirement = take_requirements(cryspy.Crystal.add_multipole_form_factor)
+    assert [(item["category"], item["column"], item["parameter"])
+            for item in d_requirement["needs"]] == [
+        ("atom_site", "label", "atom_label"), ("atom_site_scat", "label", "atom_label")]
     # the sections are not in the description (method search, menus)
     assert "Needs" not in d_doc["description"]
 
@@ -207,8 +209,21 @@ Pb Pb 0.1872 0.25 0.1662
 
 data_pd
 _setup_wavelength 1.912
+_setup_field 0.0
+_setup_offset_2theta 0.0
+_setup_radiation neutrons
+_pd_instr_resolution_U 0.12
+_pd_instr_resolution_V -0.33
+_pd_instr_resolution_W 0.28
+_pd_instr_resolution_X 0.0
+_pd_instr_resolution_Y 0.15
 _range_2theta_min 15.0
 _range_2theta_max 95.0
+loop_
+_pd_background_2theta
+_pd_background_intensity
+10.0 50.0
+100.0 50.0
 loop_
 _phase_label
 _phase_scale
@@ -229,5 +244,122 @@ _pd_meas_intensity_sigma
         "name": "add_texture_spherical_harmonics", "phase_label": "pbso5"})
     assert "no pbso5 in phase.label (phase_label); the values are pbso4" in d_out["text"]
     text = cryspy.call_assistant_tool(
+        obj, "check_requirements", {"name": "texture_sh_coefficient"})["text"]
+    assert "needs a row of texture_sh for the same phase_label; present: none" in text
+    assert "new rows possible for: pbso4" in text
+    assert "procedure add_texture_spherical_harmonics" in text
+    text = cryspy.call_assistant_tool(
         obj, "check_requirements", {"name": "add_restraint"})["text"]
     assert "does not name the categories" in text
+
+
+# --- any category by add_item, from the definitions of the classes ---------
+
+def add_item(obj, **arguments):
+    return cryspy.call_assistant_tool(obj, "add_item", dict(category="atom_rho_multipole", **arguments))
+
+
+def test_class_dependencies_of_multipoles():
+    from cryspy.C_item_loop_classes.cl_1_atom_rho_multipole import AtomRhoMultipole
+    from cryspy.procedure_assistant.dependencies import take_key_attribute
+    assert take_key_attribute(AtomRhoMultipole) == "atom_label"
+    assert AtomRhoMultipole.REQUIRED_CATEGORIES == ("atom_site_scat", "atom_local_axes")
+    obj = cryspy.str_to_globaln(MNF2)
+    d_proposal = AtomRhoMultipole.propose_values(
+        obj.crystal_mnf2, {"atom_label": "F", "atom_type_symbol": "O2-"})
+    assert d_proposal["atom_type_symbol"]["options"] == ["O2-", "F1-"]
+    assert d_proposal["orbital"]["proposal"] == "2p" and not d_proposal["orbital"]["sure"]
+    d_proposal = AtomRhoMultipole.propose_values(
+        obj.crystal_mnf2, {"atom_label": "Mn", "atom_type_symbol": "Mn3+"})
+    assert list(d_proposal) == ["orbital"] and d_proposal["orbital"]["sure"]
+
+
+def test_add_item_asks_the_atoms_with_the_possible_ones():
+    obj = cryspy.str_to_globaln(MNF2)
+    (d_question, ) = add_item(obj)["missing"]
+    assert d_question["name"] == "atom_label"
+    assert d_question["options"] == ["Mn, F", "Mn", "F"]
+    assert "D1, D2: no atom_site_scat" in d_question["hint"]
+
+
+def test_add_item_adds_multipoles_with_the_rows_they_need():
+    """No special method: atom_rho_multipole of Mn and F is added with
+    atom_local_axes (required by its class); atom_site_scat is there. The
+    sure values are taken (Mn3+ of atom_site_scat, 3d), the others are
+    asked in one round with proposals: the ion and orbital of F, the
+    local axes from the nearest atoms (D2 along c for Mn, D1 for F)."""
+    obj = cryspy.str_to_globaln(MNF2)
+    crystal = obj.crystal_mnf2
+    d_out = add_item(obj, atom_label="Mn and F")
+    d_question = {item["name"]: item for item in d_out["missing"]}
+    assert set(d_question) == {
+        "atom_type_symbol", "orbital", "atom_local_axes.atom0", "atom_local_axes.ax1",
+        "atom_local_axes.atom2", "atom_local_axes.ax2"}
+    assert d_question["atom_type_symbol"]["proposal"] == "F: O2-"
+    assert d_question["orbital"]["proposal"] == "F: 2p"
+    assert d_question["atom_local_axes.atom0"]["proposal"] == "Mn: D2, F: D1"
+    assert d_question["atom_local_axes.ax1"]["proposal"] == "Mn: Z, F: X"
+    # no second direction near F that is not along D1: no proposal, asked
+    assert "proposal" not in d_question["atom_local_axes.atom2"]
+    assert "add_multipole_form_factor of crystal_mnf2" in d_question["atom_local_axes.atom0"]["hint"]
+    assert not crystal.is_attribute("atom_rho_multipole")
+    d_answer = {name: item.get("proposal", "") for name, item in d_question.items()}
+    d_answer["atom_local_axes.atom2"] = "Mn: F, F: D2"
+    d_out = add_item(obj, atom_label="Mn and F", **d_answer)
+    assert not d_out.get("missing"), d_out["text"]
+    d_row = {item.atom_label: (item.atom_type_symbol, item.orbital, item.coeff_P00)
+             for item in crystal.atom_rho_multipole.items}
+    assert d_row == {"Mn": ("Mn3+", "3d", 1.), "F": ("O2-", "2p", 1.)}
+    d_axes = {item.atom_label: (item.atom0, item.ax1, item.atom1, item.atom2, item.ax2)
+              for item in crystal.atom_local_axes.items}
+    assert d_axes == {"Mn": ("D2", "Z", "Mn", "F", "X"), "F": ("D1", "X", "F", "D2", "Z")}
+    # the rows are there: nothing more to add
+    assert "nothing is added" in add_item(obj, atom_label="Mn")["text"]
+    text = add_item(obj)["text"]
+    assert "no new row of atom_rho_multipole is possible" in text
+    assert "D1, D2: no atom_site_scat" in text
+
+
+def test_plain_answer_does_not_replace_a_sure_value():
+    """'2p', the answer to the question about F, must not become the
+    orbital of Mn (its 3d is sure)."""
+    obj = cryspy.str_to_globaln(MNF2)
+    crystal = obj.crystal_mnf2
+    crystal.add_multipole_form_factor("Mn, F", magnetic_ion="F: O2-", orbital="F: 2p")
+    obj.crystal_mnf2.atom_rho_multipole.items.clear()
+    d_out = add_item(obj, atom_label="Mn, F", atom_type_symbol="O2-", orbital="2p")
+    assert not d_out.get("missing"), d_out["text"]
+    d_row = {item.atom_label: (item.atom_type_symbol, item.orbital)
+             for item in crystal.atom_rho_multipole.items}
+    assert d_row == {"Mn": ("Mn3+", "3d"), "F": ("O2-", "2p")}
+
+
+def test_reference_values_are_checked_for_any_category():
+    obj = cryspy.str_to_globaln(MNF2)
+    text = cryspy.call_assistant_tool(obj, "add_item", {
+        "category": "atom_site_scat", "label": "Fe"})["text"]
+    assert "no Fe in atom_site.label" in text
+    text = cryspy.call_assistant_tool(obj, "add_item", {
+        "category": "atom_site_scat", "label": "D1"})["text"]
+    # the type symbol comes from the row of atom_site with the same label
+    assert "type_symbol Dummy" in text
+
+
+def test_category_report_names_the_methods_that_compute_it():
+    obj = cryspy.str_to_globaln(MNF2)
+    text = cryspy.call_assistant_tool(obj, "check_requirements", {"name": "atom_local_axes"})["text"]
+    assert "one row per atom_site.label (atom_label); present: none" in text
+    assert "also made by add_multipole_form_factor of crystal_mnf2" in text
+    text = form_matching_methods_text(obj, REQUEST)
+    assert 'Without the method: add_item {"category": "atom_rho_multipole"}' in text
+
+
+def test_help_says_what_multipoles_need():
+    """Iurii: the assistant must know that multipoles need local axes and
+    whether the core part of the electron shell is needed."""
+    from cryspy.procedure_assistant.help import get_help
+    from cryspy.C_item_loop_classes.cl_1_atom_rho_multipole import AtomRhoMultipole
+    text = get_help("magnetic form factor through multipoles core electron configuration")
+    assert "local axes" in text and "atom_local_axes" in text
+    assert "core electrons" in text and "not needed for the magnetic form factor" in text
+    assert "local axes of the atom" in AtomRhoMultipole.__doc__

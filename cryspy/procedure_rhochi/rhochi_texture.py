@@ -249,11 +249,6 @@ def add_texture_spherical_harmonics(
     str
         The phases with the number of coefficients to refine.
 
-    Needs
-    -----
-    phase : label = phase_label
-        The phase in the powder experiments.
-
     Adds
     ----
     texture_sh : phase_label = phase_label

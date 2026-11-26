@@ -70,6 +70,7 @@ from cryspy.procedure_assistant.parameters import (
     take_parameter_record,
     take_parameter_records)
 from cryspy.procedure_assistant.proposals import expand_k_argument, propose_arguments
+from cryspy.exceptions import CrysPyError
 from cryspy.procedure_assistant.requirements import (
     add_requirement_choices, check_requirements, form_requirements_text, has_requirements)
 from cryspy.procedure_assistant.tools_documents import (
@@ -1152,10 +1153,8 @@ def tool_run_procedure(cryspy_object, name: str, **arguments) -> str:
                 return f"Error: {name:} needs {s_type:} ({param:}), the object has none."
             else:
                 l_missing.append(dict(d_ask, type="string", enum=list(d_found), hint=", ".join(d_found)))
-    l_missing, error = apply_requirements(
+    l_missing = apply_requirements(
         cryspy_object, function, None, dict(arguments, **kwargs), l_missing, name)
-    if error:
-        return error
     l_missing = propose_arguments(cryspy_object, None, l_param, dict(arguments, **kwargs), l_missing)
     if l_missing:
         raise ArgumentsNeeded(l_missing)
@@ -1167,15 +1166,18 @@ def apply_requirements(cryspy_object, function, block, arguments: dict,
     """Check the categories a function needs and adds (sections Needs and
     Adds of its docstring, requirements.py) before it is called: the
     given values must have the needed categories, the missing ones are
-    asked with the possible values as options. Returns (questions, error
-    text or '')."""
+    asked with the possible values as options. Returns the questions;
+    raises CrysPyError when the call cannot be done."""
     if not has_requirements(function):
-        return l_missing, ""
+        return l_missing
     d_check = check_requirements(cryspy_object, function, block, arguments)
     if d_check["errors"]:
-        return l_missing, (f"Error: {title:} cannot be done yet: " + " ".join(d_check["errors"])
-                           + "\n" + form_requirements_text(d_check, title, flag_short=True))
-    return add_requirement_choices(d_check, l_missing)
+        raise CrysPyError(f"{title:} cannot be done yet: " + " ".join(d_check["errors"])
+                          + "\n" + form_requirements_text(d_check, title, flag_short=True))
+    l_missing, error = add_requirement_choices(d_check, l_missing)
+    if error:
+        raise CrysPyError(error.removeprefix("Error: "))
+    return l_missing
 
 
 def tool_check_requirements(cryspy_object, name: str, path: str = "") -> str:
@@ -1189,9 +1191,24 @@ def tool_check_requirements(cryspy_object, name: str, path: str = "") -> str:
     if not l_text and name in take_procedures():
         l_text.append(form_requirement_report(cryspy_object, take_procedures()[name], None, name))
     if not l_text:
-        return (f"Error: '{name:}' is neither a method of {path or 'the object':} nor a "
-                "procedure; list_methods and list_procedures give them.")
+        l_text = describe_category_requirements(cryspy_object, name, path)
+    if not l_text:
+        return (f"Error: '{name:}' is neither a method of {path or 'the object':}, a "
+                "procedure nor a category; list_methods, list_procedures and "
+                "describe_category give them.")
     return "\n\n".join(l_text)
+
+
+def describe_category_requirements(cryspy_object, category: str, path: str = "") -> list:
+    """What the data blocks have of a category and of the rows it needs."""
+    from cryspy.procedure_assistant import dependencies, items
+    try:
+        item_class = items.take_category_class(category)
+    except ValueError:
+        return []
+    l_data = [data for data in items.take_data_blocks(cryspy_object)
+              if items.accepts(data, item_class) and path in ("", data.get_name())]
+    return [dependencies.describe_category_rows(cryspy_object, data, item_class) for data in l_data]
 
 
 def form_requirement_report(cryspy_object, function, block, title: str) -> str:
@@ -1390,11 +1407,9 @@ def tool_call_method(cryspy_object, method: str, path: str = "", **arguments) ->
                 return f"Error: {method:} of {block_path:} needs {s_type:} ({param:}), the object has none."
             else:
                 l_missing.append(dict(d_ask, type="string", enum=list(d_found), hint=", ".join(d_found)))
-        l_missing, error = apply_requirements(
+        l_missing = apply_requirements(
             cryspy_object, function, block, dict(arguments_block, **kwargs), l_missing,
             f"{method:} of {block_path:}")
-        if error:
-            return error
         l_missing = propose_arguments(cryspy_object, block, l_param,
                                       dict(arguments_block, **kwargs), l_missing)
         if l_missing:
@@ -1924,12 +1939,13 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         required=("method", ), flag_object_changed=True, flag_extra_arguments=True),
     AssistantTool(
         "check_requirements",
-        "Check what the object already has and what is missing for a method or a "
-        "procedure that adds a description (multipoles, texture, magnetic broadening, ...): "
-        "the CIF categories it needs and adds, and the possible values of its parameters "
-        "(as the atoms that can get multipoles).",
+        "Check what the object already has and what is missing for a category "
+        "(atom_rho_multipole, texture_sh_coefficient, ...) or for a method or a procedure "
+        "that adds a description (multipoles, texture, magnetic broadening, ...): the CIF "
+        "categories it needs and adds, and the possible values (as the atoms that can get "
+        "multipoles).",
         tool_check_requirements,
-        {"name": {"type": "string", "description": "Name of the method or the procedure."},
+        {"name": {"type": "string", "description": "Name of the category, the method or the procedure."},
          "path": {"type": "string", "description": (
              "Data block of the method ('crystal_mnf2'); empty for all.")}},
         required=("name", )),

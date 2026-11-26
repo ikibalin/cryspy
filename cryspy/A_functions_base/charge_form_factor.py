@@ -179,3 +179,54 @@ def calc_scattering_amplitude_tabulated(ion_name: str, sthovl, flag_sthovl: bool
             a4*b4*numpy.exp(-b4*sthovl_sq)
         )
     return scattering_amplitude, dder
+
+
+def take_element_of_symbol(type_symbol: str) -> str:
+    """'Mn2+' -> 'Mn', '13C2-' -> 'C', 'Dummy' -> 'Du'."""
+    import re
+    match = re.match(r"\s*\d*([A-Za-z][a-z]?)", str(type_symbol))
+    return match.group(1).capitalize() if match else ""
+
+
+def take_orbitals_of_element(element: str) -> list:
+    """Orbitals of the element with radial Slater functions in CrysPy."""
+    return [orbital for name, orbital in DATABASE["Orbitals by radial Slater functions"]
+            if name == element]
+
+
+def propose_orbital_of_ion(ion: str) -> dict:
+    """Orbital of the radial function of an ion for multipoles.
+
+    The open shell of a magnetic ion of the knowledge base (Cu2+ 3d9 ->
+    3d) is sure. For another ion (an anion with a transferred spin, as O2-
+    or F1-) the orbitals with Slater functions in CrysPy are the options
+    and the outer shell of its configuration (2p) the proposal.
+
+    Returns
+    -------
+    dict
+        {"proposal" (str, "" when unknown), "options" (list of str),
+        "sure" (bool), "reason" (str)}.
+    """
+    import re
+    from cryspy.A_functions_base.knowledge_tables import take_magnetic_ions
+    d_ion = take_magnetic_ions().get(ion)
+    if d_ion is not None:
+        match = re.match(r"\s*(\d[spdf])", d_ion["configuration"])
+        if match is not None:
+            return {"proposal": match.group(1), "options": [match.group(1)], "sure": True,
+                    "reason": f"the open shell of {ion} ({d_ion['configuration']})"}
+    try:
+        element, _, configuration = get_atom_name_ion_charge_shell(ion)
+    except Exception:  # noqa: BLE001 (an unknown symbol: the orbital is asked)
+        element, configuration = take_element_of_symbol(ion), ""
+    l_orbital = take_orbitals_of_element(element)
+    l_shell = [match.group(1) for match in
+               (re.match(r"(\d[spdf])", item) for item in configuration.split()) if match]
+    outer = l_shell[-1] if l_shell and l_shell[-1] in l_orbital else ""
+    reason = f"{ion} is not a magnetic ion of the knowledge base"
+    if outer:
+        reason += f"; {outer} is its outer shell ({configuration})"
+    if len(l_orbital) == 0:
+        reason = f"no radial (Slater) functions of {element} in CrysPy"
+    return {"proposal": outer, "options": l_orbital, "sure": False, "reason": reason}

@@ -47,9 +47,49 @@ MAX_OPTIONS = 5
 
 def take_requirements(function: Callable) -> Dict[str, List[dict]]:
     """{"needs": [...], "adds": [...]} of the docstring of the function
-    (procedures.parse_requirement_lines); empty lists when it has none."""
+    (procedures.parse_requirement_lines); empty lists when it has none.
+
+    The categories needed by the rows a function adds come from their
+    classes (dependencies.py): an added row keyed by a parameter needs the
+    referenced row (atom_site : label = atom_label) and the rows of its
+    REQUIRED_CATEGORIES that the function does not add itself
+    (atom_site_scat for atom_rho_multipole), so the section Needs lists
+    only what the classes cannot say."""
     d_doc = parse_docstring(getattr(function, "__doc__", "") or "")
-    return {"needs": d_doc["needs"], "adds": d_doc["adds"]}
+    l_need = list(d_doc["needs"])
+    l_add_category = [d_item["category"] for d_item in d_doc["adds"]]
+    for d_add in d_doc["adds"]:
+        if not d_add["parameter"]:
+            continue
+        for d_need in take_class_needs(d_add):
+            if d_need["category"] in l_add_category or any(
+                    d_item["category"] == d_need["category"] for d_item in l_need):
+                continue
+            l_need.append(d_need)
+    return {"needs": l_need, "adds": d_doc["adds"]}
+
+
+def take_class_needs(d_add: dict) -> List[dict]:
+    """Categories needed by an added keyed category, from its class."""
+    from cryspy.procedure_assistant.dependencies import split_reference, take_companion_key
+    from cryspy.procedure_assistant.items import take_category_class
+    try:
+        item_class = take_category_class(d_add["category"])
+    except ValueError:
+        return []
+    reference = getattr(item_class, "D_REFERENCES", {}).get(d_add["column"])
+    if reference is None:
+        return []
+    category, column = split_reference(reference)
+    l_out = [{"category": category, "column": column, "parameter": d_add["parameter"],
+              "description": f"referenced by {d_add['category']}.{d_add['column']}"}]
+    for required in getattr(item_class, "REQUIRED_CATEGORIES", ()):
+        required_class = take_category_class(required)
+        l_out.append({"category": required,
+                      "column": take_companion_key(required_class, reference),
+                      "parameter": d_add["parameter"],
+                      "description": f"needed by the rows of {d_add['category']}"})
+    return l_out
 
 
 def has_requirements(function: Callable) -> bool:
@@ -147,32 +187,35 @@ def check_requirements(cryspy_object, function: Callable, block=None,
         if d_item["parameter"] and d_item["parameter"] not in l_param:
             l_param.append(d_item["parameter"])
     for param in l_param:
-        l_need = [d_item for d_item in d_out["needs"] if d_item["parameter"] == param]
-        l_add = [d_item for d_item in d_out["adds"] if d_item["parameter"] == param]
-        l_value = []
-        for values in (l_need[0]["blocks"].values() if l_need else []):
-            l_value.extend(value for value in values if not contains_value(l_value, value))
-        d_lacking, d_done = {}, {}
-        for value in l_value:
-            for d_item in l_need[1:]:
-                if not any(contains_value(values, value) for values in d_item["blocks"].values()):
-                    d_lacking.setdefault(value, []).append(d_item["category"])
-            for d_item in l_add:
-                if any(contains_value(values, value) for values in d_item["blocks"].values()):
-                    d_done.setdefault(value, []).append(d_item["category"])
-        main_add = l_add[0]["category"] if l_add else ""
-        l_eligible = [value for value in l_value
-                      if value not in d_lacking and main_add not in d_done.get(value, [])]
         description = d_doc_param.get(param, {}).get("description", "")
-        d_out["choices"][param] = {
-            "values": l_value, "eligible": l_eligible, "lacking": d_lacking,
-            "done": d_done, "several": takes_several_values(description),
-            "has_values": len(l_need) > 0}
+        d_out["choices"][param] = take_choices(d_out, param, takes_several_values(description))
     for param, value in (arguments or {}).items():
         if param not in d_out["choices"] or not d_out["choices"][param]["has_values"]:
             continue
         d_out["errors"].extend(check_given_values(d_out, param, value))
     return d_out
+
+
+def take_choices(d_check: dict, param: str, several: bool) -> dict:
+    """Possible values of a keyed parameter (check_requirements)."""
+    l_need = [d_item for d_item in d_check["needs"] if d_item["parameter"] == param]
+    l_add = [d_item for d_item in d_check["adds"] if d_item["parameter"] == param]
+    l_value = []
+    for values in (l_need[0]["blocks"].values() if l_need else []):
+        l_value.extend(value for value in values if not contains_value(l_value, value))
+    d_lacking, d_done = {}, {}
+    for value in l_value:
+        for d_item in l_need[1:]:
+            if not any(contains_value(values, value) for values in d_item["blocks"].values()):
+                d_lacking.setdefault(value, []).append(d_item["category"])
+        for d_item in l_add:
+            if any(contains_value(values, value) for values in d_item["blocks"].values()):
+                d_done.setdefault(value, []).append(d_item["category"])
+    main_add = l_add[0]["category"] if l_add else ""
+    l_eligible = [value for value in l_value
+                  if value not in d_lacking and main_add not in d_done.get(value, [])]
+    return {"values": l_value, "eligible": l_eligible, "lacking": d_lacking,
+            "done": d_done, "several": several, "has_values": len(l_need) > 0}
 
 
 def check_given_values(d_check: dict, param: str, value) -> List[str]:
