@@ -81,6 +81,20 @@ Public API is re-exported from `cryspy/__init__.py`.
   `list_methods`, `call_method`): give them type hints and a numpydoc
   docstring that says what they really do. A method without a docstring is
   not offered; internal steps start with `get_`, `form_`, `take_` or `_`.
+- A procedure or a method that adds a description to the object
+  (multipoles, texture, magnetic broadening, a propagation vector) names in
+  its docstring the CIF categories it needs and adds, in the sections
+  `Needs` and `Adds` after `Returns`, one category per line, with the
+  column given by a parameter: `atom_site_scat : label = atom_label`
+  (indented description below). AI assistants check the object from these
+  sections alone (`procedure_assistant/requirements.py`, tool
+  `check_requirements`): values without a needed row are refused with the
+  category to add first, a missing parameter is asked with the possible
+  values as options (several values when its description says "one or
+  several" or "separated by commas"). When the function itself is not
+  sure of a value (an ion of another element, a guessed orbital), it
+  raises `cryspy.ArgumentsNeeded` with the options and a proposal instead
+  of guessing silently.
 - A request to an AI assistant gets the procedures, methods and categories
   (CIF items and loops, action `add_item`) whose names and descriptions fit
   it (`methods.form_matching_methods_text`, BM25 weights: rare words count

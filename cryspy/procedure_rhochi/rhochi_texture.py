@@ -248,6 +248,20 @@ def add_texture_spherical_harmonics(
     -------
     str
         The phases with the number of coefficients to refine.
+
+    Needs
+    -----
+    phase : label = phase_label
+        The phase in the powder experiments.
+
+    Adds
+    ----
+    texture_sh : phase_label = phase_label
+        The order and the sample symmetry of the texture of the phase.
+    texture_sh_coefficient : phase_label = phase_label
+        The coefficients C_l^mn of the phase (refined).
+    sample_goniometer
+        The geometry of the sample (Debye-Scherrer by default).
     """
     sample_symmetry = sample_symmetry.strip()
     if sample_symmetry not in SAMPLE_SYMMETRIES:

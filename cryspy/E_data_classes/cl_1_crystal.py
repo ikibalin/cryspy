@@ -1231,6 +1231,20 @@ class Crystal(DataN):
         -------
         str
             Markdown report of the conversion.
+
+        Needs
+        -----
+        atom_site : label = magnetic_atoms
+            The magnetic atoms.
+
+        Adds
+        ----
+        cell_wave_vector
+            The propagation vector k (a second one when the crystal has one).
+        space_group_symop_magn_ssg_operation
+            The operations of the magnetic superspace group.
+        atom_site_moment_fourier
+            The Fourier components of the moments of the magnetic atoms.
         """
         k_vector = snap_k_vector([k_1, k_2, k_3])[0]
         l_candidate = take_model_candidates(self.take_group_of_k(k_vector), k_vector, True)
@@ -1326,6 +1340,20 @@ class Crystal(DataN):
         -------
         str
             Markdown report of the conversion.
+
+        Needs
+        -----
+        atom_site : label = magnetic_atoms
+            The magnetic atoms.
+
+        Adds
+        ----
+        cell_wave_vector
+            The propagation vector k (a second one when the crystal has one).
+        space_group_symop_magn_ssg_operation
+            The operations of the magnetic superspace group.
+        atom_site_moment_fourier
+            The Fourier components of the moments of the magnetic atoms.
         """
         if self.is_attribute("space_group_symop_magn_ssg_operation"):
             return self._add_second_propagation_vector(
@@ -2104,30 +2132,35 @@ class Crystal(DataN):
     def add_multipole_form_factor(self, atom_label: str, magnetic_ion: str = "",
                                   orbital: str = "", coefficients: str = "",
                                   kappa: float = 1.0) -> str:
-        """Describe the magnetic form factor of an atom by multipoles.
+        """Describe the magnetic form factor of atoms by multipoles.
 
-        Adds a row of ``atom_rho_multipole`` (Hansen-Coppens model: Slater
-        radial function of the orbital, kappa, coefficients P_lm of the real
-        spherical harmonics up to l = 4; P00 = 1) and, when the atom has
-        none, a row of ``atom_local_axes`` with two dummy atoms, so that
-        the local axes are z || c and x || a*. The multipoles replace the
-        dipole form factor (atom_site_scat) of a magnetic atom, for magnetic
-        space groups and for propagation vectors (magnetic superspace
-        groups) alike: the form factor of every generated atom is rotated
-        by its symmetry operation. The ion is ``magnetic_ion``, else the
-        ion of atom_site_scat, else the type_symbol of the atom (Cu2+); the
+        Adds a row of ``atom_rho_multipole`` for every atom (Hansen-Coppens
+        model: Slater radial function of the orbital, kappa, coefficients
+        P_lm of the real spherical harmonics up to l = 4; P00 = 1) and,
+        when the atom has none, a row of ``atom_local_axes``: a dummy atom
+        of atom_site near the atom (put there before) gives one axis, new
+        dummy atoms the others (z || c, x || a*). Atoms with multipoles
+        already are not changed. The multipoles replace the dipole form
+        factor (atom_site_scat) of a magnetic atom, for magnetic space
+        groups and for propagation vectors (magnetic superspace groups)
+        alike: the form factor of every generated atom is rotated by its
+        symmetry operation. The ion is ``magnetic_ion``, else the ion of
+        atom_site_scat, else the type_symbol of the atom (Cu2+); the
         orbital is the open shell of the ion in the knowledge base (3d,
-        4f) when it is not given. Give only the coefficients allowed by the
-        site symmetry: they are not checked.
+        4f). When the ion of atom_site_scat is of another element than
+        the atom, or the ion is not magnetic (spin transferred to O2-,
+        F1-: 2p), the ion or the orbital is asked from the user with the
+        possible values. Give only the coefficients allowed by the site
+        symmetry: they are not checked.
 
         Parameters
         ----------
         atom_label : str
-            Label of the magnetic atom (atom_site).
+            Labels of the magnetic atoms (atom_site), one or several separated by commas.
         magnetic_ion : str
-            Ion (as Cu2+); empty takes it from atom_site_scat or atom_site.
+            Ion (as Cu2+), or ions of the atoms as "Mn: Mn2+, F: F1-"; empty takes it from atom_site_scat or atom_site.
         orbital : str
-            Orbital of the radial function (as 3d or 4f); empty takes the open shell of the ion.
+            Orbital of the radial function (as 3d or 4f), or orbitals of the atoms as "Mn: 3d, F: 2p"; empty takes the open shell of the ion.
         coefficients : str
             Multipole coefficients besides P00 = 1, as "P20 0.1, P22 -0.05"; empty gives a spherical density.
         kappa : float
@@ -2137,6 +2170,20 @@ class Crystal(DataN):
         -------
         str
             Markdown report of the rows added.
+
+        Needs
+        -----
+        atom_site : label = atom_label
+            The atoms.
+        atom_site_scat : label = atom_label
+            The magnetic ion of the atom: the multipoles describe magnetic atoms only.
+
+        Adds
+        ----
+        atom_rho_multipole : atom_label = atom_label
+            The radial function and the multipole coefficients of the atom.
+        atom_local_axes : atom_label = atom_label
+            The local axes of the multipoles, when the atom has none (dummy atoms in atom_site).
         """
         return add_multipole_form_factor(
             self, atom_label, magnetic_ion=magnetic_ion, orbital=orbital,

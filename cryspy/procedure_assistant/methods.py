@@ -450,7 +450,7 @@ def find_matching_procedures(request: str, max_procedures: int = 3) -> List[dict
         if score is None:
             continue
         l_found.append({"name": name, "summary": doc.split("\n")[0] if doc else "",
-                        "score": score})
+                        "score": score, "function": function})
     l_found.sort(key=lambda item: (-item["score"], item["name"]))
     return l_found[:max_procedures]
 
@@ -483,7 +483,8 @@ def find_matching_methods(cryspy_object, request: str, max_methods: int = 3) -> 
             if score is None:
                 continue
             d_found[name] = {"name": name, "summary": describe_method(function)["summary"],
-                             "paths": [block_path], "score": score}
+                             "paths": [block_path], "score": score,
+                             "function": function, "block": block}
     l_method = sorted(d_found.values(), key=lambda item: (-item["score"], item["name"]))
     return l_method[:max_methods]
 
@@ -577,7 +578,24 @@ def form_matching_methods_text(cryspy_object, request: str, max_methods: int = 3
             continue
         d_text[kind] = (l_item[0]["score"], form_candidates_text(kind, l_item))
     l_kind = sorted(d_text, key=lambda kind: -d_text[kind][0])
-    return "\n".join(d_text[kind][1] for kind in l_kind)
+    text = "\n".join(d_text[kind][1] for kind in l_kind)
+    return text + form_best_requirements_text(cryspy_object, d_group[l_kind[0]][0])
+
+
+def form_best_requirements_text(cryspy_object, d_best: dict) -> str:
+    """What the object has and misses for the best candidate when its
+    docstring names the categories it needs and adds (requirements.py), so
+    that the model gives only the missing values and asks about the
+    others: '' otherwise."""
+    from cryspy.procedure_assistant.requirements import (
+        check_requirements, form_requirements_text, has_requirements)
+    function = d_best.get("function")
+    if function is None or not has_requirements(function):
+        return ""
+    d_check = check_requirements(cryspy_object, function, d_best.get("block"))
+    return ("\n" + form_requirements_text(d_check, d_best["name"], flag_short=True)
+            + "\nGive only the values that are not in the object; ask the user "
+              "(ask_user) when several values are possible and the request does not say which.")
 
 
 def form_candidates_text(kind: str, l_item: List[dict]) -> str:

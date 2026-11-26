@@ -2,6 +2,7 @@
 Functions to work with strings.
 """
 
+import re
 from typing import Tuple, Union
 import numpy
 from fractions import Fraction
@@ -279,3 +280,11 @@ x+1/2y+2/3
 def transform_r_b_to_string(r, b, labels=("x", "y", "z")) -> str:
     l_res = [transform_digits_to_string(labels, _ri, _bi) for _ri, _bi in zip(r, b)]
     return ",".join(l_res)
+
+
+def split_list_text(value) -> list:
+    """Values of a list typed by a user or a model: 'Mn, F', 'Mn and F',
+    'Mn F' or ['Mn', 'F'] -> ['Mn', 'F'] (labels have no spaces)."""
+    if isinstance(value, (list, tuple)):
+        return [str(item).strip() for item in value if str(item).strip()]
+    return [item for item in re.split(r"(?:\s*[,;]\s*|\s+and\s+|\s+)", str(value).strip()) if item]
