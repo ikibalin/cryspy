@@ -2,6 +2,7 @@
 Functions to work with strings.
 """
 
+import re
 from typing import Tuple, Union
 import numpy
 from fractions import Fraction
@@ -279,3 +280,32 @@ x+1/2y+2/3
 def transform_r_b_to_string(r, b, labels=("x", "y", "z")) -> str:
     l_res = [transform_digits_to_string(labels, _ri, _bi) for _ri, _bi in zip(r, b)]
     return ",".join(l_res)
+
+
+def split_list_text(value) -> list:
+    """Values of a list typed by a user or a model: 'Mn, F', 'Mn and F',
+    'Mn F' or ['Mn', 'F'] -> ['Mn', 'F'] (labels have no spaces)."""
+    if isinstance(value, (list, tuple)):
+        return [str(item).strip() for item in value if str(item).strip()]
+    return [item for item in re.split(r"(?:\s*[,;]\s*|\s+and\s+|\s+)", str(value).strip()) if item]
+
+
+def parse_values_by_label(text, l_label: list) -> dict:
+    """{label: value} of 'Mn: Mn3+, F: O2-' (the values of the atoms,
+    phases, ... given by their labels); a value without a label ('Mn3+')
+    is for every label without its own value. Labels and values have no
+    spaces."""
+    d_value = {}
+    for part in re.split(r"[,;]", str(text)):
+        part = part.strip()
+        if part == "":
+            continue
+        match = re.fullmatch(r"(\S+)\s*[:=]\s*(\S+)", part)
+        if match is None:
+            d_value.update({label: part for label in l_label if label not in d_value})
+            continue
+        label, value = match.groups()
+        if label not in l_label:
+            raise ValueError(f"'{part}': no {label} among {', '.join(l_label)}.")
+        d_value[label] = value
+    return d_value

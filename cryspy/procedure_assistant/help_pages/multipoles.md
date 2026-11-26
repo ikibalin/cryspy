@@ -1,12 +1,39 @@
 ---
 title: Multipole model of the magnetization (form factor)
-keywords: multipole, multipoles, add multipoles, propagation vector, superspace, aspherical, anisotropic form factor, pseudoatom, hansen-coppens, kappa, plm, orbital, local axes, dummy atom
+keywords: multipole, multipoles, add multipoles, check requirements, propagation vector, superspace, aspherical, anisotropic form factor, pseudoatom, hansen-coppens, kappa, plm, orbital, local axes, dummy atom, core, valence, electron configuration, open shell, what is needed
 categories: atom_rho_multipole, atom_local_axes, atom_site, atom_electron_configuration
 ---
 The anisotropic magnetic form factor of an atom can be described by the
 multipole (Hansen-Coppens) model. Two loops of the crystal data block are
 needed: `atom_rho_multipole` with the coefficients and `atom_local_axes`
 with the local coordinate system of each atom.
+
+What a magnetic atom needs for its form factor through multipoles:
+
+1. a row of `atom_site` (the atom itself) and of `atom_site_scat` (its
+   magnetic ion);
+2. local axes: a row of `atom_local_axes`. The coefficients `coeff_Plm`
+   are given in the local coordinate system of the atom, so without the
+   axes they have no meaning. The axes are best aligned with the bonds
+   or the symmetry axes of the site; dummy atoms give directions without
+   an atom;
+3. the radial part: the ion (`atom_type_symbol`) and its open shell
+   (`orbital`: 3d for Mn2+, 4f for rare earths, 2p for a spin transferred
+   to O2- or F1-), with `kappa`;
+4. the populations `coeff_P00` (1 for a spherical start) and the other
+   `coeff_Plm` allowed by the site symmetry.
+
+The core electrons (the closed shells, loop `atom_electron_configuration`
+with `core` and `valence`) are not needed for the magnetic form factor:
+their spins are paired, only the open shell given by `orbital` carries
+the magnetization, and the polarisation of the core is neglected. The
+core part is used for the electron (charge) density and for the core
+prior density of MEM (`_mem_parameters_prior_density core`); give it
+only there.
+
+`add_item {"category": "atom_rho_multipole"}` adds the missing rows of
+items 1 and 2 together with the multipoles and asks the values it cannot
+find (the local axes are proposed from the nearest atoms).
 
 `atom_rho_multipole` (one row per atom):
 
@@ -57,17 +84,26 @@ superspace groups with a propagation vector
 (`space_group_symop_magn_ssg_operation`, `atom_site_moment_Fourier`): the
 density of every generated atom is rotated by its symmetry operation.
 
-The method `Crystal.add_multipole_form_factor` adds both rows for an atom in
-one step (AI assistant: `call_method` on the crystal):
+The method `Crystal.add_multipole_form_factor` adds both rows for one or
+several atoms in one step (AI assistant: `call_method` on the crystal):
 
 ```
 crystal_cula2o4.add_multipole_form_factor(atom_label="Cu", coefficients="P20 0.1")
+crystal_mnf2.add_multipole_form_factor(atom_label="Mn, F", magnetic_ion="F: O2-", orbital="F: 2p")
 ```
 
-It takes the ion from `atom_site_scat` or `atom_site` (Cu2+), the orbital
-from the open shell of the ion (3d), sets P00 = 1, and adds two dummy atoms
-so that the local axes are z || c and x || a*. Change `atom_local_axes` to
-align the axes with the bonds.
+It needs the atoms in `atom_site` with their magnetic ion in
+`atom_site_scat`; `check_requirements {"name": "add_multipole_form_factor"}`
+shows which atoms can get multipoles, which lack `atom_site_scat` (dummy
+atoms) and which have them already. It takes the ion from `atom_site_scat`
+or `atom_site` (Cu2+), the orbital from the open shell of the ion (3d),
+sets P00 = 1, and adds the local axes z || c and x || a* with new dummy
+atoms; a dummy atom put near the atom before gives one of the axes. When
+the ion of `atom_site_scat` is of another element than the atom (O2- for
+F) or is not a magnetic ion (spin transferred to F1-, O2-: orbital 2p),
+the ion and the orbital are asked with the possible values. Atoms with
+multipoles already are not changed. Change `atom_local_axes` to align the
+axes with the bonds.
 
 Rows can also be added one by one: to add the multipoles of an atom to a loaded object, add a row to each of
 the two loops (the AI assistant does it with the action `add_item`; a

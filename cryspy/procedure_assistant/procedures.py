@@ -38,6 +38,9 @@ D_BASIC_TYPE = {float: "number", int: "integer", bool: "boolean", str: "string"}
 D_TITLE_WORD = {"Mempy": "MEMPy", "Rhochi": "RhoChi", "Calc": "Calculate"}
 PARAMETER_HEADERS = ("parameters", "arguments", "args")
 RETURN_HEADERS = ("returns", "return", "output", "outputs")
+# sections of the CIF categories that a function needs in the object and
+# that it adds (requirements.py)
+REQUIREMENT_HEADERS = ("needs", "adds")
 
 
 def take_annotation_types(annotation) -> tuple:
@@ -105,9 +108,10 @@ def parse_docstring(doc: str) -> dict:
 
     Returns {"summary": str, "description": str, "returns": str,
     "parameters": {name: {"type": str, "optional": bool,
-    "description": str}}, "menu": str or None}; "menu" is the text of the
-    line "Menu: ..." (menus.py), which is not in the summary and
-    description."""
+    "description": str}}, "menu": str or None, "needs": list, "adds":
+    list}; "menu" is the text of the line "Menu: ..." (menus.py), which is
+    not in the summary and description; "needs" and "adds" are the CIF
+    categories of the sections "Needs" and "Adds" (parse_requirement_lines)."""
     doc, menu = split_menu_line(doc)
     l_line = inspect.cleandoc(doc or "").splitlines()
     d_section = {"": []}
@@ -150,8 +154,39 @@ def parse_docstring(doc: str) -> dict:
             text = d_parameter[name]["description"]
             d_parameter[name]["description"] = f"{text:} {line.strip():}".strip()
     returns = "\n".join(next((d_section[key] for key in RETURN_HEADERS if key in d_section), [])).strip()
-    return {"summary": summary, "description": description,
-            "parameters": d_parameter, "returns": returns, "menu": menu}
+    d_out = {"summary": summary, "description": description,
+             "parameters": d_parameter, "returns": returns, "menu": menu}
+    for key in REQUIREMENT_HEADERS:
+        d_out[key] = parse_requirement_lines(d_section.get(key, []))
+    return d_out
+
+
+def parse_requirement_lines(l_line: list) -> List[dict]:
+    """CIF categories of a section "Needs" or "Adds" of a docstring.
+
+    A line without indent names a category (the name used in the data
+    block, as atom_site_scat), optionally with the column whose value is
+    given by a parameter of the function: ``atom_site_scat : label =
+    atom_label`` (a row of atom_site_scat with label equal to atom_label);
+    the indented lines below describe it.
+
+    Returns list of {"category", "column", "parameter", "description"};
+    "column" and "parameter" are "" for a category without a key.
+    """
+    l_out = []
+    for line in l_line:
+        if line.strip() == "":
+            continue
+        if not line.startswith((" ", "\t")):
+            match = re.match(r"\s*(\w+)\s*(?::\s*(\w+)\s*=\s*(\w+))?\s*$", line)
+            if match is None:
+                continue
+            l_out.append({"category": match.group(1), "column": match.group(2) or "",
+                          "parameter": match.group(3) or "", "description": ""})
+        elif l_out:
+            text = l_out[-1]["description"]
+            l_out[-1]["description"] = f"{text:} {line.strip():}".strip()
+    return l_out
 
 
 def form_title(name: str) -> str:

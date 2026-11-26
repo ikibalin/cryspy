@@ -35,6 +35,12 @@ class AtomRhoMultipole(ItemN):
 For a magnetic atom the multipoles replace the dipole approximation of
 the magnetic form factor (atom_site_scat).
 
+A row needs the local axes of the atom (atom_local_axes): the coefficients
+coeff_Plm are given in this local system. The radial part is the Slater
+function of the open shell (orbital) of the ion; the core electrons
+(atom_electron_configuration) are not used by the magnetic form factor,
+only by the electron density and the core prior of MEM.
+
 It should be noted that used parameters in this block are different from parameters defined in Electron density CIF: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_rho.dic/Catom_rho_multipole.html
     """
     ATTR_MANDATORY_NAMES = ("atom_label", "atom_type_symbol", "orbital")
@@ -98,6 +104,36 @@ It should be noted that used parameters in this block are different from paramet
         D_DEFAULT[key] = ""
 
     PREFIX = "atom_rho_multipole"
+
+    # one row per atom; the multipoles describe a magnetic atom (its ion in
+    # atom_site_scat) in its local axes
+    D_REFERENCES = {"atom_label": "atom_site.label"}
+    REQUIRED_CATEGORIES = ("atom_site_scat", "atom_local_axes")
+    D_PROPOSALS = {"atom_type_symbol": "atom_site_scat.type_symbol", "coeff_P00": 1.}
+
+    @classmethod
+    def propose_values(cls, data, d_value: dict) -> dict:
+        """The orbital of the ion (the open shell of a magnetic ion; the
+        outer shell of another ion, to be confirmed) and a doubt on the ion
+        of atom_site_scat when its element is not the one of the atom
+        (O2- given to F for its dipole form factor)."""
+        from cryspy.A_functions_base.charge_form_factor import (
+            propose_orbital_of_ion, take_element_of_symbol)
+        d_out = {}
+        ion = str(d_value.get("atom_type_symbol", "")).strip()
+        label = str(d_value.get("atom_label", ""))
+        site_symbol = ""
+        if data.is_attribute("atom_site") and label in list(data.atom_site.label):
+            site_symbol = str(data.atom_site[label].type_symbol)
+        if ion and site_symbol and \
+                take_element_of_symbol(ion) != take_element_of_symbol(site_symbol):
+            l_option = [ion] + ([site_symbol] if any(sign in site_symbol for sign in "+-") else [])
+            d_out["atom_type_symbol"] = {
+                "proposal": ion, "options": l_option, "sure": False,
+                "reason": f"{ion} of atom_site_scat (its dipole form factor), but the atom is {site_symbol}"}
+        if ion:
+            d_out["orbital"] = propose_orbital_of_ion(ion)
+        return d_out
 
     def __init__(self, **kwargs) -> NoReturn:
         super(AtomRhoMultipole, self).__init__()
@@ -195,6 +231,12 @@ class AtomRhoMultipoleL(LoopN):
 
 For a magnetic atom the multipoles replace the dipole approximation of
 the magnetic form factor (atom_site_scat).
+
+A row needs the local axes of the atom (atom_local_axes): the coefficients
+coeff_Plm are given in this local system. The radial part is the Slater
+function of the open shell (orbital) of the ion; the core electrons
+(atom_electron_configuration) are not used by the magnetic form factor,
+only by the electron density and the core prior of MEM.
 
 It should be noted that used parameters in this block are different from parameters defined in Electron density CIF: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_rho.dic/Catom_rho_multipole.html
     """

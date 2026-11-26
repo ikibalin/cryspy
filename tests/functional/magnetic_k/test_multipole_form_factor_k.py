@@ -253,7 +253,7 @@ def test_split_atom_with_multipoles_is_refused():
     obj = cryspy.load_file(MNF2)
     crystal = obj.crystal_mnf2
     remove_multipoles(crystal)
-    crystal.add_multipole_form_factor("F")
+    crystal.add_multipole_form_factor("F", magnetic_ion="Mn2+")  # the trick of the file: F with the form factor of Mn2+
     from cryspy.D_functions_item_loop.function_1_magnetic_k import split_atoms
     k_group = {"parent_rotation": numpy.array([[1, 0, 0, 0, 1, 0, 0, 0, 1],
                                                [-1, 0, 0, 0, -1, 0, 0, 0, 1]]).transpose(),

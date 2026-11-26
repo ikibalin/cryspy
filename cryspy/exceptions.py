@@ -7,8 +7,32 @@ place before, so existing ``except ValueError`` / ``except AttributeError``
 """
 
 
+from typing import List
+
+
 class CrysPyError(Exception):
     """Base class of all CrysPy errors."""
+
+
+class ArgumentsNeeded(Exception):
+    """Raised by a function for the values to ask the user.
+
+    A procedure, a method or a tool of AI assistants raises it when it is
+    in doubt about a value (several possible values, a guess the user
+    should confirm); a program shows the questions and calls the function
+    again with the answers as arguments of the same names.
+
+    l_missing: dicts with "name" (argument of the function), "question"
+    (what is asked, e.g. "the unit cell parameters") and optional JSON
+    schema keys of the value ("type", "items", "minItems", "maxItems",
+    "enum"), "hint" (format of the answer), "options" (possible answers,
+    shown as buttons; the user may type another one), "proposal" (a value
+    known already, the user confirms it), "s_proposal" (its text)."""
+
+    def __init__(self, l_missing: List[dict], message: str = ""):
+        super().__init__(message)
+        self.l_missing = l_missing
+        self.message = message
 
 
 class RcifFormatError(CrysPyError, ValueError):

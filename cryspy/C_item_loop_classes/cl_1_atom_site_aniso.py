@@ -59,6 +59,8 @@ class AtomSiteAniso(ItemN):
 
     PREFIX = "atom_site_aniso"
 
+    D_REFERENCES = {"label": "atom_site.label"}
+
     def __init__(self, **kwargs) -> NoReturn:
         super(AtomSiteAniso, self).__init__()
 

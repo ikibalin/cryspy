@@ -51,8 +51,8 @@ def test_parse_multipole_coefficients():
 
 
 def test_orbital_of_ion_from_knowledge_base():
-    assert take_orbital_of_ion("Cu2+") == "3d"
-    assert take_orbital_of_ion("Tb3+") == "4f"
+    assert take_orbital_of_ion("Cu2+") == ("3d", None)
+    assert take_orbital_of_ion("Tb3+") == ("4f", None)
 
 
 def test_spherical_form_factor_is_kept_without_multipoles():

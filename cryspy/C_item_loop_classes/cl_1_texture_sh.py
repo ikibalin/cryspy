@@ -76,6 +76,8 @@ class TextureSh(ItemN):
 
     PREFIX = "texture_sh"
 
+    D_REFERENCES = {"phase_label": "phase.label"}
+
     def __init__(self, **kwargs) -> NoReturn:
         super(TextureSh, self).__init__()
         self.__dict__["D_MIN"] = {"order_max": 2}
@@ -178,6 +180,9 @@ class TextureShCoefficient(ItemN):
     D_DEFAULT = form_d_default(ATTR_REF, {})
 
     PREFIX = "texture_sh_coefficient"
+
+    D_REFERENCES = {"phase_label": "phase.label"}
+    REQUIRED_CATEGORIES = ("texture_sh", )
 
     def __init__(self, **kwargs) -> NoReturn:
         super(TextureShCoefficient, self).__init__()
