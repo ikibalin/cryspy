@@ -81,6 +81,14 @@ Public API is re-exported from `cryspy/__init__.py`.
   `list_methods`, `call_method`): give them type hints and a numpydoc
   docstring that says what they really do. A method without a docstring is
   not offered; internal steps start with `get_`, `form_`, `take_` or `_`.
+- A request to an AI assistant gets the procedures, methods and categories
+  (CIF items and loops, action `add_item`) whose names and descriptions fit
+  it (`methods.form_matching_methods_text`, BM25 weights: rare words count
+  more than `add`, `magnetic`, `atom`). Only the description is searched,
+  not the `Parameters` section, so say in the summary and the first
+  paragraph what the function does, and in the docstring of an item class
+  what the category describes, with the words users type ("magnetic form
+  factor through multipoles" for `atom_rho_multipole`).
 - Menus of CrysPy Editor (procedures and methods of an object) come from the
   first word of the names (`calc_` -> Calculate, `report_` -> Report;
   `procedure_assistant/menus.py`). A line `Menu: <name>` in the docstring

@@ -52,7 +52,8 @@ from cryspy.procedure_assistant.procedures import (
 from cryspy.procedure_assistant.menus import group_methods_for_menu
 from cryspy.procedure_assistant.methods import (
     describe_method, find_method_blocks, find_parameter_blocks, format_method, take_method_parameters,
-    take_methods, score_method, take_request_words, count_name_words, score_text)
+    take_methods, score_method, take_request_words, count_name_words, score_text,
+    covers_request, take_word_weights)
 from cryspy.procedure_assistant.history import (
     find_stuck_at_zero, form_metrics, format_metrics, keep_checkpoint, keep_snapshot,
     restore_snapshot, take_history)
@@ -1920,12 +1921,16 @@ def find_matching_tools(request: str, max_tools: int = N_MATCHING_TOOLS) -> List
     estimate_absorption, 'Load the crystal from COD' add_crystal_from_cod),
     only the tools close to the best one. One word is enough only when it
     is rare among the descriptions of all tools ('COD'), not a common one
-    ('cell', 'parameter', 'structure')."""
+    ('cell', 'parameter', 'structure'). The found words should weigh
+    enough among the request words (methods.covers_request): 'add' and
+    'atom' do not make add_atom an answer to 'Add the magnetic form factor
+    through multipoles for the atom Cu'."""
     l_word = take_request_words(request)
     if len(l_word) == 0:
         return []
     l_found = []
     n_min = 1 if len(l_word) == 1 else 2
+    d_weight = take_word_weights(l_word)
     for tool in L_ASSISTANT_TOOLS:
         if tool.flag_core:
             continue
@@ -1935,6 +1940,9 @@ def find_matching_tools(request: str, max_tools: int = N_MATCHING_TOOLS) -> List
             continue
         if score < n_min and not any(count_tools_with_word(word) <= N_RARE_WORD_TOOLS
                                      for word in l_word if score_text(tool.name, "", [word])):
+            continue
+        l_word_found = [word for word in l_word if score_text(tool.name, tool.description, [word])]
+        if not covers_request(l_word_found, l_word, d_weight):
             continue
         l_found.append((score + n_name + 0.5 * n_generic, tool.name, tool))
     if len(l_found) == 0:
