@@ -52,7 +52,7 @@ def calc_f_minus_sq(
     return f_minus_sq, dder
 
 
-def calc_flip_ratio(
+def calc_flip_ratio(  # noqa: PLR0913, PLR0915
         f_nucl: float, f_mag_perp: tuple, e_up: tuple,
         beam_polarization: float, flipper_efficiency: float, radius: float,
         mosaicity: float, model_extinction: str, volume_unit_cell: float,

@@ -278,6 +278,11 @@ from cryspy.procedure_rhochi.rhochi_magnetic_broadening import (
     add_magnetic_broadening,
     report_magnetic_broadening,
 )
+from cryspy.procedure_rhochi.rhochi_stacking_fault import (
+    add_stacking_fault,
+    report_stacking_fault,
+    diagnose_peak_widths,
+)
 
 from cryspy.procedure_rhochi.rhochi import (
     rhochi_rietveld_refinement,
@@ -355,7 +360,7 @@ from cryspy.procedure_assistant.constraints import (
 from cryspy.A_functions_base.linear_constraints import parse_linear_constraint
 
 
-def repr_function(function, flag_long: bool = False):
+def repr_function(function, flag_long: bool = False):  # noqa: PLR0912
     ls_out = []
     name = function.__name__
     code = function.__code__
@@ -509,6 +514,9 @@ L_FUNCTION = [
     report_texture_spherical_harmonics,
     add_magnetic_broadening,
     report_magnetic_broadening,
+    add_stacking_fault,
+    report_stacking_fault,
+    diagnose_peak_widths,
     rhochi_rietveld_refinement,
     rhochi_rietveld_refinement_with_parameters,
     rhochi_profile_matching,

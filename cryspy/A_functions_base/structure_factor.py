@@ -361,7 +361,7 @@ def calc_f_by_f_asym_a_pr(
     return res, dder
 
 
-def calc_sft_ccs_asym_a_by_pr(
+def calc_sft_ccs_asym_a_by_pr(  # noqa: PLR0913
     atom_para_multiplicity,
     debye_waller_factor,
     atom_para_occupancy,
@@ -410,7 +410,7 @@ def calc_sft_ccs_asym_a_by_pr(
     return res, dder
 
 
-def calc_f_nucl_by_dictionary(
+def calc_f_nucl_by_dictionary(  # noqa: PLR0915
     dict_crystal, dict_in_out, flag_use_precalculated_data: bool = False
 ):
     """Calculate nuclear structure factor based on the information given in dictionary.
@@ -565,7 +565,7 @@ def calc_f_nucl_by_dictionary(
     return f_nucl, dder
 
 
-def calc_f_nucl(
+def calc_f_nucl(  # noqa: C901, PLR0912, PLR0913, PLR0915
     index_hkl,
     reduced_symm_elems,
     centrosymmetry,
@@ -763,7 +763,7 @@ def calc_f_nucl(
     return f_nucl, dder
 
 
-def calc_f_charge_by_dictionary(
+def calc_f_charge_by_dictionary(  # noqa: PLR0915
     dict_crystal,
     wavelength: float,
     dict_in_out,
@@ -939,7 +939,7 @@ def calc_f_charge_by_dictionary(
     return f_charge, dder
 
 
-def calc_f_charge(
+def calc_f_charge(  # noqa: C901, PLR0912, PLR0913, PLR0915
     index_hkl,
     reduced_symm_elems,
     centrosymmetry,

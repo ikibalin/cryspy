@@ -89,7 +89,7 @@ def read_el_cards():
 EL_CARDS = read_el_cards()
 
 
-def read_wyckoff():
+def read_wyckoff():  # noqa: PLR0912
     with open(F_WYCKOFF, "r") as fid:
         l_cont = fid.readlines()
     l_numb_b, l_numb_e = [], []
@@ -179,7 +179,7 @@ ACCESIBLE_IT_NUMBER = (ACCESIBLE_IT_NUMBER_TRICLINIC_SYSTEM +
                        ACCESIBLE_IT_NUMBER_CUBIC_SYSTEM)
 
 
-def get_default_it_coordinate_system_code_by_it_number(it_number: int) -> str:
+def get_default_it_coordinate_system_code_by_it_number(it_number: int) -> str:  # noqa: PLR0912
     crystal_system = get_crystal_system_by_it_number(it_number)
     if crystal_system == "triclinic":
         it_coordinate_system_code = None
@@ -212,7 +212,7 @@ def get_default_it_coordinate_system_code_by_it_number(it_number: int) -> str:
     return it_coordinate_system_code
 
 
-def get_it_coordinate_system_codes_by_it_number(it_number: int) -> str:
+def get_it_coordinate_system_codes_by_it_number(it_number: int) -> str:  # noqa: PLR0912
     crystal_system = get_crystal_system_by_it_number(it_number)
     if crystal_system == "triclinic":
         it_coordinate_system_codes = ()

@@ -79,7 +79,7 @@ fr = numpy.array([
        1.07842329, 0.6923462 , 0.69290315, 1.14664124, 0.07892507,
        0.07801952, 1.08325336, 0.0901045 , 0.09113749], dtype=float)
 
-def test_calc_flip_ratio_intensity_f_nucl():
+def test_calc_flip_ratio_intensity_f_nucl():  # noqa: PLR0915
     dir = os.path.dirname(__file__)
     f_name = os.path.join(dir, "single_crystal.rcif")
     obj = cryspy.load_file(f_name)

@@ -141,7 +141,7 @@ def take_cif_space_group_tags(cif_text: str) -> str:
             + cif_text[match.end():])
 
 
-def cif_to_crystal(cif_text: str, data_name: str = "") -> Crystal:
+def cif_to_crystal(cif_text: str, data_name: str = "") -> Crystal:  # noqa: PLR0912
     """Crystal of the first data block of a CIF file (from COD or other
     programs): cell, space group, atom_site and atom_site_aniso.
 

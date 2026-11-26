@@ -644,7 +644,7 @@ def calc_det_m(m, flag_m: bool = False):
     return det, dder
 
 
-def calc_inv_m(m_ij, flag_m: bool = False):
+def calc_inv_m(m_ij, flag_m: bool = False):  # noqa: PLR0915
     """
     Calculate inversed matrix
     """

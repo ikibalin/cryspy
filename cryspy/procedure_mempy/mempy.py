@@ -120,7 +120,7 @@ def mempy_nuclear_density_reconstruction(obj: cryspy.GlobalN):
     return res
 
 
-def mempy_reconstruction_with_parameters(
+def mempy_reconstruction_with_parameters(  # noqa: PLR0915
     obj: cryspy.GlobalN,
     parameter_lambda: float = 1.0e-5,
     iteration_max: int = 1000,
@@ -316,7 +316,7 @@ def mempy_reconstruction_with_parameters(
     return res
 
 
-def mempy_cycle_with_parameters(
+def mempy_cycle_with_parameters(  # noqa: PLR0915
     obj: cryspy.GlobalN,
     parameter_lambda: float = 1.0e-5,
     iteration_max: int = 1000,

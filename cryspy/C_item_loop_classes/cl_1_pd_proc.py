@@ -159,7 +159,7 @@ class PdProcL(LoopN):
     def plots(self):
         return [self.plot_sum_diff()]
     
-    def plot_sum_diff(self):
+    def plot_sum_diff(self):  # noqa: PLR0915
         """Plot unpolarized intensity vs. 2 theta
         """
 

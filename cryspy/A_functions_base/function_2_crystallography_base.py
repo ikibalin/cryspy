@@ -150,7 +150,7 @@ phase_3d: [hkl, points, symmetry]
     return phase_3d
 
 
-def calc_phase_by_hkl_xyz_rb(index_hkl, x, y, z, r_11, r_12, r_13, r_21, r_22,
+def calc_phase_by_hkl_xyz_rb(index_hkl, x, y, z, r_11, r_12, r_13, r_21, r_22,  # noqa: PLR0913
                              r_23, r_31, r_32, r_33, b_1, b_2, b_3):
     h, k, l = index_hkl[0], index_hkl[1], index_hkl[2]
     np_h, np_x, np_r_11 = numpy.meshgrid(h, x, r_11, indexing="ij")
@@ -186,7 +186,7 @@ isotropic harmonic Debye-Waller factor
     return power_dwf_iso_2d
 
 
-def calc_power_dwf_aniso(index_hkl, beta, 
+def calc_power_dwf_aniso(index_hkl, beta,  # noqa: PLR0913
     r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33):
     """
 anisotropic harmonic Debye-Waller factor
@@ -217,7 +217,7 @@ h,k,l is 1D (temporary solution)
     return power_dwf_aniso
 
 
-def calc_dwf(cell, index_hkl, b_iso, beta, r_11, r_12, r_13, r_21, r_22, r_23,
+def calc_dwf(cell, index_hkl, b_iso, beta, r_11, r_12, r_13, r_21, r_22, r_23,  # noqa: PLR0913
              r_31, r_32, r_33):
     """Calculate Debye-Waller factor."""
     unit_cell_parameters = cell.get_unit_cell_parameters()

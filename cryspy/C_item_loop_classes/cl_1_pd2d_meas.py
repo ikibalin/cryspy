@@ -93,7 +93,7 @@ class Pd2dMeas(ItemN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
-    def form_object(self) -> NoReturn:
+    def form_object(self) -> NoReturn:  # noqa: PLR0915
         """Redefine form_object."""
         flag_tth_phi = (self.is_attribute("ttheta_phi_intensity_plus") &
                 self.is_attribute("ttheta_phi_intensity_plus_sigma") &
@@ -351,7 +351,7 @@ class Pd2dMeas(ItemN):
     def plots(self):
         return [self.plot_gamma_nu(), ]
 
-    def plot_gamma_nu(self):
+    def plot_gamma_nu(self):  # noqa: PLR0912, PLR0915
         flag_polarized = (self.is_attribute("gamma") & self.is_attribute("nu") &
                self.is_attribute("gn_intensity_plus") & 
                self.is_attribute("gn_intensity_minus"))

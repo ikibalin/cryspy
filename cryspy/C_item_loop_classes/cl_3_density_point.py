@@ -632,7 +632,7 @@ class DensityPointL(LoopN):
         self.l_rs_i = l_rs_i
         self.l_bs_i = l_bs_i
 
-    def calc_susc_i(self, atom_site_susceptibility: AtomSiteSusceptibilityL):
+    def calc_susc_i(self, atom_site_susceptibility: AtomSiteSusceptibilityL):  # noqa: PLR0915
         """Calculate susceptibility of point i.
 
         Parameters

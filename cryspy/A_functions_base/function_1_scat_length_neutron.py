@@ -12,7 +12,7 @@ from cryspy.A_functions_base.database import DATABASE
 from cryspy.A_functions_base.charge_form_factor import get_atomic_symbol_ion_charge_isotope_number_by_ion_symbol
 
 
-def apply_constraint_on_cell_by_type_cell(cell, type_cell:str,
+def apply_constraint_on_cell_by_type_cell(cell, type_cell:str,  # noqa: PLR0912, PLR0915
                                           it_coordinate_system_code:str):
     length_a, length_b, length_c = cell.length_a, cell.length_b, cell.length_c
     angle_alpha, angle_beta = cell.angle_alpha, cell.angle_beta

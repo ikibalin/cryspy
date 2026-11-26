@@ -201,7 +201,7 @@ def find_unexplained_peaks(x, residual, sigma, net, max_peaks: int = 3,
     return out
 
 
-def diagnose_powder_profile(x, y_obs, sigma, y_calc, net, sthovl=None,
+def diagnose_powder_profile(x, y_obs, sigma, y_calc, net, sthovl=None,  # noqa: C901, PLR0912, PLR0915
                             flag_time: bool = False):
     """Signatures of the misfit of a powder profile.
 

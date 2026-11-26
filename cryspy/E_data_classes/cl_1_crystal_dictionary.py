@@ -132,7 +132,7 @@ def take_scattering_amplitude_table(type_symbol: str):
             return None
 
 
-def form_crystal_dictionary(crystal, ddict):
+def form_crystal_dictionary(crystal, ddict):  # noqa: C901, PLR0912, PLR0915
     """Body of Crystal.get_dictionary, see its docstring."""
     space_group, cell, atom_site = None, None, None
     atom_site_susceptibility, atom_electron_configuration = None, None
@@ -1020,7 +1020,7 @@ def take_fourier_wave_k_index(crystal, k_vectors) -> dict:
     return d_wave
 
 
-def fix_fourier_gauge(ddict):
+def fix_fourier_gauge(ddict):  # noqa: PLR0915
     """Switch off the refinement of Fourier parameters the data cannot define.
 
     Two cases make the refinement singular:
@@ -1173,7 +1173,7 @@ def fill_fourier_symmform_by_symmetry(
             l_symmform[1][i_row] = symmform[3 + axis]
 
 
-def take_crystal_parameters_from_dictionary(crystal, ddict_crystal, l_parameter_name: list = None, l_sigma: list = None):
+def take_crystal_parameters_from_dictionary(crystal, ddict_crystal, l_parameter_name: list = None, l_sigma: list = None):  # noqa: C901, PLR0912, PLR0915
     """Body of Crystal.take_parameters_from_dictionary, see its docstring."""
     keys = ddict_crystal.keys()
 
@@ -1731,7 +1731,7 @@ def save_crystal_multipole_magnetization_density_to_den(crystal, file_den: str =
                 logger.info(f"\nReconstructed spin density is written in file '{file_magnetization_density_component:}'.")
 
 
-def calc_sc_v_unit_cell_parameters(
+def calc_sc_v_unit_cell_parameters(  # noqa: PLR0915
     type_cell: str, it_coordinate_system_code: str
 ):
     """

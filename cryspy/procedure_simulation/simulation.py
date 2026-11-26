@@ -208,7 +208,7 @@ def calc_satellites_of_k(crystal, k_vector, sthovl_min: float, sthovl_max: float
         d_k, sthovl_min, sthovl_max, unit_cell_parameters)
 
 
-def simulation_single_crystal(
+def simulation_single_crystal(  # noqa: PLR0912, PLR0915
         cryspy_object: cryspy.GlobalN, wavelength: float = 1.4, ttheta_min: float = 1.,
         ttheta_max: float = 116., satellites_only: bool = False, k_1: float = 0.,
         k_2: float = 0., k_3: float = 0.):
