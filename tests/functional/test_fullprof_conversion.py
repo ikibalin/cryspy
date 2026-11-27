@@ -141,3 +141,30 @@ def test_procedures_and_tools(tmp_path):
     assert os.path.isfile(str(tmp_path / "copy.pcr")), text
     with pytest.raises(ValueError):
         cryspy.add_fullprof_files(rcif_object, os.path.join(DIR_PBSO4, "fp", "pbso4.pcr"))
+
+
+def test_multi_pattern_round_trip(tmp_path):
+    """Two powder experiments of one crystal -> one multi-pattern .pcr file
+    (NPATT 2) with two data files -> two experiments again: the same
+    chi_sq and the same refined parameters (the cell and the atoms once)."""
+    with open(os.path.join(DIR_PBSO4, "main.rcif"), "r") as fid:
+        text = fid.read()
+    text_pd = text[text.index("data_pd"):]
+    rcif_object = cryspy.str_to_globaln(text + "\n" + text_pd.replace("data_pd", "data_pd2", 1))
+    pd_2 = rcif_object.items[-1]
+    pd_2.setup.offset_ttheta = 0.05
+    pd_2.phase.items[0].scale = 2. * pd_2.phase.items[0].scale
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        l_file = save_fullprof_files(rcif_object, str(tmp_path / "model.pcr"))
+        assert l_file == [str(tmp_path / "model.pcr")]
+        assert sorted(os.listdir(tmp_path)) == ["model.pcr", "model_pd.dat", "model_pd2.dat"]
+        rcif_object_2 = load_fullprof(l_file[0])
+    assert [type(item).__name__ for item in rcif_object_2.items] == ["Crystal", "Pd", "Pd"]
+    l_pd = [item for item in rcif_object_2.items if isinstance(item, cryspy.Pd)]
+    assert l_pd[1].setup.offset_ttheta == pytest.approx(0.05)
+    result = cryspy.rhochi_no_refinement(rcif_object)
+    result_2 = cryspy.rhochi_no_refinement(rcif_object_2)
+    assert result_2["n_point"] == result["n_point"]
+    assert result_2["chi_sq"] == pytest.approx(result["chi_sq"], rel=1e-3)
+    assert len(rcif_object_2.get_variable_names()) == len(rcif_object.get_variable_names())

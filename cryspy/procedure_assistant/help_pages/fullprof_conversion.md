@@ -1,6 +1,6 @@
 ---
 title: Conversion between FullProf files (.pcr) and rcif
-keywords: fullprof, pcr, prf, dat, int, single crystal, convert, conversion, import, export, cross-check, compare, check in fullprof, rietveld, codes
+keywords: fullprof, pcr, multi-pattern, npatt, joint refinement, several patterns, prf, dat, int, single crystal, convert, conversion, import, export, cross-check, compare, check in fullprof, rietveld, codes
 categories: pd, diffrn, crystal, atom_site_moment_fourier, extinction, phase, pd_instr_resolution, pd_instr_reflex_asymmetry, pd_instr_axial_divergence
 ---
 A FullProf refinement of a powder pattern or of single crystal intensities can be checked in CrysPy and a
@@ -25,6 +25,17 @@ Chebyshev polynomials (Nba = -5) of FullProf written as 25 points), excluded reg
 `ttheta_max`, the wavelength, the radiation and Cthm. Parameters refined in
 FullProf (code ≠ 0) are refined in CrysPy, and back. Data files: Ins = 0,
 6 (D1A/D2B) and 10 (XYDATA); CrysPy writes Ins = 10.
+
+Several powder patterns refined together (the multi-pattern format of
+FullProf, the line `NPATT n`, both directions): each pattern becomes an
+experiment `pd` of its own and all experiments name the same crystals in
+their phase loops, as in a joint refinement of CrysPy. The atoms and the
+cell are common, the scale and U V W X Y belong to each phase in each
+pattern, and a phase may contribute to some patterns only. CrysPy writes
+several powder experiments as one multi-pattern .pcr file with a data
+file for each experiment. The weights `W_PAT` are not converted (CrysPy
+adds the chi-squares of the experiments) and patterns with integrated
+intensities (Int = 1) are not read from multi-pattern files.
 
 Single crystals (Cry = 1, integrated intensities in an .int file, both
 directions): a nuclear phase, or a magnetic phase with a propagation
