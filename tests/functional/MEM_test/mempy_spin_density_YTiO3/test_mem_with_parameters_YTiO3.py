@@ -1,6 +1,7 @@
 import os
 
 import numpy
+import pytest
 
 import cryspy
 
@@ -25,11 +26,16 @@ def test_mem_with_parameters_adds_channel_col(tmp_path, monkeypatch):
     l_channel_col = take_channel_col(rcif_obj)
     assert len(l_channel_col) == 1
     channel_col = l_channel_col[0]
-    density = numpy.array(channel_col.density_plus) - numpy.array(channel_col.density_minus)
+    density_plus = numpy.array(channel_col.density_plus)
+    density_minus = numpy.array(channel_col.density_minus)
     point_multiplicity = numpy.array(channel_col.point_multiplicity)
     assert len(channel_col.items) == point_multiplicity.size
-    # the reconstructed spin density is positive in total
-    assert (density * point_multiplicity).sum() > 0.
+    assert numpy.all(density_plus >= 0.) and numpy.all(density_minus >= 0.)
+    # both channels keep the same normalization over the unit cell
+    # (relative tolerance for the rounding of the written densities)
+    assert (density_plus * point_multiplicity).sum() == pytest.approx(
+        (density_minus * point_multiplicity).sum(), rel=1e-4)
+    assert not numpy.allclose(density_plus, density_minus)
 
     for diffrn in [item for item in rcif_obj.items if isinstance(item, cryspy.Diffrn)]:
         assert numpy.all(numpy.isfinite(diffrn.diffrn_refln.numpy_fr_calc))
