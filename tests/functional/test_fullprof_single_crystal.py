@@ -83,3 +83,64 @@ def test_flipping_ratios_are_refused(tmp_path):
     (tmp_path / "full.int").write_text("\n".join(l_line))
     with pytest.raises(FullProfFormatError):
         load_fullprof(str(tmp_path / "full.pcr"))
+
+
+def write_hote3_extinction(tmp_path, line_value: str, line_code: str) -> str:
+    """HoTe3 files with another extinction block of the .pcr file."""
+    l_line = open(FILE_HOTE3).read().split("\n")
+    index = [i for i, line in enumerate(l_line) if "Ext-Model" in line][0]
+    l_line[index + 1], l_line[index + 2] = line_value, line_code
+    (tmp_path / "full.pcr").write_text("\n".join(l_line))
+    (tmp_path / "full.int").write_text(open(FILE_HOTE3.replace(".pcr", ".int")).read())
+    return str(tmp_path / "full.pcr")
+
+
+def calc_isotropic_q(ext_1: float):
+    """q_hh, q_kk, q_ll of qani (and Ext1..Ext3 of the model 4) for the model 1
+    of the HoTe3 cell: q_ii = Ext1/2 g*_ii."""
+    from cryspy.H_functions_global.fullprof_single_crystal import calc_metric_reciprocal
+    g_r = calc_metric_reciprocal([4.2645, 25.161797, 4.2799, 90., 90., 90.])
+    return [ext_1 / 2. * g_r[i, i] for i in range(3)]
+
+
+def test_extinction_model_4_as_model_1(tmp_path):
+    """Ext-Model 4 (Ext1..Ext6 = q_hh ... q_kl of qani) with the values of the
+    model 1 gives the same chi_sq, and it is written back as the model 1."""
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        chi_sq_1, _ = calc_chi_sq(load_fullprof(FILE_HOTE3))
+        file_pcr = write_hote3_extinction(
+            tmp_path, "".join(f"{value:12.8f}" for value in calc_isotropic_q(0.5087))
+            + "   0.0   0.0   0.0   0.0   4", "   0.00" * 7)
+        rcif_object = load_fullprof(file_pcr)
+        l_file = save_fullprof_files(rcif_object, str(tmp_path / "out" / "model.pcr"))
+    # the cell of the .pcr file has more digits than this test
+    assert calc_chi_sq(rcif_object)[0] == pytest.approx(chi_sq_1, rel=1e-4)
+    assert open(l_file[0]).read().split("Ext-Model")[1].split("\n")[1].split()[-1] == "1"
+
+
+def test_extinction_model_4(tmp_path):
+    """Anisotropic Ext-Model 4: the refined coefficients with one code of
+    FullProf are constrained, the model 4 is written back with the same
+    chi_sq."""
+    l_q = calc_isotropic_q(0.5087)
+    l_q[2] *= 1.5
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        file_pcr = write_hote3_extinction(
+            tmp_path, "".join(f"{value:12.8f}" for value in l_q) + "   0.0   0.0   0.0   0.0   4",
+            "  31.00  31.00  41.00   0.00   0.00   0.00   0.00")
+        rcif_object = load_fullprof(file_pcr)
+        chi_sq_4, _ = calc_chi_sq(rcif_object)
+        extinction = [item for item in rcif_object.items
+                      if isinstance(item, cryspy.Diffrn)][0].extinction
+        assert extinction.q_ll == pytest.approx(l_q[2])
+        assert extinction.q_hh_refinement and extinction.q_ll_refinement
+        l_expression = [constraint.expression for item in rcif_object.items
+                        if type(item).__name__ == "ConstraintL" for constraint in item.items]
+        assert len(l_expression) == 1 and l_expression[0].startswith("ext_kk = 1*ext_hh")
+        l_file = save_fullprof_files(rcif_object, str(tmp_path / "out" / "model.pcr"))
+        text = open(l_file[0]).read()
+        assert text.split("Ext-Model")[1].split("\n")[1].split()[-1] == "4"
+        chi_sq_back, _ = calc_chi_sq(load_fullprof(l_file[0]))
+    assert chi_sq_back == pytest.approx(chi_sq_4, rel=1e-4)
