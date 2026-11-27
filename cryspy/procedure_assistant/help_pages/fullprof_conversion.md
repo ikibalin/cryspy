@@ -19,8 +19,8 @@ Converted (both directions): nuclear phases (cell, space group, atoms,
 occupancies, Biso or anisotropic displacements: betas of FullProf,
 `Uani` of CrysPy), the scale of each phase, U V W X Y and the size
 broadening (`igsize` = GauSiz), the zero shift (`offset_2theta`), the
-transparency SySin, the background (points, or the polynomial of FullProf
-written as 25 points), excluded regions, the empirical asymmetry
+transparency SySin, the background (points, or the polynomial (Nba = 0) and the
+Chebyshev polynomials (Nba = -5) of FullProf written as 25 points), excluded regions, the empirical asymmetry
 `p1 ... p4`, the axial divergence `S_L`, `D_L` with `AsyLim` as
 `ttheta_max`, the wavelength, the radiation and Cthm. Parameters refined in
 FullProf (code ≠ 0) are refined in CrysPy, and back. Data files: Ins = 0,
