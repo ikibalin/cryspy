@@ -286,6 +286,50 @@ class FullProfPhase:
         self.axial, self.axial_codes = [0., 0.], [0., 0.]
 
 
+def read_more_lines(lines: PcrLines, label: str):
+    """Skip the lines of the phase written for More = 1 (Jdi, distances,
+    BVS); refuse the options that change the calculation."""
+    l_more = lines.next_integers(6)
+    jdi, hel, sol, mom, ter = l_more[1:6]
+    for name, value in (("Hel", hel), ("Sol", sol), ("Mom", mom), ("Ter", ter)):
+        if value != 0:
+            raise FullProfFormatError(
+                f"Phase '{label:}' has {name:} = {value:}: this option "
+                "of FullProf is not converted.")
+    if jdi in (1, 2, 3, 4):
+        line = lines.next_text()  # distances, angles, BVS
+        if "BVS" in line.upper():
+            n_cation, n_anion = lines.next_integers(2)[:2]
+            lines.next_text()  # names of the cations
+            if n_anion > 0:
+                lines.next_text()  # names of the anions
+
+
+def read_atom_lines(lines: PcrLines, nat: int) -> List[dict]:
+    """Atoms of a nuclear phase: label, type, x y z, Biso, Occ, N_t and the
+    codes; betas for N_t = 2."""
+    l_atom = []
+    for _ in range(nat):
+        l_word = lines.next_text().split("#")[0].split()
+        if len(l_word) < 10:
+            raise FullProfFormatError(f"Wrong line of an atom: '{' '.join(l_word):}'.")
+        atom = {
+            "label": l_word[0], "type": take_type_symbol(l_word[1]),
+            "xyz": [float(word) for word in l_word[2:5]],
+            "b_iso": float(l_word[5]), "occ": float(l_word[6]),
+            "n_t": int(l_word[9])}
+        atom["codes"] = (lines.next_numbers(5)[:5])
+        if atom["n_t"] == 2:
+            atom["beta"] = lines.next_numbers(6)[:6]
+            atom["beta_codes"] = lines.next_numbers(6)[:6]
+        elif atom["n_t"] != 0:
+            raise FullProfFormatError(
+                f"Atom '{atom['label']:}' has N_t = {atom['n_t']:}: only isotropic "
+                "(0) and anisotropic (2) atoms are converted.")
+        l_atom.append(atom)
+    return l_atom
+
+
 def read_fullprof_phase(lines: PcrLines, nor: int, l_used: List[str]) -> FullProfPhase:  # noqa: C901, PLR0912, PLR0915
     phase = FullProfPhase()
     phase.label = take_label(lines.next_text(), l_used)
@@ -311,40 +355,10 @@ def read_fullprof_phase(lines: PcrLines, nor: int, l_used: List[str]) -> FullPro
             f"Phase '{phase.label:}' has the profile Npr = {npr:}: only the "
             "Thompson-Cox-Hastings pseudo-Voigt (Npr = 7) is converted.")
     if more == 1:
-        l_more = lines.next_integers(6)
-        jdi, hel, sol, mom, ter = l_more[1:6]
-        for name, value in (("Hel", hel), ("Sol", sol), ("Mom", mom), ("Ter", ter)):
-            if value != 0:
-                raise FullProfFormatError(
-                    f"Phase '{phase.label:}' has {name:} = {value:}: this option "
-                    "of FullProf is not converted.")
-        if jdi in (1, 2, 3, 4):
-            line = lines.next_text()  # distances, angles, BVS
-            if "BVS" in line.upper():
-                n_cation, n_anion = lines.next_integers(2)[:2]
-                lines.next_text()  # names of the cations
-                if n_anion > 0:
-                    lines.next_text()  # names of the anions
+        read_more_lines(lines, phase.label)
     phase.space_group = lines.next_text().split("<--")[0].strip()
 
-    for _ in range(nat):
-        l_word = lines.next_text().split("#")[0].split()
-        if len(l_word) < 10:
-            raise FullProfFormatError(f"Wrong line of an atom: '{' '.join(l_word):}'.")
-        atom = {
-            "label": l_word[0], "type": take_type_symbol(l_word[1]),
-            "xyz": [float(word) for word in l_word[2:5]],
-            "b_iso": float(l_word[5]), "occ": float(l_word[6]),
-            "n_t": int(l_word[9])}
-        atom["codes"] = (lines.next_numbers(5)[:5])
-        if atom["n_t"] == 2:
-            atom["beta"] = lines.next_numbers(6)[:6]
-            atom["beta_codes"] = lines.next_numbers(6)[:6]
-        elif atom["n_t"] != 0:
-            raise FullProfFormatError(
-                f"Atom '{atom['label']:}' has N_t = {atom['n_t']:}: only isotropic "
-                "(0) and anisotropic (2) atoms are converted.")
-        phase.atoms.append(atom)
+    phase.atoms = read_atom_lines(lines, nat)
 
     l_value = lines.next_numbers(1)
     l_code = lines.next_numbers(1)
@@ -715,6 +729,12 @@ def load_fullprof(file_pcr: str, file_data: str = "") -> GlobalN:
     refined in CrysPy too. For a simulation (Job = 2, 3) the pattern has
     zero intensities.
 
+    A single crystal (Cry = 1) with the integrated intensities of an .int
+    file becomes a diffrn experiment: a nuclear phase, or a magnetic phase
+    with a propagation vector (Jbt = 1, Isy = -2, basis functions) as a
+    crystal in P1 with the Fourier components of the moments; the scale,
+    the extinction (model 1 as qani) and the UB matrix of the cell.
+
     Menu: -
 
     Parameters
@@ -730,6 +750,10 @@ def load_fullprof(file_pcr: str, file_data: str = "") -> GlobalN:
     GlobalN
         The object with the crystals and the powder experiment.
     """
+    from cryspy.H_functions_global.fullprof_single_crystal import (
+        load_fullprof_single_crystal, take_cry)
+    if take_cry(file_pcr) != 0:
+        return load_fullprof_single_crystal(file_pcr, file_data=file_data)
     pattern = read_fullprof_pcr(file_pcr)
     if pattern.job in JOBS_SIMULATION:
         ttheta = numpy.arange(pattern.ttheta_min, pattern.ttheta_max + 0.5 * pattern.ttheta_step,
@@ -761,10 +785,12 @@ def add_fullprof_files(rcif_object: GlobalN, file_pcr: str, file_data: str = "")
     CrysPy.
 
     The nuclear phases and the powder pattern at a constant wavelength
-    (neutrons or X-rays) are converted; options of FullProf that CrysPy
-    does not calculate (magnetic phases, TOF, single crystals, other
-    profiles) are refused with a message, values that cannot be kept give
-    a warning.
+    (neutrons or X-rays) are converted, and single crystals (Cry = 1) with
+    the integrated intensities of an .int file, also magnetic phases with
+    a propagation vector given by basis functions (Jbt = 1, Isy = -2).
+    Options of FullProf that CrysPy does not calculate (magnetic phases
+    of powders, TOF, other profiles, flipping ratios) are refused with a
+    message, values that cannot be kept give a warning.
 
     Menu: FullProf
 
@@ -775,7 +801,8 @@ def add_fullprof_files(rcif_object: GlobalN, file_pcr: str, file_data: str = "")
     file_pcr : str
         The .pcr file of FullProf.
     file_data : str
-        The data file; by default the DAT-file named in the .pcr file.
+        The data file; by default the DAT-file named in the .pcr file
+        (the .int file for a single crystal).
 
     Returns
     -------
@@ -835,7 +862,8 @@ def form_atom_lines(crystal, radiation: str, counter: CodeCounter) -> Tuple[List
     """Lines of the atoms of a crystal in a .pcr file and whether some
     refined atom is on a special position."""
     dict_crystal = crystal.get_dictionary()
-    n_general = dict_crystal["full_symm_elems"].shape[1]
+    # the dictionary has no full_symm_elems for magnetic crystals
+    n_general = crystal.get_full_symm_elems().shape[1]
     atom_multiplicity = dict_crystal["atom_multiplicity"]
     cell = crystal.cell
     a_r = calc_reciprocal_lengths([cell.length_a, cell.length_b, cell.length_c,
@@ -1057,13 +1085,15 @@ def form_fullprof_pcr(pd, l_crystal: list, file_data_name: str,  # noqa: C901, P
 
 
 def save_fullprof_files(rcif_object: GlobalN, file_pcr: str):
-    """Write the crystals and the powder experiments of the object as
-    FullProf files (.pcr and the data file .dat, Ins = 10), to check the
-    calculation in FullProf.
+    """Write the crystals and the powder or single crystal experiments of the
+    object as FullProf files (.pcr and the data file: .dat, Ins = 10, for a
+    powder, .int for a single crystal), to check the calculation in FullProf.
 
     One .pcr file is written for each powder experiment at a constant
-    wavelength; with several experiments the name of the experiment is
-    added to the file name. Refined parameters get codes of FullProf, the
+    wavelength and for each unpolarized single crystal experiment (diffrn,
+    Cry = 1; a crystal with a propagation vector becomes a magnetic phase
+    Jbt = 1 in P1 with the satellites only); with several experiments the
+    name of the experiment is added to the file name. Refined parameters get codes of FullProf, the
     resolution of the instrument has the same code in every phase.
     Categories that FullProf does not calculate in the same way (texture,
     polarized neutrons, magnetic structures) are not written, with a
@@ -1074,7 +1104,7 @@ def save_fullprof_files(rcif_object: GlobalN, file_pcr: str):
     Parameters
     ----------
     rcif_object : GlobalN
-        The object with the crystals and the powder experiments.
+        The object with the crystals and the powder or single crystal experiments.
     file_pcr : str
         The .pcr file to write.
 
@@ -1084,22 +1114,29 @@ def save_fullprof_files(rcif_object: GlobalN, file_pcr: str):
         The names of the written .pcr files.
     """
     from cryspy.E_data_classes.cl_1_crystal import Crystal
+    from cryspy.E_data_classes.cl_2_diffrn import Diffrn
     from cryspy.E_data_classes.cl_2_pd import Pd
+    from cryspy.H_functions_global.fullprof_single_crystal import save_fullprof_single_crystal
 
     l_crystal = [item for item in rcif_object.items if isinstance(item, Crystal)]
     l_pd = [item for item in rcif_object.items if isinstance(item, Pd)]
-    if len(l_pd) == 0:
+    l_diffrn = [item for item in rcif_object.items if isinstance(item, Diffrn)]
+    if len(l_pd) + len(l_diffrn) == 0:
         raise ValueError(
-            "The object has no powder experiment at a constant wavelength (pd) to write "
-            "to FullProf.")
+            "The object has no powder experiment at a constant wavelength (pd) and no "
+            "single crystal experiment (diffrn) to write to FullProf.")
     l_other = [type(item).__name__ for item in rcif_object.items
-               if not isinstance(item, (Crystal, Pd)) and hasattr(item, "data_name")]
+               if not isinstance(item, (Crystal, Pd, Diffrn)) and hasattr(item, "data_name")]
     if len(l_other) > 0:
         warn_conversion(f"These data blocks are not written to FullProf: {', '.join(l_other):}.")
     base, _ = os.path.splitext(file_pcr)
+    n_experiment = len(l_pd) + len(l_diffrn)
     l_file = []
+    for diffrn in l_diffrn:
+        file_base = base if n_experiment == 1 else f"{base:}_{diffrn.data_name:}"
+        l_file.append(save_fullprof_single_crystal(diffrn, l_crystal, file_base))
     for pd in l_pd:
-        file_base = base if len(l_pd) == 1 else f"{base:}_{pd.data_name:}"
+        file_base = base if n_experiment == 1 else f"{base:}_{pd.data_name:}"
         ttheta = numpy.array(pd.pd_meas.ttheta, dtype=float)
         if pd.pd_meas.is_attribute("intensity") and getattr(pd.pd_meas, "intensity", None) is not None:
             intensity = numpy.array(pd.pd_meas.intensity, dtype=float)
