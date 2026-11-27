@@ -1163,6 +1163,23 @@ def fill_fourier_symmform_by_symmetry(
             l_symmform[1][i_row] = symmform[3 + axis]
 
 
+TENSOR_COMPONENTS = ("11", "22", "33", "12", "13", "23")
+
+
+def take_tensor_sigma_through_constraint(item, prefix: str, column, sigma: float):
+    """Give the sigma of one refined component to every component it sets.
+
+    The symmetry constraint of a site (``atom_para_sc_chi``,
+    ``atom_sc_exchange``) is a projector: the tensor used in the calculation
+    is ``column @ refined values``, so the refined component k enters
+    component i with the weight ``column[i]`` (1/3 for chi_11 = chi_22 =
+    chi_33 on a cubic site) and its sigma is ``|column[i]| * sigma``.
+    """
+    for i_comp in numpy.flatnonzero(numpy.abs(column) > 1e-12):
+        setattr(item, f"{prefix}_{TENSOR_COMPONENTS[i_comp]}_sigma",
+                float(abs(column[i_comp]) * sigma))
+
+
 def take_crystal_parameters_from_dictionary(crystal, ddict_crystal, l_parameter_name: list = None, l_sigma: list = None):  # noqa: C901, PLR0912, PLR0915
     """Body of Crystal.take_parameters_from_dictionary, see its docstring."""
     keys = ddict_crystal.keys()
@@ -1368,36 +1385,14 @@ def take_crystal_parameters_from_dictionary(crystal, ddict_crystal, l_parameter_
     for name, sigma in zip(l_parameter_name, l_sigma):
         parameter_label, ind_s = name
         if "atom_para_susceptibility" in parameter_label:
-            ind_chi, ind_a = ind_s[0], ind_s[1]
-            item_ass = crystal.atom_site_susceptibility.items[ind_a]
-            if ind_chi == 0:
-                item_ass.chi_11_sigma = float(sigma)
-            elif ind_chi == 1:
-                item_ass.chi_22_sigma = float(sigma)
-            elif ind_chi == 2:
-                item_ass.chi_33_sigma = float(sigma)
-            elif ind_chi == 3:
-                item_ass.chi_12_sigma = float(sigma)
-            elif ind_chi == 4:
-                item_ass.chi_13_sigma = float(sigma)
-            elif ind_chi == 5:
-                item_ass.chi_23_sigma = float(sigma)
+            take_tensor_sigma_through_constraint(
+                crystal.atom_site_susceptibility.items[ind_s[1]], "chi",
+                ddict_crystal["atom_para_sc_chi"][:, ind_s[0], ind_s[1]], sigma)
 
         if "atom_exchange_tensor" in parameter_label:
-            ind_j, ind_a = ind_s[0], ind_s[1]
-            item = crystal.atom_site_exchange.items[ind_a]
-            if ind_j == 0:
-                item.j_11_sigma = float(sigma)
-            elif ind_j == 1:
-                item.j_22_sigma = float(sigma)
-            elif ind_j == 2:
-                item.j_33_sigma = float(sigma)
-            elif ind_j == 3:
-                item.j_12_sigma = float(sigma)
-            elif ind_j == 4:
-                item.j_13_sigma = float(sigma)
-            elif ind_j == 5:
-                item.j_23_sigma = float(sigma)
+            take_tensor_sigma_through_constraint(
+                crystal.atom_site_exchange.items[ind_s[1]], "j",
+                ddict_crystal["atom_sc_exchange"][:, ind_s[0], ind_s[1]], sigma)
 
         if "atom_fract_xyz" in parameter_label:
             ind_p, ind_a = ind_s[0], ind_s[1]
