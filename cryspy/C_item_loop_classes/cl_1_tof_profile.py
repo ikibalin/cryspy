@@ -16,6 +16,7 @@ class TOFProfile(ItemN):
         - sigma0, sigma1, sigma2, gamma0, gamma1, gamma2
           alpha0, alpha1, beta0, beta1 (mandatory)
         - size_g, size_l, strain_g, strain_l, peak_shape (optional)
+        - kappa (optional, peak_shape "Ikeda-Carpenter")
 
     The variance of the Gaussian component of the peak shape in TOF neutrons is
     given by:
@@ -31,6 +32,17 @@ class TOFProfile(ItemN):
         sigma1, gamma1 are (microsecs/Ang.**2);
         sigma0, gamma0 are (microsecs**2);
 
+    Peak shapes: "pseudo-Voigt" (back-to-back exponentials convoluted with
+    a pseudo-Voigt, Jorgensen-Von Dreele), "Gauss", "non-conv-pseudo-Voigt",
+    "type0m" (Z-code) and "Ikeda-Carpenter": the Ikeda-Carpenter moderator
+    pulse convoluted with a pseudo-Voigt (FullProf Npr=13, Mantid
+    IkedaCarpenterPV), with lambda = 2 d sin(ttheta_bank/2) and
+
+        alpha = 1 / (alpha0 + alpha1 * lambda),  beta = 1 / beta0,
+        R = exp(-81.799 / (kappa * lambda**2)),
+
+    alpha0, beta0 in microsecs, alpha1 in microsecs/Ang., kappa in meV.
+
     """
     ATTR_MANDATORY_NAMES = ("peak_shape", )
     ATTR_MANDATORY_TYPES = (str, )
@@ -40,17 +52,17 @@ class TOFProfile(ItemN):
         "sigma0", "sigma1", "sigma2", "size_g", "strain_g",
         "gamma0", "gamma1", "gamma2", "size_l", "strain_l",
         "alpha0", "alpha1", "alpha2", "beta0", "beta1", "beta00", "beta01", "beta10",
-        "r01", "r02", "r03")
+        "r01", "r02", "r03", "kappa")
     ATTR_OPTIONAL_TYPES = (
         float, float, float, float, float,
         float, float, float, float, float,
         float, float, float, float, float, float, float, float,
-        float, float, float)
+        float, float, float, float)
     ATTR_OPTIONAL_CIF = (
         "sigma0", "sigma1", "sigma2", "size_g", "strain_g",
         "gamma0", "gamma1", "gamma2", "size_l", "strain_l",
         "alpha0", "alpha1", "alpha2", "beta0", "beta1", "beta00", "beta01", "beta10",
-        "r01", "r02", "r03")
+        "r01", "r02", "r03", "kappa")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -63,7 +75,7 @@ class TOFProfile(ItemN):
     ATTR_REF = ("sigma2", "sigma1", "sigma0", "gamma2", "gamma1", "gamma0",
                 "alpha0", "alpha1", "beta0", "beta1", "size_g", "size_l",
                 "strain_g", "strain_l", "beta00", "beta01", "beta10",
-                "r01", "r02", "r03", "alpha2")
+                "r01", "r02", "r03", "alpha2", "kappa")
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
@@ -77,10 +89,11 @@ class TOFProfile(ItemN):
                  "strain_g": "{:.5f}", "strain_l": "{:.5f}",
                  "beta00": "{:.5f}", "beta01": "{:.5f}", "beta10": "{:.5f}",
                  "r01": "{:.5f}", "r02": "{:.5f}", "r03": "{:.5f}",
-                 "alpha2": "{:.5f}"}
+                 "alpha2": "{:.5f}", "kappa": "{:.5f}"}
 
     # constraints on the parameters
-    D_CONSTRAINTS = {"peak_shape": ["non-conv-pseudo-Voigt", "pseudo-Voigt", "Gauss", "type0m"]}
+    D_CONSTRAINTS = {"peak_shape": [
+        "non-conv-pseudo-Voigt", "pseudo-Voigt", "Gauss", "type0m", "Ikeda-Carpenter"]}
 
     # default values for the parameters
     D_DEFAULT = {"peak_shape": "pseudo-Voigt"}
@@ -136,7 +149,12 @@ class TOFProfile(ItemN):
                 "gamma0", "gamma1", "gamma2",
                 "alpha1", "alpha2",
                 "beta00", "beta01", "beta10",
-                "r01", "r02", "r03"]}
+                "r01", "r02", "r03"],
+            "Ikeda-Carpenter": [
+                "peak_shape",
+                "sigma0", "sigma1", "sigma2", "size_g", "strain_g",
+                "gamma0", "gamma1", "gamma2", "strain_l", "size_l",
+                "alpha0", "alpha1", "beta0", "kappa"]}
         peak_shape = getattr(self, "peak_shape")
         l_attr_print = d_attributes_peak_shape[peak_shape]
         # REDO: the lines below are fully copied from cl_1_item.py, but the original code should be re-used instead of copying!!!
@@ -195,7 +213,7 @@ class TOFProfile(ItemN):
             else:
                 res[f"profile_{_nm}"] = numpy.array([0.0], dtype=float)
                 res[f"flags_profile_{_nm}"] = numpy.array([False], dtype=bool)
-        if peak_shape in ["non-conv-pseudo-Voigt", "pseudo-Voigt", "type0m"]:
+        if peak_shape in ["non-conv-pseudo-Voigt", "pseudo-Voigt", "type0m", "Ikeda-Carpenter"]:
             l_gamma = []
             l_gamma_refinement = []
             for numb in range(3):
@@ -206,7 +224,20 @@ class TOFProfile(ItemN):
                     break
             res["profile_gammas"] = numpy.array(l_gamma, dtype=float)
             res["flags_profile_gammas"] = numpy.array(l_gamma_refinement, dtype=float)
-        if peak_shape in ["pseudo-Voigt", "Gauss", ]:
+        if peak_shape == "Ikeda-Carpenter":
+            for key, names in (("profile_alphas", ("alpha0", "alpha1")),
+                               ("profile_betas", ("beta0", )),
+                               ("profile_kappa", ("kappa", ))):
+                for name in names:
+                    if not self.is_attribute(name):
+                        raise ValueError(
+                            f"_tof_profile_{name} is needed for the "
+                            "Ikeda-Carpenter peak shape.")
+                res[key] = numpy.array(
+                    [getattr(self, name) for name in names], dtype=float)
+                res[f"flags_{key}"] = numpy.array(
+                    [getattr(self, f"{name}_refinement") for name in names], dtype=bool)
+        elif peak_shape in ["pseudo-Voigt", "Gauss", ]:
             l_alpha = []
             l_alpha_refinement = []
             for numb in range(2):

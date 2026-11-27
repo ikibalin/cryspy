@@ -1,6 +1,6 @@
 ---
 title: Powder experiment (pd, pd2d, tof)
-keywords: powder, pd, rietveld, profile, background, resolution, u v w, asymmetry, texture, 2theta, offset, phase scale, pd2d, tof, time of flight
+keywords: powder, pd, rietveld, profile, background, resolution, u v w, asymmetry, texture, 2theta, offset, phase scale, pd2d, tof, time of flight, ikeda carpenter, moderator, peak shape
 categories: pd_meas, pd_background, pd_instr_resolution, pd_instr_reflex_asymmetry, phase, texture, range, exclude, setup, tof_parameters, tof_profile, tof_background, pd2d_meas
 ---
 A constant wavelength 1d powder experiment is a `pd` data block:
@@ -27,7 +27,15 @@ A constant wavelength 1d powder experiment is a `pd` data block:
 
 `pd2d` is the 2d version for polarized neutrons (`gamma_nu_...` data),
 `tof` is a time-of-flight pattern with `tof_parameters` (zero, dtt1, ...),
-`tof_profile` and `tof_background`.
+`tof_profile` and `tof_background`. The TOF peak shape is
+`tof_profile.peak_shape`: `pseudo-Voigt` (back-to-back exponentials,
+Jorgensen-Von Dreele, `alpha0`, `alpha1`, `beta0`, `beta1`), `Gauss`,
+`non-conv-pseudo-Voigt`, `type0m` or `Ikeda-Carpenter` (moderator pulse of
+Ikeda and Carpenter convoluted with a pseudo-Voigt, FullProf Npr=13, Mantid
+IkedaCarpenterPV: `alpha0` μs and `alpha1` μs/Å give 1/α = alpha0 +
+alpha1·λ, `beta0` μs is 1/β of the slow term, `kappa` meV sets
+R = exp(−81.799/(kappa·λ²)), with λ = 2 d sin(2θ_bank/2); widths `sigma*`,
+`gamma*` as for the pseudo-Voigt).
 
 Profile matching (Le Bail fit, free or fixed integrated intensities of
 `pd_peak`) is the procedure `rhochi_profile_matching`, see its help page.
