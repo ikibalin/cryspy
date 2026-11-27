@@ -3,6 +3,10 @@ import scipy
 import scipy.special
 
 from .powder_diffraction_cutoff import cutoff_place, cutoff_select
+from .powder_diffraction_tof_ikeda_carpenter import (
+    calc_ikeda_carpenter_alpha_beta_r,
+    tof_ikeda_carpenter,
+)
 
 na = numpy.newaxis
 
@@ -271,8 +275,16 @@ def calc_y_z_u_v(alpha, beta, sigma, delta_2d):
 
 def calc_peak_shape_function(alphas, betas, sigmas,  # noqa: PLR0913
         d, time, time_hkl, gammas = None, size_g: float = 0., strain_g: float = 0.,
-        size_l: float = 0., strain_l: float = 0., peak_shape: str = "pseudo-Voigt", cutoff_fwhm: float = 0.):
+        size_l: float = 0., strain_l: float = 0., peak_shape: str = "pseudo-Voigt", cutoff_fwhm: float = 0.,
+        kappa: float = 0., ttheta_bank: float = None):
     """Calculate peak-shape function F(DELTA)
+
+    For peak_shape "Ikeda-Carpenter" (FullProf Npr=13, Mantid
+    IkedaCarpenterPV) ``alphas`` = (alpha0, alpha1) in microseconds and
+    microseconds/Angstrom, ``betas`` = (beta0,) in microseconds,
+    ``kappa`` in meV and ``ttheta_bank`` (radians) gives the wavelength
+    lambda = 2 d sin(ttheta_bank/2); see ``tof_ikeda_carpenter``.
+
     For Gauss peak-shape:
         F(DELTA) = alpha * beta / (alpha+beta) * [exp(u) erfc(y) + exp(v) erfc(z)]
     For pseudo-Voigt peak-shape:
@@ -310,6 +322,16 @@ def calc_peak_shape_function(alphas, betas, sigmas,  # noqa: PLR0913
 
             res_2d = tof_Jorgensen_VonDreele(
                 alpha, beta, sigma, gamma, time, time_hkl, cutoff_fwhm=cutoff_fwhm)
+
+    elif peak_shape == "Ikeda-Carpenter":
+        wavelength = 2. * d * numpy.sin(0.5 * ttheta_bank)
+        alpha, beta, r = calc_ikeda_carpenter_alpha_beta_r(
+            wavelength, alphas[0], alphas[1], betas[0], kappa)
+        sigma, gamma = calc_sigma_gamma(
+            d, sigma0, sigma1, sigma2, gammas[0], gammas[1], gammas[2],
+            size_g=size_g, size_l=size_l, strain_g=strain_g, strain_l=strain_l)
+        res_2d = tof_ikeda_carpenter(
+            alpha, beta, r, sigma, gamma, time, time_hkl, cutoff_fwhm=cutoff_fwhm)
 
     elif peak_shape == "non-conv-pseudo-Voigt":
         gamma0, gamma1, gamma2 = gammas[0], gammas[1], gammas[2]

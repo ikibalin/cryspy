@@ -292,6 +292,15 @@ class TOF(DataN):
                 setattr(tof_profile, "sigma0", profile_sigmas[0])
                 setattr(tof_profile, "sigma1", profile_sigmas[1])
                 setattr(tof_profile, "sigma2", profile_sigmas[2])
+            elif profile_peak_shape == "Ikeda-Carpenter":
+                for key, names in (
+                        ("profile_alphas", ("alpha0", "alpha1")),
+                        ("profile_betas", ("beta0", )),
+                        ("profile_kappa", ("kappa", )),
+                        ("profile_sigmas", ("sigma0", "sigma1", "sigma2")),
+                        ("profile_gammas", ("gamma0", "gamma1", "gamma2"))):
+                    for name, value in zip(names, ddict_diffrn[key]):
+                        setattr(tof_profile, name, float(value))
             elif profile_peak_shape == "type0m":
                 profile_alphas = ddict_diffrn["profile_alphas"]
                 profile_betas = ddict_diffrn["profile_betas"]
@@ -336,18 +345,24 @@ class TOF(DataN):
                     if ind_param == 2:
                         self.texture.items[ind_a].l_ax_sigma = float(sigma)
                 if name[0] == "profile_sigmas":
-                    if name[1] == 0:
+                    if name[1][0] == 0:
                         self.tof_profile.sigma0_sigma = float(sigma)
-                    elif name[1] == 1:
+                    elif name[1][0] == 1:
                         self.tof_profile.sigma1_sigma = float(sigma)
-                    elif name[1] == 2:
+                    elif name[1][0] == 2:
                         self.tof_profile.sigma2_sigma = float(sigma)
+                if ((name[0] in ("profile_alphas", "profile_betas", "profile_kappa")) and
+                        (self.tof_profile.peak_shape == "Ikeda-Carpenter")):
+                    attr_name = {"profile_alphas": ("alpha0", "alpha1"),
+                                 "profile_betas": ("beta0", ),
+                                 "profile_kappa": ("kappa", )}[name[0]][name[1][0]]
+                    setattr(self.tof_profile, f"{attr_name}_sigma", float(sigma))
                 if name[0] == "profile_gammas":
-                    if name[1] == 0:
+                    if name[1][0] == 0:
                         self.tof_profile.gamma0_sigma = float(sigma)
-                    elif name[1] == 1:
+                    elif name[1][0] == 1:
                         self.tof_profile.gamma1_sigma = float(sigma)
-                    elif name[1] == 2:
+                    elif name[1][0] == 2:
                         self.tof_profile.gamma2_sigma = float(sigma)
 
         if (("signal_plus" in keys) and ("signal_minus" in keys)):
