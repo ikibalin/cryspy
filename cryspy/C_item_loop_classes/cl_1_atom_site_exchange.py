@@ -131,7 +131,8 @@ class AtomSiteExchange(ItemN):
             j_con_i_c[l_ind_independent] = False
             sc_exchange_bool = numpy.logical_not(numpy.isclose(numpy.round(sc_exchange, decimals=5), 0.))
             
-            j_ref_i_c = sc_exchange_bool.dot(j_ref_i) * numpy.logical_not(j_con_i_c)
+            # a refined component refines the independent one it follows
+            j_ref_i_c = sc_exchange_bool.T.dot(j_ref_i) * numpy.logical_not(j_con_i_c)
 
             self.__dict__["j_11"], self.__dict__["j_22"], \
                 self.__dict__["j_33"], self.__dict__["j_12"], \

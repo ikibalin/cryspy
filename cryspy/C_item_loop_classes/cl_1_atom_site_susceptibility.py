@@ -12,37 +12,38 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 na = numpy.newaxis
 
-# FIXME: temporary solution which is enough slow
 def calc_independent_lines(m):
-    n_x, n_y = m.shape
-    l_ind = [0, ]
-    for ind_x in range(1, n_x):
-        det_m = numpy.linalg.det(m[l_ind+[ind_x, ], :][:, l_ind+[ind_x, ]])
-        if numpy.isclose(det_m, 0.):
-            pass
-        else:
-            l_ind.append(ind_x)
-    return l_ind
+    """Indices of the independent components of a constraint matrix.
+
+    ``m`` is the matrix of ``calc_constr_matrix``: an independent component
+    keeps its own value (row i is the unit vector e_i).
+    """
+    n_comp = m.shape[0]
+    unity = numpy.eye(n_comp)
+    return [i for i in range(n_comp) if numpy.allclose(m[i, :], unity[i, :])]
 
 
 def calc_constr_matrix(matrix):
-    m_x, m_y = matrix.shape
-    unity = numpy.diag(m_x*[1.])
-    m_u = matrix - unity
+    """Constraint matrix that sets every component from the independent ones.
 
+    ``matrix`` is the symmetry projector P of a site (the average of the
+    tensor over the site symmetry, ``calc_sc_chi``). The independent
+    components L are the first linearly independent columns of P, and the
+    tensor allowed by the symmetry is v = P[:, L] P[L, L]^-1 v_L. The returned
+    matrix C has these columns at L and zeros elsewhere, so ``C @ v`` uses the
+    independent components only and applying it twice changes nothing
+    (the values, and the sigmas sqrt(C**2 @ sigma**2), are idempotent).
+    """
+    n_comp = matrix.shape[0]
+    l_ind = []
+    for i_comp in range(n_comp):
+        if numpy.linalg.matrix_rank(matrix[:, l_ind + [i_comp]], tol=1e-8) > len(l_ind):
+            l_ind.append(i_comp)
+    res = numpy.zeros((n_comp, n_comp), dtype=float)
+    if len(l_ind) > 0:
+        res[:, l_ind] = matrix[:, l_ind] @ numpy.linalg.inv(matrix[numpy.ix_(l_ind, l_ind)])
+    return numpy.round(res, 10)
 
-    for i_x in range(m_x-1, 0, -1):
-        coeff_1 = m_u[i_x, i_x]
-        if not(numpy.isclose(coeff_1, 0., atol=1e-10)):
-            line_1 = m_u[i_x, :]/coeff_1
-            m_u[i_x, :] = line_1
-            for i_y in range(i_x-1, -1, -1):
-                coeff_2 = m_u[i_y, i_x]
-                line_2 = m_u[i_y, :] - line_1*coeff_2
-                m_u[i_y, :]  = line_2
-
-    res = numpy.round(unity-m_u, 10)
-    return res
 
 class AtomSiteSusceptibility(ItemN):
     """AtomSiteSusceptibility describes paramagnetic properties of the ions that occupy the atom sites.
@@ -168,10 +169,8 @@ The susceptibility tensor is given in Cartezian coordinate system (x||a*, z||c).
             chi_con_i_c = numpy.ones(chi_i_c.shape, dtype=bool)
             chi_con_i_c[l_ind_independent] = False
             sc_chi_bool = numpy.logical_not(numpy.isclose(numpy.round(sc_chi, decimals=5), 0.))
-            # chi_con_i_c = numpy.triu((sc_chi_bool[na, :, :] == sc_chi_bool[:, na, :]).all(axis=2), k=1).any(axis=0)
-            chi_ref_i_c = sc_chi_bool.dot(chi_ref_i) * numpy.logical_not(chi_con_i_c)
-            # # I am not quite sure. It is to fix two parameters among three.
-            # chi_ref_i_c = numpy.logical_and(chi_ref_i_c, chi_ref_i)
+            # a refined component refines the independent one it follows
+            chi_ref_i_c = sc_chi_bool.T.dot(chi_ref_i) * numpy.logical_not(chi_con_i_c)
 
             self.__dict__["chi_11"], self.__dict__["chi_22"], \
                 self.__dict__["chi_33"], self.__dict__["chi_12"], \
