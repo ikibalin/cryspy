@@ -65,6 +65,8 @@ from cryspy.C_item_loop_classes.cl_1_pd2d_background import \
     Pd2dBackground
 from cryspy.C_item_loop_classes.cl_1_pd_background import \
     PdBackground, PdBackgroundL
+from cryspy.C_item_loop_classes.cl_1_pd_instr_axial_divergence import \
+    PdInstrAxialDivergence
 from cryspy.C_item_loop_classes.cl_1_pd_instr_reflex_asymmetry import \
     PdInstrReflexAsymmetry, PdInstrReflexAsymmetryL
 from cryspy.C_item_loop_classes.cl_1_pd_instr_resolution import \
@@ -140,7 +142,7 @@ L_ITEM_CLASS.extend([
     Exclude, Extinction, ExptlAbsorpt, ExptlCrystal, MEMParameters, InversedHessian,
     JanaTwin,
     Phase, PdBackground,
-    PdInstrReflexAsymmetry, PdInstrResolution, PdMeas, PdProc, PdPeak,
+    PdInstrAxialDivergence, PdInstrReflexAsymmetry, PdInstrResolution, PdMeas, PdProc, PdPeak,
     Pd2dBackground, Pd2dInstrReflexAsymmetry,
     Pd2dInstrResolution, Pd2dMeas, Pd2dProc, Pd2dPeak,
     Range, RefineLs, Refln, ReflnSusceptibility,

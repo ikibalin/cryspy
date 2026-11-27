@@ -1,5 +1,6 @@
 import numpy
 
+from .powder_diffraction_axial_divergence import calc_profile_with_axial_divergence
 from .powder_diffraction_cutoff import cutoff_place, cutoff_select
 
 na = numpy.newaxis
@@ -211,10 +212,24 @@ def calc_profile_pseudo_voight(ttheta, ttheta_hkl, u, v, w, i_g, x, y,  # noqa: 
         flag_ttheta_hkl: bool=False, flag_u: bool=False,
         flag_v: bool=False, flag_w: bool=False, flag_i_g: bool=False, flag_x: bool=False,
         flag_y: bool=False, flag_p_1: bool = False, flag_p_2: bool = False,
-        flag_p_3: bool = False, flag_p_4: bool = False, cutoff_fwhm: float = 0.):
+        flag_p_3: bool = False, flag_p_4: bool = False, cutoff_fwhm: float = 0.,
+        axial_divergence=None):
     """Calculate profile as psevdo-Voight function defined by parameters.
     For more documentation see documentation module "Powder diffraction at constant wavelenght".
+
+    axial_divergence: (S/L, H/L, 2theta_max in radians) of the
+    Finger-Cox-Jephcoat asymmetry (powder_diffraction_axial_divergence.py)
+    or None.
     """
+    if axial_divergence is not None:
+        s_l, d_l, ttheta_max = axial_divergence
+
+        def profile_function(ttheta_shifted, flags_hkl):
+            return calc_profile_pseudo_voight(
+                ttheta, ttheta_shifted, u, v, w, i_g, x, y, p_1, p_2, p_3, p_4,
+                cutoff_fwhm=cutoff_fwhm)[0]
+        return calc_profile_with_axial_divergence(
+            profile_function, ttheta_hkl, s_l, d_l, ttheta_max=ttheta_max), {}
     cutoff_fwhm = numpy.inf if cutoff_fwhm <= 0. else cutoff_fwhm
     delta_angle = (ttheta[:, na] - ttheta_hkl[na, :])
 
@@ -252,7 +267,7 @@ def calc_profile_pseudo_voight(ttheta, ttheta_hkl, u, v, w, i_g, x, y,  # noqa: 
 
 def calc_profile_pseudo_voight_extra_lorentz(  # noqa: PLR0913
         ttheta, ttheta_hkl, u, v, w, i_g, x, y, y_hkl, p_1, p_2, p_3, p_4,
-        cutoff_fwhm: float = 0.):
+        cutoff_fwhm: float = 0., axial_divergence=None):
     """Pseudo-Voigt profile with an extra Lorentzian width for every reflection.
 
     The profile is the one of :func:`calc_profile_pseudo_voight` convolved
@@ -281,6 +296,9 @@ def calc_profile_pseudo_voight_extra_lorentz(  # noqa: PLR0913
         Asymmetry parameters.
     cutoff_fwhm : float
         Cutoff of every peak in units of its FWHM (0: no cutoff).
+    axial_divergence : tuple or None
+        (S/L, H/L, 2theta_max in radians) of the Finger-Cox-Jephcoat
+        asymmetry (powder_diffraction_axial_divergence.py).
 
     Returns
     -------
@@ -289,6 +307,16 @@ def calc_profile_pseudo_voight_extra_lorentz(  # noqa: PLR0913
     dder : dict
         Empty (the derivatives are numerical).
     """
+    if axial_divergence is not None:
+        s_l, d_l, ttheta_max = axial_divergence
+        y_hkl = numpy.broadcast_to(numpy.asarray(y_hkl, dtype=float), numpy.shape(ttheta_hkl))
+
+        def profile_function(ttheta_shifted, flags_hkl):
+            return calc_profile_pseudo_voight_extra_lorentz(
+                ttheta, ttheta_shifted, u, v, w, i_g, x, y, y_hkl[flags_hkl],
+                p_1, p_2, p_3, p_4, cutoff_fwhm=cutoff_fwhm)[0]
+        return calc_profile_with_axial_divergence(
+            profile_function, ttheta_hkl, s_l, d_l, ttheta_max=ttheta_max), {}
     cutoff_fwhm = numpy.inf if cutoff_fwhm <= 0. else cutoff_fwhm
     n_point, n_hkl = ttheta.size, ttheta_hkl.size
     delta_angle = (ttheta[:, na] - ttheta_hkl[na, :])
