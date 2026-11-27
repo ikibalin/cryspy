@@ -186,6 +186,7 @@ from cryspy.A_functions_base.function_2_sym_elems import (
 
 from cryspy.A_functions_base.function_3_den_file import (
     read_den_file,
+    read_den_file_grid,
     save_to_den_file,
 )
 
@@ -484,6 +485,7 @@ L_FUNCTION = [
     transform_to_p1,
     get_string_by_symm_elem,
     read_den_file,
+    read_den_file_grid,
     save_to_den_file,
     calc_extinction,
     calc_extinction_2,

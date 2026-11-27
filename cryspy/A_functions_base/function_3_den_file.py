@@ -4,8 +4,12 @@ Functions
 ---------
     - read_den_file
     - save_to_den_file
+    - calc_density_grid_by_den_data
+    - read_den_file_grid
 
 """
+import warnings
+
 import numpy
 
 from cryspy.A_functions_base.function_2_sym_elems import \
@@ -187,3 +191,106 @@ def save_to_den_file(
     with open(file_name, "w") as fid:
         fid.write("\n".join(ls_out))
 
+
+def calc_density_grid_by_den_data(
+        points_abc, sym_elems, indexes_xyz, density, centrosymmetry: bool,
+        shift):
+    """Density on the whole grid of the unit cell from the points of a .den file.
+
+    A .den file keeps the density in the points of the asymmetric unit;
+    the other points are their images under the symmetry elements, the
+    centring translations and, for a centrosymmetric group, the inversion
+    (at the origin: the .den format does not keep its position).
+
+    Parameters
+    ----------
+    points_abc : numpy.ndarray, shape (3,), int
+        Number of grid points along a, b, c; point (i, j, k) is at the
+        fractional coordinates (i/n_a, j/n_b, k/n_c).
+    sym_elems : numpy.ndarray, shape (13, n_symm), int
+        Symmetry elements: b_1, b_2, b_3 numerators, their denominator,
+        r_11, r_12, ..., r_33.
+    indexes_xyz : numpy.ndarray, shape (3, n_point), int
+        Grid indexes of the given points.
+    density : numpy.ndarray, shape (n_point,)
+        Density in the given points (μB/Å³ for MEM magnetization).
+    centrosymmetry : bool
+        Add the inversion -x, -y, -z to every element.
+    shift : numpy.ndarray, shape (4, n_shift), int
+        Centring translations: numerators and the denominator.
+
+    Returns
+    -------
+    numpy.ndarray, shape (n_a, n_b, n_c)
+        The density; NaN in points that no element reaches. A warning is
+        given when images of the points do not fall on the grid or give
+        one point different densities (the file and its symmetry disagree).
+    """
+    n_abc = numpy.asarray(points_abc, dtype=int)
+    sym_elems = numpy.asarray(sym_elems, dtype=int)
+    shift = numpy.asarray(shift, dtype=int)
+    fract = numpy.asarray(indexes_xyz, dtype=float) / n_abc[:, numpy.newaxis]
+    r_ij = sym_elems[4:13].reshape(3, 3, -1).astype(float)
+    b_i = sym_elems[0:3].astype(float) / sym_elems[3][numpy.newaxis, :]
+    t_i = shift[0:3].astype(float) / shift[3][numpy.newaxis, :]
+    signs = (1., -1.) if centrosymmetry else (1.,)
+
+    # [3, n_point, n_symm, n_shift, n_sign]
+    rotated = numpy.einsum("ijs,jp->ips", r_ij, fract)
+    images = (numpy.array(signs)[numpy.newaxis, numpy.newaxis, numpy.newaxis, numpy.newaxis, :] *
+              rotated[:, :, :, numpy.newaxis, numpy.newaxis] +
+              b_i[:, numpy.newaxis, :, numpy.newaxis, numpy.newaxis] +
+              t_i[:, numpy.newaxis, numpy.newaxis, :, numpy.newaxis])
+    index_float = images * n_abc.reshape(3, 1, 1, 1, 1)
+    index_int = numpy.rint(index_float)
+    if not numpy.allclose(index_float, index_int, atol=1e-4):
+        warnings.warn(
+            "Symmetry images of the density points do not fall on the grid "
+            f"{tuple(n_abc)}: they are taken at the nearest points.",
+            stacklevel=2)
+    index_int = numpy.mod(index_int.astype(int), n_abc.reshape(3, 1, 1, 1, 1))
+    values = numpy.broadcast_to(
+        numpy.asarray(density, dtype=float).reshape(-1, 1, 1, 1),
+        index_int.shape[1:])
+
+    flat = numpy.ravel_multi_index(
+        tuple(index_int.reshape(3, -1)), tuple(n_abc))
+    values = values.reshape(-1)
+    n_total = int(numpy.prod(n_abc))
+    counts = numpy.bincount(flat, minlength=n_total)
+    sums = numpy.bincount(flat, weights=values, minlength=n_total)
+    with numpy.errstate(invalid="ignore", divide="ignore"):
+        grid = sums / counts
+    grid[counts == 0] = numpy.nan
+    spread = numpy.abs(values - grid[flat])
+    scale = numpy.nanmax(numpy.abs(grid)) if numpy.any(counts) else 0.
+    if numpy.any(spread > 1e-3 * scale + 1e-9):
+        warnings.warn(
+            "Symmetry images of the density points give one grid point "
+            "different densities: the symmetry of the .den file does not "
+            "fit its points (the mean is taken).", stacklevel=2)
+    return grid.reshape(tuple(n_abc))
+
+
+def read_den_file_grid(file_name: str):
+    """Read a .den file and give its density on the whole grid of the cell.
+
+    Parameters
+    ----------
+    file_name : str
+        Name of the .den file (e.g. written by MEM in CrysPy).
+
+    Returns
+    -------
+    cell_parameters : numpy.ndarray, shape (6,)
+        a, b, c (Å), alpha, beta, gamma (radians).
+    density_grid : numpy.ndarray, shape (n_a, n_b, n_c)
+        Total density (the first density column of the file) in the points
+        (i/n_a, j/n_b, k/n_c); see :func:`calc_density_grid_by_den_data`.
+    """
+    points_abc, cell_parameters, sym_elems, indexes_xyz, densities, \
+        centrosymmetry, np_shift = read_den_file(file_name)
+    density_grid = calc_density_grid_by_den_data(
+        points_abc, sym_elems, indexes_xyz, densities[0], centrosymmetry,
+        np_shift)
+    return cell_parameters, density_grid

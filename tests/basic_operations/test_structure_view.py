@@ -295,3 +295,78 @@ def test_ellipsoid_mesh_faces_point_outwards(handedness):
     for face in faces:
         p_0, p_1, p_2 = vertices[:, face].transpose()
         assert numpy.cross(p_1 - p_0, p_2 - p_0) @ (p_0 + p_1 + p_2) > 0.
+
+
+F_YTIO3_DEN = os.path.join(DIR_EXAMPLES, "mempy_spin_density_YTiO3", "mem_spin_density.den")
+
+
+def take_density_function(fract):
+    # invariant under -x, y+1/2, -z, the inversion and the C centring
+    x, y, z = fract
+    return (numpy.cos(4. * numpy.pi * x) + 0.5 * numpy.cos(4. * numpy.pi * y) +
+            0.3 * numpy.cos(2. * numpy.pi * z) +
+            0.2 * numpy.cos(4. * numpy.pi * x) * numpy.cos(2. * numpy.pi * z))
+
+
+def test_density_grid_from_asymmetric_points():
+    from cryspy.A_functions_base.function_3_den_file import calc_density_grid_by_den_data
+    n_abc = numpy.array([8, 6, 4])
+    sym_elems = numpy.array([IDENTITY, [0, 1, 0, 2, -1, 0, 0, 0, 1, 0, 0, 0, -1]]).transpose()
+    shift = numpy.array([[0, 0, 0, 1], [1, 1, 0, 2]]).transpose()
+    # one point of every orbit of the group
+    images = [(1, 1, 1, 0., 0., 0.), (-1, 1, -1, 0., 0.5, 0.)]
+    images = images + [(-sx, -sy, -sz, -tx, -ty, -tz) for sx, sy, sz, tx, ty, tz in images]
+    images = images + [(sx, sy, sz, tx + 0.5, ty + 0.5, tz) for sx, sy, sz, tx, ty, tz in images]
+    covered, points = set(), []
+    for index in numpy.ndindex(*n_abc):
+        if index in covered:
+            continue
+        points.append(index)
+        for sx, sy, sz, tx, ty, tz in images:
+            covered.add(tuple(int(round((s * i / n + t) * n)) % n for s, i, n, t in zip(
+                (sx, sy, sz), index, n_abc, (tx, ty, tz))))
+    indexes_xyz = numpy.array(points).transpose()
+    assert indexes_xyz.shape[1] < numpy.prod(n_abc) / 4
+    density = take_density_function(indexes_xyz / n_abc[:, numpy.newaxis])
+
+    grid = calc_density_grid_by_den_data(n_abc, sym_elems, indexes_xyz, density, True, shift)
+
+    fract = numpy.stack(numpy.meshgrid(*[numpy.arange(n) / n for n in n_abc], indexing="ij"))
+    numpy.testing.assert_allclose(grid, take_density_function(fract), atol=1e-12)
+    # the image of a point under the inversion given with another density
+    point = indexes_xyz[:, 1]
+    image = numpy.mod(-point, n_abc)
+    assert not numpy.all(image == point)
+    with pytest.warns(UserWarning, match="does not fit"):
+        calc_density_grid_by_den_data(
+            n_abc, sym_elems, numpy.concatenate([indexes_xyz, image[:, numpy.newaxis]], axis=1),
+            numpy.append(density, density[1] + 1.), True, shift)
+
+
+def test_cube_text_of_density():
+    from cryspy.A_functions_base.structure_scene import BOHR_IN_ANGSTROM, form_cube_text
+    grid = numpy.arange(24, dtype=float).reshape(4, 3, 2)
+    text = form_cube_text(numpy.diag([4., 3., 2.]), grid, n_cells=(2, 1, 1))
+    lines = text.splitlines()
+    assert lines[3].split()[0] == "9" and lines[4].split()[0] == "4" and lines[5].split()[0] == "3"
+    assert float(lines[3].split()[1]) == pytest.approx(1. / BOHR_IN_ANGSTROM, rel=1e-5)
+    values = numpy.array(" ".join(lines[6:]).split(), dtype=float).reshape(9, 4, 3)
+    numpy.testing.assert_allclose(values[:8, :3, :2], numpy.tile(grid, (2, 1, 1)))
+    numpy.testing.assert_allclose(values[8], values[0])  # the far face repeats the first one
+
+
+def test_mem_density_isosurfaces_in_view():
+    pytest.importorskip("py3Dmol")
+    cell_parameters, grid = cryspy.read_den_file_grid(F_YTIO3_DEN)
+    assert grid.shape == (24, 24, 24)
+    assert not numpy.any(numpy.isnan(grid))
+    assert grid.min() < 0. < grid.max()
+
+    crystal = take_crystal(os.path.join(DIR_EXAMPLES, "mempy_spin_density_YTiO3", "mempy_spin_density_YTiO3.rcif"))
+    settings = cryspy.StructureViewSettings(density_file=F_YTIO3_DEN, density_level=0.02)
+    html = crystal.get_structure_view_html(settings, js="3Dmol-min.js")
+    assert html.count("addVolumetricData") == 2  # positive and negative density
+    # a deformation density: the file minus itself is zero, nothing is drawn
+    html = crystal.get_structure_view_html(
+        dataclasses.replace(settings, density_file_subtracted=F_YTIO3_DEN), js="3Dmol-min.js")
+    assert "addVolumetricData" not in html

@@ -11,14 +11,17 @@ itself) and in any web view, e.g. CrysPy Editor, through
 """
 import dataclasses
 import re
+import warnings
 
 import numpy
 
+from cryspy.A_functions_base.function_3_den_file import read_den_file_grid
 from cryspy.A_functions_base.optional_import import optional_module
 from cryspy.A_functions_base.structure_scene import (
     calc_box_mesh, calc_ellipsoid_matrix_by_adp,
     calc_ellipsoid_matrix_by_susceptibility, calc_ellipsoid_mesh,
-    calc_flags_non_positive_definite, calc_principal_axes_by_tensor)
+    calc_flags_non_positive_definite, calc_principal_axes_by_tensor,
+    form_cube_text)
 
 na = numpy.newaxis
 
@@ -132,6 +135,23 @@ class StructureViewSettings:
         "this field induces in every direction (semi-axes |χ|·B).",
         min=0.1, max=50., step=0.1, unit="T")
     moment_color: str = _setting("red", "Colour of the moment arrows.")
+    density_file: str = _setting(
+        "", "Path of a .den file (e.g. the spin or magnetization density "
+        "of MEM) drawn as isosurfaces; empty: no density.")
+    density_file_subtracted: str = _setting(
+        "", "Path of a second .den file subtracted from the first, e.g. "
+        "to see a deformation density; empty: none. Both files need the "
+        "same grid.")
+    density_level: float = _setting(
+        0.1, "Isosurface level as a fraction of the largest |density|: "
+        "surfaces at +level and -level.",
+        min=0.01, max=1., step=0.01)
+    density_opacity: float = _setting(
+        0.6, "Opacity of the density isosurfaces.", min=0.1, max=1., step=0.05)
+    density_color_positive: str = _setting(
+        "blue", "Colour of the isosurface of positive density.")
+    density_color_negative: str = _setting(
+        "red", "Colour of the isosurface of negative density.")
     background: str = _setting("white", "Background colour.")
     width: int = _setting(
         640, "Width of the view in pixels.", min=200, max=2000, step=10, unit="px")
@@ -228,6 +248,65 @@ def calc_display_non_positive_adp(scene: dict, settings: StructureViewSettings):
     if numpy.any(finite):
         flags[finite] = calc_flags_non_positive_definite(tensor_xyz[:, :, finite])
     return flags
+
+
+def calc_display_density_grid(axes_xyz, settings: StructureViewSettings):
+    """Density of the .den files of the settings on the grid of the cell.
+
+    Parameters
+    ----------
+    axes_xyz : numpy.ndarray, shape (3, 3)
+        Cartesian vectors a, b, c of the shown crystal as columns, Å.
+    settings : StructureViewSettings
+        ``density_file`` minus ``density_file_subtracted`` (if given).
+
+    Returns
+    -------
+    numpy.ndarray, shape (n_a, n_b, n_c), or None without a density file
+        A warning is given when a file has another unit cell than the
+        crystal (the density is drawn in the cell of the crystal).
+    """
+    if not settings.density_file:
+        return None
+    lengths = numpy.sqrt(numpy.square(numpy.asarray(axes_xyz)).sum(axis=0))
+    grid = None
+    for file_name, sign in ((settings.density_file, 1.),
+                            (settings.density_file_subtracted, -1.)):
+        if not file_name:
+            continue
+        cell_parameters, grid_file = read_den_file_grid(file_name)
+        if not numpy.allclose(cell_parameters[:3], lengths, rtol=1e-2):
+            warnings.warn(
+                f"The cell of {file_name!r} ({cell_parameters[:3]} Å) differs "
+                f"from the cell of the crystal ({lengths} Å).", stacklevel=2)
+        if grid is None:
+            grid = sign * grid_file
+        elif grid.shape != grid_file.shape:
+            raise ValueError(
+                f"The grid of {file_name!r} {grid_file.shape} differs from "
+                f"the grid of {settings.density_file!r} {grid.shape}: "
+                "the densities cannot be subtracted.")
+        else:
+            grid = grid + sign * grid_file
+    return grid
+
+
+def _add_density(view, scene: dict, settings: StructureViewSettings):
+    """Isosurfaces at +-density_level * max|density| of the .den files."""
+    grid = calc_display_density_grid(scene["axes_xyz"], settings)
+    if grid is None:
+        return
+    density_max = numpy.nanmax(numpy.abs(grid))
+    if not density_max > 0.:
+        return
+    level = settings.density_level * density_max
+    cube = form_cube_text(scene["axes_xyz"], grid, settings.n_cells)
+    for sign, color in ((1., settings.density_color_positive),
+                        (-1., settings.density_color_negative)):
+        if numpy.nanmax(sign * grid) >= level:
+            view.addVolumetricData(cube, "cube", {
+                "isoval": float(sign * level), "color": color,
+                "opacity": settings.density_opacity})
 
 
 def _add_mesh(view, vertices, normals, faces, color: str, opacity: float = 1.):
@@ -355,6 +434,7 @@ def make_structure_view(  # noqa: C901, PLR0912, PLR0915
             view.addArrow({"start": _point(xyz - half), "end": _point(xyz + half),
                            "radius": 0.08, "radiusRatio": 2.,
                            "color": settings.moment_color})
+    _add_density(view, scene, settings)
     if settings.show_labels:
         for i_atom, xyz in zip(index, atom_xyz.transpose()):
             view.addLabel(str(atom_label[i_atom]), {

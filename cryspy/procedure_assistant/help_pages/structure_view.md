@@ -1,6 +1,6 @@
 ---
 title: 3D view of the crystal structure
-keywords: 3d, view, ellipsoid, ellipsoids, adp, negative biso, negative uiso, negative adp, non-positive definite, npd, cubes, thermal ellipsoids, displacement, susceptibility ellipsoid, magnetization ellipsoid, p1, unit cell atoms, dummy, visualization, visualisation, structure, picture, draw, show, py3dmol, 3dmol, moments, arrows, unit cells, bonds, jupyter
+keywords: 3d, view, isosurface, isosurfaces, density, den file, mem density, spin density, magnetization density, deformation density, difference density, ellipsoid, ellipsoids, adp, negative biso, negative uiso, negative adp, non-positive definite, npd, cubes, thermal ellipsoids, displacement, susceptibility ellipsoid, magnetization ellipsoid, p1, unit cell atoms, dummy, visualization, visualisation, structure, picture, draw, show, py3dmol, 3dmol, moments, arrows, unit cells, bonds, jupyter
 categories: atom_site, atom_site_aniso, atom_site_moment, atom_site_susceptibility, cell, space_group
 ---
 A crystal data block can be shown as an interactive 3D picture: atoms of the
@@ -73,3 +73,23 @@ with their moments), `convert_to_p1` (a copy of the crystal in P1) and
 ellipsoids, also for every atom of the cell). In Python:
 `crystal.calc_atoms_in_unit_cell()`, `crystal.to_p1()`,
 `crystal.report_ellipsoids("ADP")`.
+
+## Density isosurfaces (MEM, .den files)
+
+`density_file` draws the density of a `.den` file (the spin, magnetization
+or nuclear density written by MEM, see `mem_parameters`) as isosurfaces over
+the shown cells: at +level in `density_color_positive` and at -level in
+`density_color_negative`, where level is `density_level` (0.1 by default)
+times the largest |density|. The file keeps the points of the asymmetric
+unit; the whole cell is filled with its symmetry elements. With
+`density_file_subtracted` the second file is subtracted from the first
+(the same grid), e.g. to see a deformation density:
+
+```python
+crystal.view_structure(density_file="mem_spin_density.den", density_level=0.05)
+crystal.view_structure(density_file="mem_5T.den",
+                       density_file_subtracted="mem_model.den")
+```
+
+`cryspy.read_den_file_grid(file_name)` gives the cell and the density on
+the whole grid as a numpy array (n_a, n_b, n_c).

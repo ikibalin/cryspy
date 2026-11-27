@@ -484,3 +484,48 @@ def calc_structure_scene(
                                        ).transpose(1, 0, 2),
         "axes_xyz": calc_xyz_by_fract(ucp, numpy.eye(3)),
     }
+
+
+BOHR_IN_ANGSTROM = 0.529177210903
+
+
+def form_cube_text(axes_xyz, density_grid, n_cells=(1, 1, 1)) -> str:
+    """Gaussian cube text of a density on the grid of the unit cell.
+
+    The grid is repeated over the block of ``n_cells`` with one more
+    point along every axis (the far faces), so that isosurfaces close on
+    the edges of the block. 3Dmol.js draws isosurfaces from such a text
+    (``addVolumetricData(text, "cube", ...)``).
+
+    Parameters
+    ----------
+    axes_xyz : numpy.ndarray, shape (3, 3)
+        Cartesian vectors a, b, c as columns, Å (x || a*, z || c).
+    density_grid : numpy.ndarray, shape (n_a, n_b, n_c)
+        Density in the points (i/n_a, j/n_b, k/n_c); NaN is taken as 0.
+    n_cells : tuple of 3 int
+        Number of unit cells along a, b, c.
+
+    Returns
+    -------
+    str
+        Cube text without atoms: lengths in bohr, the origin at 0.
+    """
+    grid = numpy.nan_to_num(numpy.asarray(density_grid, dtype=float))
+    n_abc = numpy.array(grid.shape, dtype=int)
+    n_cells = numpy.asarray(n_cells, dtype=int)
+    index = [numpy.arange(n_c * n_g + 1) % n_g for n_c, n_g in zip(n_cells, n_abc)]
+    block = grid[numpy.ix_(*index)]
+    voxel = numpy.asarray(axes_xyz, dtype=float) / n_abc[na, :] / BOHR_IN_ANGSTROM
+    lines = ["Density (created by CrysPy)", "Cube without atoms, bohr",
+             f"{0:5d} {0.:12.6f} {0.:12.6f} {0.:12.6f}"]
+    for n_point, vector in zip(block.shape, voxel.transpose()):
+        lines.append(f"{n_point:5d} {vector[0]:12.6f} {vector[1]:12.6f} {vector[2]:12.6f}")
+    # z runs fastest, then y, then x (the cube convention)
+    values = block.reshape(-1)
+    n_full = values.size - values.size % 6
+    lines.extend(" ".join(f"{v:.5e}" for v in row)
+                 for row in values[:n_full].reshape(-1, 6))
+    if n_full < values.size:
+        lines.append(" ".join(f"{v:.5e}" for v in values[n_full:]))
+    return "\n".join(lines) + "\n"
