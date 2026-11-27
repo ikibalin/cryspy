@@ -155,85 +155,56 @@ class DiffrnOrientMatrix(ItemN):
         self.__dict__["u_32"] = float(u_ccsl[2, 1])
         self.__dict__["u_33"] = float(u_ccsl[2, 2])
 
+    def take_transform_to_ccsl(self) -> numpy.ndarray:
+        """Matrix T (3x3) from the notation given by type to the CCSL one:
+        UB_ccsl = T UB (rows of UB are the axes of the laboratory system).
+
+        CCSL, XYZ, 6T2@LLB (and X-YZ, kept as before): T = 1;
+        -YXZ, 5C1@LLB: rows (-y, x, z); Y-XZ, BusingLevy: rows (y, -x, z).
+        """
+        s_notation = self.type
+        if s_notation in ["-YXZ", "5C1@LLB"]:
+            return numpy.array([[0., -1., 0.], [1., 0., 0.], [0., 0., 1.]], dtype=float)
+        if s_notation in ["Y-XZ", "BusingLevy"]:
+            return numpy.array([[0., 1., 0.], [-1., 0., 0.], [0., 0., 1.]], dtype=float)
+        return numpy.eye(3, dtype=float)
+
     def calc_ub_ccsl(self):
         """Calculate UB Matrix in CCSL notation.
 
         Based on the given UB matrix with defined type variable.
         """
-        s_notation = self.type
-        a1, a2, a3 = self.ub_11, self.ub_12, self.ub_13
-        b1, b2, b3 = self.ub_21, self.ub_22, self.ub_23
-        c1, c2, c3 = self.ub_31, self.ub_32, self.ub_33
-
-        ub_ccsl = numpy.array([[a1, a2, a3],
-                               [b1, b2, b3],
-                               [c1, c2, c3]], dtype=float)
-        if s_notation in ["XYZ", "6T2@LLB"]:
-            ub_ccsl = numpy.array([[a1, a2, a3],
-                                   [b1, b2, b3],
-                                   [c1, c2, c3]], dtype=float)
-        elif s_notation in ["-YXZ", "5C1@LLB"]:
-            ub_ccsl = numpy.array([[-b1, -b2, -b3],
-                                   [a1, a2, a3],
-                                   [c1, c2, c3]], dtype=float)
-            # ub_ccsl = numpy.array([[-b1,-b2,-b3],
-            #                       [ a1, a2, a3],
-            #                       [ c1, c2, c3]], dtype=float)
-        elif s_notation in ["Y-XZ", "BusingLevy"]:
-            ub_ccsl = numpy.array([[b1, b2, b3],
-                                   [-a1, -a2, -a3],
-                                   [c1, c2, c3]], dtype=float)
-        return ub_ccsl
+        ub = numpy.array([[self.ub_11, self.ub_12, self.ub_13],
+                          [self.ub_21, self.ub_22, self.ub_23],
+                          [self.ub_31, self.ub_32, self.ub_33]], dtype=float)
+        return self.take_transform_to_ccsl() @ ub
 
     def calc_matrix_from_ccsl(self, matrix_ccsl):
         """Calculate UB Matrix (or U Matrix).
 
         Calculations are done in the notation defined by type variable
-        based on the UB Matrix (or U Matrix) in CCSL notation.
+        based on the UB Matrix (or U Matrix) in CCSL notation: the inverse
+        of calc_ub_ccsl, T^-1 = T^T for the rotations of the axes.
         """
-        s_notation = self.get_notation()
-        a1, a2, a3 = matrix_ccsl[0, 0], matrix_ccsl[0, 1], matrix_ccsl[0, 2]
-        b1, b2, b3 = matrix_ccsl[1, 0], matrix_ccsl[1, 1], matrix_ccsl[1, 2]
-        c1, c2, c3 = matrix_ccsl[2, 0], matrix_ccsl[2, 1], matrix_ccsl[2, 2]
-
-        # the matrices are the same as in self.calc_ub_ccsl()
-        # because Op. x Op. = 1
-        ub = numpy.array([[a1, a2, a3],
-                          [b1, b2, b3],
-                          [c1, c2, c3]], dtype=float)
-        if s_notation == "6T2@LLB":
-            ub = numpy.array([[a1, a2, a3],
-                              [b1, b2, b3],
-                              [c1, c2, c3]], dtype=float)
-        elif s_notation == "5C1@LLB":
-            ub = numpy.array([[-b1, -b2, -b3],
-                              [a1, a2, a3],
-                              [c1, c2, c3]], dtype=float)
-            # ub = numpy.array([[-b1, -b2, -b3],
-            #                  [ a1, a2, a3],
-            #                  [ c1, c2, c3]], dtype=float)
-        elif s_notation == "BusingLevy":
-            ub = numpy.array([[b1, b2, b3],
-                              [-a1, -a2, -a3],
-                              [c1, c2, c3]], dtype=float)
-        return ub
+        return self.take_transform_to_ccsl().transpose() @ numpy.asarray(matrix_ccsl, dtype=float)
 
     @classmethod
     def calc_ub(cls, u, type="CCSL",
                 abc_angles=(6.8, 6.8, 6.8, 90., 90., 90.)):
         """Calculate UB matrix by U matrix.
 
-        U matrix is given in the notation defined by type
-        variable and cell parameters (a, b, c, alpha, beta, gamma)
+        U matrix (3x3) is given in the notation defined by type
+        variable and cell parameters (a, b, c in Å, alpha, beta, gamma in
+        degrees); UB = T^T U_ccsl B with U_ccsl = T U and B of the cell
+        (CCSL convention, x || a*, z || c).
         """
         (a, b, c, al, be, ga) = abc_angles[:6]
         cell = Cell(length_a=a, length_b=b, length_c=c, angle_alpha=al,
                     angle_beta=be, angle_gamma=ga)
         m_b = cell.m_b
         obj = cls(type=type)
-
-        # in general case it should not be correct as Op. x Op.^-1 != 1
-        u_ccsl = obj.calc_matrix_from_ccsl(u)
+        transform = obj.take_transform_to_ccsl()
+        u_ccsl = transform @ numpy.asarray(u, dtype=float)
         ub_ccsl = numpy.dot(u_ccsl, m_b)
         ub = obj.calc_matrix_from_ccsl(ub_ccsl)
 

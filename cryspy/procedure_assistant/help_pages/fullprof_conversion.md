@@ -50,8 +50,12 @@ Conventions:
 - Single crystal: the extinction model 1 of FullProf,
   y = (1 + 0.001 Ext1 F² λ³ / sin 2θ)^(-1/2), is the model `qani` with
   q_ii = Ext1/2 g*_ii and q_ij = Ext1 g*_ij (the reciprocal metric
-  tensor). CrysPy applies it to each spin channel, so for magnetic
-  reflections the intensities differ by up to about 1 %.
+  tensor), tied to q_hh by constraints when refined. CrysPy applies it to
+  each spin channel, so for magnetic reflections the intensities differ
+  by up to about 1 %. The anisotropic model 4 (Shelx-like) is `qani`
+  itself: Ext1..Ext6 = q_hh, q_kk, q_ll, q_hk, q_hl, q_kl; codes shared by
+  several Ext become constraints. CrysPy writes the model 1 when q_ij is
+  proportional to g*_ij, otherwise the model 4.
 - Single crystal, magnetic: FullProf gives m = S exp(-2πi k·R) + c.c. at
   the unreduced position op(r); for half-integer k without c.c. and with a
   real S.
@@ -62,7 +66,7 @@ Conventions:
 Not converted: magnetic phases of powders, TOF, flipping ratios
 (itypdata = 2) and polarized single crystals, the refinement of the
 coefficients C_n of the basis functions (refine the Fourier components in
-CrysPy), other extinction models of FullProf, twins and magnetic domains,
+CrysPy), other extinction models of FullProf (only 1 and 4), twins and magnetic domains,
 magnetic space groups (MCIF) for single crystals, polarized powders
 (the sum up + down is written to FullProf), other profiles than
 pseudo-Voigt, strain (Shape1 and others), texture (March-Dollase of

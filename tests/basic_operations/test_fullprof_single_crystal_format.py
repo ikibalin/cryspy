@@ -39,7 +39,7 @@ def test_extinction_isotropic_as_qani():
     phase.extinction = [0.5, 0., 0., 0., 0., 0., 0.]
     phase.extinction_codes = [0.] * 7
     phase.extinction_model = 1
-    d_q = dict(line.split()[0:2] for line in form_extinction_rcif(phase)[1:] if line.strip())
+    d_q = dict(line.split()[0:2] for line in form_extinction_rcif(phase)[0][1:] if line.strip())
     g_r = calc_metric_reciprocal(phase.cell)
     hkl = numpy.array([1., 2., 3.])
     sum_q = sum(float(d_q[f"_extinction_q_{name}"]) * hkl[i] * hkl[j] for name, i, j in (
