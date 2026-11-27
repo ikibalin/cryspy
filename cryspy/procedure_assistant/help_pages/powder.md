@@ -1,7 +1,7 @@
 ---
 title: Powder experiment (pd, pd2d, tof)
-keywords: powder, pd, rietveld, profile, background, resolution, u v w, asymmetry, texture, 2theta, offset, phase scale, pd2d, tof, time of flight
-categories: pd_meas, pd_background, pd_instr_resolution, pd_instr_reflex_asymmetry, phase, texture, range, exclude, setup, tof_parameters, tof_profile, tof_background, pd2d_meas
+keywords: powder, pd, rietveld, profile, background, resolution, u v w, asymmetry, axial divergence, finger cox jephcoat, fcj, s_l, d_l, texture, 2theta, offset, phase scale, pd2d, tof, time of flight
+categories: pd_meas, pd_background, pd_instr_resolution, pd_instr_reflex_asymmetry, pd_instr_axial_divergence, phase, texture, range, exclude, setup, tof_parameters, tof_profile, tof_background, pd2d_meas
 ---
 A constant wavelength 1d powder experiment is a `pd` data block:
 
@@ -10,6 +10,11 @@ A constant wavelength 1d powder experiment is a `pd` data block:
   `cthm` (cos² 2θ of the monochromator) for the Lorentz-polarization factor;
 - `pd_instr_resolution`: Caglioti `U`, `V`, `W` and Lorentz `X`, `Y`;
 - `pd_instr_reflex_asymmetry`: `p1 ... p4`;
+- `pd_instr_axial_divergence`: `s_l`, `d_l` (refinable) and `ttheta_max`
+  (degrees, optional): the physical asymmetry of Finger, Cox and Jephcoat
+  from the axial divergence, S/L and H/L as `S_L`, `D_L` of FullProf;
+  peaks below 90 degrees get a tail to low angles, above 90 degrees to high
+  angles; reflections above `ttheta_max` stay symmetric;
 - `phase` loop: crystal `label`, `scale`, `igsize` (and optional `U ... Y`
   per phase);
 - `pd_background` loop: points `2theta`, `intensity` (intensities refinable);

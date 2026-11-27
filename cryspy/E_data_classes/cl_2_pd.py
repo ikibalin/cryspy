@@ -24,6 +24,9 @@ from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import (
 )
 from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs
 from cryspy.C_item_loop_classes.cl_1_pd_background import PdBackgroundL
+from cryspy.C_item_loop_classes.cl_1_pd_instr_axial_divergence import (
+    PdInstrAxialDivergence,
+)
 from cryspy.C_item_loop_classes.cl_1_pd_instr_reflex_asymmetry import (
     PdInstrReflexAsymmetry,
 )
@@ -108,7 +111,8 @@ class Pd(DataN):
     Attributes
     ----------
         - setup, pd_instr_resolution, phase, pd_background, pd_meas (mandatory)
-        - diffrn_radiation, chi2, range, extinction, pd_instr_reflex_asymmetry
+        - diffrn_radiation, chi2, range, extinction, pd_instr_reflex_asymmetry,
+          pd_instr_axial_divergence,
           texture, texture_sh, texture_sh_coefficient, sample_goniometer,
           magnetic_broadening, stacking_fault, exclude, pd_proc, pd_peak, refine_ls,
           refln_#phase_name
@@ -128,6 +132,7 @@ class Pd(DataN):
         Range,
         Extinction,
         PdInstrReflexAsymmetry,
+        PdInstrAxialDivergence,
         TextureL,
         TextureShL,
         TextureShCoefficientL,
@@ -320,7 +325,7 @@ class Pd(DataN):
     ):
         keys = ddict_diffrn.keys()
         for name in ("texture_sh", "texture_sh_coefficient", "magnetic_broadening",
-                     "stacking_fault"):
+                     "stacking_fault", "pd_instr_axial_divergence"):
             if self.is_attribute(name):
                 getattr(self, name).take_parameters_from_dictionary(
                     ddict_diffrn, l_parameter_name=list(l_parameter_name or []),
