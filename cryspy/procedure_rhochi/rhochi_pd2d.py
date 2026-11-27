@@ -338,7 +338,7 @@ def calc_chi_sq_for_pd2d_by_dictionary(  # noqa: C901, PLR0912, PLR0915
 
         if flag_para and not(flag_ordered):
             flag_iint_plus_minus = flag_f_nucl or flag_tensor_sigma or flags_beam_polarization or flags_flipper_efficiency
-            if (("iint_plus" in dict_in_out_phase_keys) and ("iint_minu" in dict_in_out_phase_keys) and
+            if (("iint_plus" in dict_in_out_phase_keys) and ("iint_minus" in dict_in_out_phase_keys) and
                     flag_use_precalculated_data and not(flag_iint_plus_minus)):
                 iint_plus, iint_minus = dict_in_out_phase["iint_plus"], dict_in_out_phase["iint_minus"]
             else:
@@ -366,7 +366,7 @@ def calc_chi_sq_for_pd2d_by_dictionary(  # noqa: C901, PLR0912, PLR0915
 
         elif flag_para and flag_ordered:
             flag_iint_plus_minus = flag_f_nucl or flag_tensor_sigma or flag_f_m_perp_o or flags_beam_polarization or flags_flipper_efficiency
-            if (("iint_plus" in dict_in_out_phase_keys) and ("iint_minu" in dict_in_out_phase_keys) and
+            if (("iint_plus" in dict_in_out_phase_keys) and ("iint_minus" in dict_in_out_phase_keys) and
                     flag_use_precalculated_data and not(flag_iint_plus_minus)):
                 iint_plus, iint_minus = dict_in_out_phase["iint_plus"], dict_in_out_phase["iint_minus"]
             else:

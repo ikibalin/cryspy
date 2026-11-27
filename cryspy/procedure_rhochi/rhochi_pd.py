@@ -518,7 +518,7 @@ def calc_chi_sq_for_pd_by_dictionary(  # noqa: C901, PLR0912, PLR0915
                 )
                 if (
                     ("iint_plus" in dict_in_out_phase_keys)
-                    and ("iint_minu" in dict_in_out_phase_keys)
+                    and ("iint_minus" in dict_in_out_phase_keys)
                     and flag_use_precalculated_data
                     and not (flag_iint_plus_minus)
                 ):
@@ -578,7 +578,7 @@ def calc_chi_sq_for_pd_by_dictionary(  # noqa: C901, PLR0912, PLR0915
                 )
                 if (
                     ("iint_plus" in dict_in_out_phase_keys)
-                    and ("iint_minu" in dict_in_out_phase_keys)
+                    and ("iint_minus" in dict_in_out_phase_keys)
                     and flag_use_precalculated_data
                     and not (flag_iint_plus_minus)
                 ):
