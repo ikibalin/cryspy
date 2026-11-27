@@ -11,7 +11,9 @@ def test_transpose_m_complex_with_derivatives():
     res, dder = transpose_m(m, flag_m=True)
     assert numpy.allclose(res, m.reshape(3, 3).transpose().flatten())
     assert dder["m_real"].shape == (9, 9)
-    assert dder["m_imag"].dtype == float
+    # the same permutation for both parts; d res / d m_imag = 1j d res / d m_real
+    assert numpy.allclose(dder["m_imag"], 1j * dder["m_real"])
+    assert numpy.allclose(dder["m_real"].sum(axis=0), 1.)
 
 
 def test_calc_vt_q_v_derivative_over_q():

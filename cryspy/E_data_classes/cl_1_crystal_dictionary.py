@@ -1747,7 +1747,7 @@ def calc_sc_v_unit_cell_parameters(  # noqa: PLR0915
         v_uc[3] = numpy.pi / 2.0
         v_uc[4] = numpy.pi / 2.0
         v_uc[5] = numpy.pi / 2.0
-    elif type_cell.startswith("t"):  # FIXME: check  | (type_cell == "hP")
+    elif type_cell.startswith("t"):
         sc_uc[0, 0], sc_uc[0, 1] = 1.0, 0.0
         sc_uc[1, 0], sc_uc[1, 1] = 1.0, 0.0
         sc_uc[3, 3] = 0.0

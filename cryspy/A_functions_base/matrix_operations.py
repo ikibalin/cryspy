@@ -16,7 +16,7 @@ np_zl = numpy.zeros_like
 
 
 def transpose_m(m, flag_m: bool = False):
-    """Calculate determinant of the matrix.
+    """Transpose the matrix stored as 9 components along axis 0.
     """
     m_11, m_12, m_13 = m[0], m[1], m[2]
     m_21, m_22, m_23 = m[3], m[4], m[5]
@@ -25,12 +25,16 @@ def transpose_m(m, flag_m: bool = False):
     res = numpy.stack([m_11, m_21, m_31, m_12, m_22, m_32, m_13, m_23, m_33], axis=0)
     dder = {}
     if flag_m:
-        # FIXME correct derivatives
+        # component i of the result is component index_m[i] of m
+        index_m = (0, 3, 6, 1, 4, 7, 2, 5, 8)
+        der_res_m = numpy.zeros(m.shape[:1] + m.shape, dtype=float)
+        for i_res, i_m in enumerate(index_m):
+            der_res_m[i_res, i_m] = 1.
         if m.dtype == complex:
-            dder["m_real"] = numpy.zeros(m.shape[:1] + m.shape, dtype=float)
-            dder["m_imag"] = numpy.zeros(m.shape[:1] + m.shape, dtype=float)
+            dder["m_real"] = der_res_m
+            dder["m_imag"] = 1j*der_res_m
         else:
-            dder["m"] = numpy.zeros(m.shape[:1] + m.shape, dtype=m.dtype)
+            dder["m"] = der_res_m
     return res, dder
 
 def calc_norm_v(v, flag_v: bool = False):
@@ -635,8 +639,8 @@ def calc_det_m(m, flag_m: bool = False):
         hh = numpy.stack([
             (m_22*m_33 - m_23*m_32), (- m_21*m_33 + m_23*m_31), (m_21*m_32 - m_22*m_31),
             (- m_12*m_33 + m_13*m_32), (m_11*m_33 - m_13*m_31), (- m_11*m_32 + m_12*m_31),
-            (m_12*m_23 - m_13*m_22), (m_11*m_23 + m_13*m_21), (m_11*m_22 - m_12*m_21)], axis=0)
-        if m.type == complex:
+            (m_12*m_23 - m_13*m_22), (- m_11*m_23 + m_13*m_21), (m_11*m_22 - m_12*m_21)], axis=0)
+        if m.dtype == complex:
             dder["m_real"] = hh
             dder["m_imag"] = 1j*hh
         else:

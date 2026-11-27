@@ -259,8 +259,10 @@ def calc_extinction_qani(np_hkl,  # noqa: PLR0913
         dder["q_hl"] = numpy.ones_like(q_hl)*(-0.5*y**3*coeff*x*hl)
     if flag_q_kl:
         dder["q_kl"] = numpy.ones_like(q_kl)*(-0.5*y**3*coeff*x*kl)
-    if flag_cos_2theta:# FIXME
-        dder["cos_2theta"] = numpy.zeros_like(cos_2theta)
+    if flag_cos_2theta:
+        # x is proportional to 1/(sin^3 theta cos theta), sin^2 theta = (1 - cos 2theta)/2
+        der_x_cos_2theta = x * (0.75/numpy.square(sin_theta) - 0.25/numpy.square(cos_theta))
+        dder["cos_2theta"] = -0.5*y**3*coeff*q_hkl*der_x_cos_2theta
     if flag_wavelength:
         dder["wavelength"] = numpy.ones_like(wavelength)*(-0.5*y**3*coeff*q_hkl*f_sq*5*numpy.power(wavelength, 4) / (numpy.power(sin_theta,3) * cos_theta))
         
