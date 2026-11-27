@@ -262,6 +262,12 @@ from cryspy.H_functions_global.cod import (
 from cryspy.H_functions_global.powder_experiments import (
     report_powder_experiments,
 )
+from cryspy.H_functions_global.fullprof import (
+    FullProfFormatError,
+    add_fullprof_files,
+    load_fullprof,
+    save_fullprof_files,
+)
 from cryspy.procedure_rhochi.rhochi_absorption import (
     estimate_absorption_correction,
     apply_absorption_correction,
@@ -507,6 +513,8 @@ L_FUNCTION = [
     magnetization_ellipsoid_by_u_ij,
     report_main_axes_of_magnetization_ellipsoids,
     report_powder_experiments,
+    add_fullprof_files,
+    save_fullprof_files,
     estimate_absorption_correction,
     apply_absorption_correction,
     calc_absorption_coefficient,

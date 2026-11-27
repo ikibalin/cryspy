@@ -391,3 +391,52 @@ def tool_add_crystal_from_cod(cryspy_object, formula: str = "",
             f"{crystal.space_group.name_hm_alt:}, a, b, c = {cell.length_a:g}, "
             f"{cell.length_b:g}, {cell.length_c:g} Å, "
             f"{len(crystal.atom_site.items):} atoms.")
+
+
+def form_conversion_warnings(l_warning) -> str:
+    """The warnings of a conversion as lines for the answer of a tool."""
+    l_message = []
+    for warning in l_warning:
+        message = str(warning.message)
+        if message not in l_message:
+            l_message.append(message)
+    if len(l_message) == 0:
+        return ""
+    return "\nNot converted or changed:\n" + "\n".join(f"- {message:}" for message in l_message)
+
+
+def tool_add_fullprof_files(cryspy_object, file_pcr: str = "", file_data: str = "") -> str:
+    import warnings
+    from cryspy.H_functions_global.fullprof import FullProfFormatError, add_fullprof_files
+    if file_pcr.strip() == "":
+        raise ArgumentsNeeded([{
+            "name": "file_pcr", "type": "string",
+            "question": "the .pcr file of FullProf", "hint": "e.g. pbso4.pcr"}])
+    n_before = len(cryspy_object.items)
+    try:
+        with warnings.catch_warnings(record=True) as l_warning:
+            warnings.simplefilter("always")
+            add_fullprof_files(cryspy_object, file_pcr.strip(), file_data=file_data.strip())
+    except (FullProfFormatError, ValueError, OSError) as error:
+        return f"Error: {error:}"
+    l_name = [str(item.data_name) for item in cryspy_object.items[n_before:]]
+    return (f"Data blocks {', '.join(l_name):} are added from the FullProf file {file_pcr:}; "
+            "refined parameters of FullProf are refined here too."
+            + form_conversion_warnings(l_warning))
+
+
+def tool_save_fullprof_files(cryspy_object, file_pcr: str = "") -> str:
+    import warnings
+    from cryspy.H_functions_global.fullprof import save_fullprof_files
+    if file_pcr.strip() == "":
+        raise ArgumentsNeeded([{
+            "name": "file_pcr", "type": "string",
+            "question": "the .pcr file to write", "hint": "e.g. fullprof/model.pcr"}])
+    try:
+        with warnings.catch_warnings(record=True) as l_warning:
+            warnings.simplefilter("always")
+            l_file = save_fullprof_files(cryspy_object, file_pcr.strip())
+    except (ValueError, OSError) as error:
+        return f"Error: {error:}"
+    return (f"FullProf files are written: {', '.join(l_file):} (and the data files .dat)."
+            + form_conversion_warnings(l_warning))
