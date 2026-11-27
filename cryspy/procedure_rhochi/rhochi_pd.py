@@ -30,6 +30,9 @@ from cryspy.A_functions_base.preferred_orientation import (
     calc_preferred_orientation_pd,
 )
 
+from cryspy.A_functions_base.powder_diffraction_axial_divergence import (
+    take_axial_divergence_by_dictionary,
+)
 from cryspy.A_functions_base.powder_diffraction_const_wavelength import (
     calc_profile_pseudo_voight,
     calc_profile_pseudo_voight_extra_lorentz,
@@ -97,7 +100,8 @@ def calc_signal_magnetic_k(  # noqa: PLR0913
         dict_crystal, dict_in_out_phase, sthovl_min, sthovl_max,
         unit_cell_parameters, wavelength, ttheta_zs, offset_ttheta,
         offset_sycos, offset_sysin, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4,
-        p_scale, lorentz_factor, k, cthm, cutoff_fwhm, y_mag_by_hkl=None):
+        p_scale, lorentz_factor, k, cthm, cutoff_fwhm, y_mag_by_hkl=None,
+        axial_divergence=None):
     """Unpolarized powder signal of the magnetic satellites H = h +- k.
 
     The satellites are written to ``dict_in_out_phase`` under the keys
@@ -105,7 +109,8 @@ def calc_signal_magnetic_k(  # noqa: PLR0913
     ``iint_magnetic_k`` and ``k_index_magnetic_k``. The scale factor has the
     same meaning as for the nuclear reflections. y_mag_by_hkl (from
     form_y_mag_by_hkl) gives the extra Lorentzian width of the satellites
-    (magnetic_broadening); None for none.
+    (magnetic_broadening); None for none. axial_divergence: (S/L, H/L,
+    2theta_max) of the Finger-Cox-Jephcoat asymmetry or None.
     """
     index_hkl, iint, k_index = calc_powder_iint_magnetic_k_by_dictionary(
         dict_crystal, sthovl_min, sthovl_max, unit_cell_parameters)
@@ -133,7 +138,7 @@ def calc_signal_magnetic_k(  # noqa: PLR0913
         iint_unique = numpy.bincount(index_unique, weights=iint, minlength=ttheta_unique.size)
         profile_pv = calc_profile_pseudo_voight(
             ttheta_zs, ttheta_unique, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4,
-            cutoff_fwhm=cutoff_fwhm)[0]
+            cutoff_fwhm=cutoff_fwhm, axial_divergence=axial_divergence)[0]
     else:
         # a width depending on hkl gives satellites at the same
         # 2theta different widths: merge only equal positions and widths
@@ -146,7 +151,8 @@ def calc_signal_magnetic_k(  # noqa: PLR0913
         iint_unique = numpy.bincount(index_unique, weights=iint, minlength=unique_pw.shape[0])
         profile_pv = calc_profile_pseudo_voight_extra_lorentz(
             ttheta_zs, unique_pw[:, 0], u, v, w, p_ig, x, y, unique_pw[:, 1],
-            p_1, p_2, p_3, p_4, cutoff_fwhm=cutoff_fwhm)[0]
+            p_1, p_2, p_3, p_4, cutoff_fwhm=cutoff_fwhm,
+            axial_divergence=axial_divergence)[0]
     return p_scale * lorentz_factor * (profile_pv * iint_unique[na, :]).sum(axis=1)
 
 
@@ -292,6 +298,7 @@ def calc_chi_sq_for_pd_by_dictionary(  # noqa: C901, PLR0912, PLR0915
     else:
         p_1, p_2, p_3, p_4 = 0.0, 0.0, 0.0, 0.0
         flag_asymmetry_parameters = False
+    axial_divergence = take_axial_divergence_by_dictionary(dict_pd)
 
     flags_resolution_parameters = dict_pd["flags_resolution_parameters"]
 
@@ -702,6 +709,7 @@ def calc_chi_sq_for_pd_by_dictionary(  # noqa: C901, PLR0912, PLR0915
             flag_p_3=flag_asymmetry_parameters,
             flag_p_4=flag_asymmetry_parameters,
             cutoff_fwhm=dict_pd.get("profile_cutoff_fwhm", 0.),
+            axial_divergence=axial_divergence,
         )
 
         # stacking_fault: the reflections that see the fault shift are
@@ -784,7 +792,8 @@ def calc_chi_sq_for_pd_by_dictionary(  # noqa: C901, PLR0912, PLR0915
             profile_magnetic = calc_profile_pseudo_voight_extra_lorentz(
                 ttheta_zs, ttheta_hkl, u, v, w, p_ig, x, y, y_mag_hkl,
                 p_1, p_2, p_3, p_4,
-                cutoff_fwhm=dict_pd.get("profile_cutoff_fwhm", 0.))[0]
+                cutoff_fwhm=dict_pd.get("profile_cutoff_fwhm", 0.),
+                axial_divergence=axial_divergence)[0]
             signal_plus = signal_plus + 0.5 * p_scale * lorentz_factor * (
                 profile_magnetic * weight_plus_mag[na, :]).sum(axis=1)
             signal_minus = signal_minus + 0.5 * p_scale * lorentz_factor * (
@@ -798,7 +807,7 @@ def calc_chi_sq_for_pd_by_dictionary(  # noqa: C901, PLR0912, PLR0915
                 offset_sycos, offset_sysin, u, v, w, p_ig, x, y,
                 p_1, p_2, p_3, p_4, p_scale, lorentz_factor, k, cthm,
                 dict_pd.get("profile_cutoff_fwhm", 0.),
-                y_mag_by_hkl=y_mag_by_hkl)
+                y_mag_by_hkl=y_mag_by_hkl, axial_divergence=axial_divergence)
             signal_plus = signal_plus + 0.5 * signal_magnetic_k
             signal_minus = signal_minus + 0.5 * signal_magnetic_k
 

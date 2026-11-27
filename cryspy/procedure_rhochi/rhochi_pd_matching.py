@@ -36,6 +36,9 @@ import numpy
 import scipy.optimize
 
 from cryspy.A_functions_base.unit_cell import calc_sthovl_by_unit_cell_parameters
+from cryspy.A_functions_base.powder_diffraction_axial_divergence import (
+    take_axial_divergence_by_dictionary,
+)
 from cryspy.A_functions_base.powder_diffraction_const_wavelength import (
     calc_profile_pseudo_voight,
     calc_lorentz_factor,
@@ -151,7 +154,8 @@ def calc_matching_phase(  # noqa: PLR0913
     p_1, p_2, p_3, p_4 = asymmetry_parameters
     profile_pv = calc_profile_pseudo_voight(
         ttheta_zs, ttheta_hkl, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4,
-        cutoff_fwhm=dict_pd.get("profile_cutoff_fwhm", 0.))[0]
+        cutoff_fwhm=dict_pd.get("profile_cutoff_fwhm", 0.),
+        axial_divergence=take_axial_divergence_by_dictionary(dict_pd))[0]
     lf_hkl = calc_lorentz_factor(ttheta_hkl, k=k, cthm=cthm, flag_ttheta=None)[0]
     # 2θ beyond the reflection limit (sinθ/λ > 1/λ) has no peak
     flag_reached = sthovl_hkl * wavelength < 1.
