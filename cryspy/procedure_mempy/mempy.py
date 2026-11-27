@@ -27,8 +27,8 @@ def mempy_spin_density_reconstruction(obj: cryspy.GlobalN):
     Returns
     -------
     dict
-        Result of the reconstruction with "chi_sq"; the density channels
-        are added to the object.
+        Result of the reconstruction with "chi_sq"; the spin density is
+        added to the object (loop channel_col) and written to the .den file.
     """
     if not (obj.is_attribute("mem_parameters")):
         mem_parameters = cryspy.MEMParameters(
@@ -66,8 +66,8 @@ def mempy_magnetization_density_reconstruction(obj: cryspy.GlobalN):
     Returns
     -------
     dict
-        Result of the reconstruction with "chi_sq"; the density channels
-        are added to the object.
+        Result of the reconstruction with "chi_sq"; the magnetization
+        density is written to the .den file.
     """
     if not (obj.is_attribute("mem_parameters")):
         mem_parameters = cryspy.MEMParameters(
@@ -100,8 +100,8 @@ def mempy_nuclear_density_reconstruction(obj: cryspy.GlobalN):
     Returns
     -------
     dict
-        Result of the reconstruction with "chi_sq"; the density channels
-        are added to the object.
+        Result of the reconstruction with "chi_sq"; the nuclear density
+        is written to the .den file.
     """
     if not (obj.is_attribute("mem_parameters")):
         mem_parameters = cryspy.MEMParameters(
@@ -149,8 +149,10 @@ def mempy_reconstruction_with_parameters(  # noqa: PLR0915
     Returns
     -------
     dict
-        Result of the reconstruction with "chi_sq"; the density channels
-        are added to the object.
+        Result of the reconstruction with "chi_sq". The calculated flip
+        ratios are put into the experiments, the density of the channel
+        plus/minus is added to the object (loop channel_col); the
+        densities of all channels are written to the .den files.
     """
     l_diffrn = [item for item in obj.items if isinstance(item, cryspy.Diffrn)]
 
@@ -283,20 +285,14 @@ def mempy_reconstruction_with_parameters(  # noqa: PLR0915
         )
 
     if (
-        ("symm_elem_channel_col" in dict_in_out_keys)
-        and ("magnetization_plus" in dict_in_out_keys)
-        and ("magnetization_minus" in dict_in_out_keys)
+        ("symm_elem_auc" in dict_in_out_keys)
         and ("density_channel_col" in dict_in_out_keys)
-        and ("point_multiplicity_channel_col" in dict_in_out_keys)
+        and ("point_multiplicity" in dict_in_out_keys)
     ):
-
-        symm_elem_channel_col = dict_in_out["symm_elem_channel_col"]
+        # the channel plus/minus is given on the points of the asymmetric unit cell
+        symm_elem_channel_col = dict_in_out["symm_elem_auc"]
         density_channel_col = dict_in_out["density_channel_col"]
-        # magnetization_plus = dict_in_out["magnetization_plus"]
-        # magnetization_minus = dict_in_out["magnetization_minus"]
-        point_multiplicity_channel_col = dict_in_out[
-            "point_multiplicity_channel_col"
-        ]
+        point_multiplicity_channel_col = dict_in_out["point_multiplicity"]
 
         channel_col = cryspy.ChannelColL(loop_name=dict_crystal["name"])
 
@@ -496,20 +492,14 @@ def mempy_cycle_with_parameters(  # noqa: PLR0915
         )
 
     if (
-        ("symm_elem_channel_col" in dict_in_out_den_keys)
-        and ("magnetization_plus" in dict_in_out_den_keys)
-        and ("magnetization_minus" in dict_in_out_den_keys)
+        ("symm_elem_auc" in dict_in_out_den_keys)
         and ("density_channel_col" in dict_in_out_den_keys)
-        and ("point_multiplicity_channel_col" in dict_in_out_den_keys)
+        and ("point_multiplicity" in dict_in_out_den_keys)
     ):
-
-        symm_elem_channel_col = dict_in_out_den["symm_elem_channel_col"]
+        # the channel plus/minus is given on the points of the asymmetric unit cell
+        symm_elem_channel_col = dict_in_out_den["symm_elem_auc"]
         density_channel_col = dict_in_out_den["density_channel_col"]
-        # magnetization_plus = dict_in_out_den["magnetization_plus"]
-        # magnetization_minus = dict_in_out_den["magnetization_minus"]
-        point_multiplicity_channel_col = dict_in_out_den[
-            "point_multiplicity_channel_col"
-        ]
+        point_multiplicity_channel_col = dict_in_out_den["point_multiplicity"]
 
         channel_col = cryspy.ChannelColL(loop_name=dict_crystal["name"])
 
