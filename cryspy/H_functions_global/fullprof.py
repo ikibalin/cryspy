@@ -338,6 +338,13 @@ class FullProfPhase:
 def read_more_lines(lines: PcrLines, label: str):
     """Skip the lines of the phase written for More = 1 (Jdi, distances,
     BVS); refuse the options that change the calculation."""
+    jdi = read_more_options(lines, label)
+    read_distance_lines(lines, jdi)
+
+
+def read_more_options(lines: PcrLines, label: str) -> int:
+    """The line 'Jvi Jdi Hel Sol Mom Ter' of More = 1: Jdi; refuse the
+    options that change the calculation."""
     l_more = lines.next_integers(6)
     jdi, hel, sol, mom, ter = l_more[1:6]
     for name, value in (("Hel", hel), ("Sol", sol), ("Mom", mom), ("Ter", ter)):
@@ -345,6 +352,11 @@ def read_more_lines(lines: PcrLines, label: str):
             raise FullProfFormatError(
                 f"Phase '{label:}' has {name:} = {value:}: this option "
                 "of FullProf is not converted.")
+    return jdi
+
+
+def read_distance_lines(lines: PcrLines, jdi: int):
+    """Skip the lines of distances, angles and BVS of More = 1."""
     # the line of distances, angles (and BVS) is optional for |Jdi| = 1, 2
     if jdi in (1, 2, 3, 4) and is_number_line(lines.lines[lines.position]):
         line = lines.next_text()  # distances, angles, BVS
@@ -380,7 +392,25 @@ def read_atom_lines(lines: PcrLines, nat: int) -> List[dict]:
     return l_atom
 
 
-def read_fullprof_phase(lines: PcrLines, nor: int, l_used: List[str]) -> FullProfPhase:  # noqa: C901, PLR0912, PLR0915
+def check_phase_options(label: str, jbt: int, npr: int, d_option: dict):
+    """Refuse a phase that is not nuclear, has another profile than the
+    Thompson-Cox-Hastings pseudo-Voigt or an option (name: value) != 0."""
+    if jbt != 0:
+        raise FullProfFormatError(
+            f"Phase '{label:}' has Jbt = {jbt:}: only nuclear phases "
+            "with atoms (Jbt = 0) are converted.")
+    for name, value in d_option.items():
+        if value != 0:
+            raise FullProfFormatError(
+                f"Phase '{label:}' has {name:} = {value:}: this option of "
+                "FullProf is not converted.")
+    if npr not in (0, 7):
+        raise FullProfFormatError(
+            f"Phase '{label:}' has the profile Npr = {npr:}: only the "
+            "Thompson-Cox-Hastings pseudo-Voigt (Npr = 7) is converted.")
+
+
+def read_fullprof_phase(lines: PcrLines, nor: int, l_used: List[str]) -> FullProfPhase:
     phase = FullProfPhase()
     phase.label = take_label(lines.next_text(), l_used)
     l_value = lines.next_numbers(11)
@@ -390,26 +420,20 @@ def read_fullprof_phase(lines: PcrLines, nor: int, l_used: List[str]) -> FullPro
     nvk = int(l_value[12]) if len(l_value) > 12 else 0
     npr = int(l_value[13]) if len(l_value) > 13 else 7
     more = int(l_value[14]) if len(l_value) > 14 else 0
-    if jbt != 0:
-        raise FullProfFormatError(
-            f"Phase '{phase.label:}' has Jbt = {jbt:}: only nuclear phases "
-            "with atoms (Jbt = 0) are converted.")
-    for name, value in (("Irf", irf), ("Isy", isy), ("Str", i_str),
-                        ("Furth", furth), ("Nvk", nvk), ("Dis", dis), ("Ang", ang)):
-        if value != 0:
-            raise FullProfFormatError(
-                f"Phase '{phase.label:}' has {name:} = {value:}: this option of "
-                "FullProf is not converted.")
-    if npr not in (0, 7):
-        raise FullProfFormatError(
-            f"Phase '{phase.label:}' has the profile Npr = {npr:}: only the "
-            "Thompson-Cox-Hastings pseudo-Voigt (Npr = 7) is converted.")
+    check_phase_options(phase.label, jbt, npr, {
+        "Irf": irf, "Isy": isy, "Str": i_str, "Furth": furth, "Nvk": nvk,
+        "Dis": dis, "Ang": ang})
     if more == 1:
         read_more_lines(lines, phase.label)
     phase.space_group = take_space_group_symbol(lines.next_text().split("<--")[0].strip())
-
     phase.atoms = read_atom_lines(lines, nat)
+    read_powder_profile(lines, phase, nor)
+    return phase
 
+
+def read_powder_profile(lines: PcrLines, phase: FullProfPhase, nor: int):
+    """The profile parameters of a phase for one powder pattern: scale,
+    U V W X Y, size, cell, preferred orientation, asymmetry."""
     l_value = lines.next_numbers(1)
     l_code = lines.next_numbers(1)
     phase.scale, phase.scale_code = l_value[0], l_code[0]
@@ -442,7 +466,6 @@ def read_fullprof_phase(lines: PcrLines, nor: int, l_used: List[str]) -> FullPro
             f"Phase '{phase.label:}': the preferred orientation of FullProf is not "
             "converted (the March-Dollase function of CrysPy takes sin^2 of the angle "
             "to the texture axis where FullProf takes cos^2).")
-    return phase
 
 
 class FullProfPattern:
@@ -468,38 +491,13 @@ class FullProfPattern:
         self.phases = []
 
 
-def read_fullprof_pcr(file_pcr: str) -> FullProfPattern:  # noqa: C901, PLR0912, PLR0915
-    """Read a .pcr file of FullProf (one pattern, constant wavelength powder).
-
-    Raise FullProfFormatError for the options the conversion does not
-    take, warn about the values it cannot keep.
-    """
-    with open(file_pcr, "r", errors="replace") as fid:
-        text = fid.read()
-    pattern = FullProfPattern()
-    match = re.search(r"DAT-file:\s*([^,\s]+)", text)
-    if match is not None:
-        pattern.file_data = match.group(1)
-    lines = PcrLines(text)
-
-    line = lines.next_text()
-    if line.upper().startswith("NPATT"):
-        raise FullProfFormatError("Multi-pattern .pcr files of FullProf are not converted.")
-    pattern.title = line[4:].strip() if line.upper().startswith("COMM") else line.strip()
-    if not line.upper().startswith("COMM"):
-        raise FullProfFormatError(
-            "The .pcr file should start with the line 'COMM title' "
-            "(the old fixed format of FullProf is not converted).")
-
-    l_job = lines.next_integers(15)
-    (job, npr, nph, nba, nex, nsc, nor, _, _, _, _, _, _, nre, cry) = l_job[:15]
-    pattern.job, pattern.nba, pattern.nor = job, nba, nor
+def check_pattern_options(job: int, nba: int, nsc: int, res: int):
+    """Refuse the options of the job line of a powder pattern that the
+    conversion does not take."""
     if job not in D_JOB_RADIATION:
         raise FullProfFormatError(
             f"Job = {job:} of FullProf is not converted: only the powder at a constant "
             "wavelength (Job = 0, 1, 2, 3) is (TOF is not yet).")
-    if cry != 0:
-        raise FullProfFormatError("Single crystal data (Cry != 0) of FullProf are not converted.")
     if nsc != 0:
         raise FullProfFormatError(
             "User scattering factors (Nsc != 0) of FullProf are not converted.")
@@ -507,17 +505,22 @@ def read_fullprof_pcr(file_pcr: str) -> FullProfPattern:  # noqa: C901, PLR0912,
         raise FullProfFormatError(
             f"The background Nba = {nba:} of FullProf is not converted (points "
             "Nba >= 2, the polynomial Nba = 0 or the Chebyshev polynomials Nba = -5 are).")
-    if l_job[11] != 0:
+    if res != 0:
         raise FullProfFormatError(
-            f"Res = {l_job[11]:}: the resolution file of FullProf (.irf) is not converted; "
+            f"Res = {res:}: the resolution file of FullProf (.irf) is not converted; "
             "write U V W X Y of the instrument in the phase (Res = 0).")
-    l_ipr = lines.next_integers(11)
-    pattern.ins = l_ipr[10]
-    if pattern.ins not in (0, 6, 10):
+
+
+def check_data_format(ins: int):
+    """Refuse the data formats Ins of FullProf that are not read."""
+    if ins not in (0, 6, 10):
         raise FullProfFormatError(
-            f"Ins = {pattern.ins:}: only the data files Ins = 0, 6 (D1A/D2B) and 10 "
+            f"Ins = {ins:}: only the data files Ins = 0, 6 (D1A/D2B) and 10 "
             "(XYDATA) of FullProf are converted.")
 
+
+def read_wavelength_line(lines: PcrLines, pattern: FullProfPattern):
+    """The line 'Lambda1 Lambda2 Ratio Bkpos Wdt Cthm muR AsyLim Rpolarz'."""
     l_value = lines.next_numbers(6)
     lambda_1, lambda_2, ratio = l_value[0:3]
     pattern.wavelength = lambda_1
@@ -533,18 +536,21 @@ def read_fullprof_pcr(file_pcr: str) -> FullProfPattern:  # noqa: C901, PLR0912,
     if len(l_value) > 8 and abs(l_value[8]) > 1e-8:
         warn_conversion("Rpolarz of FullProf is not converted.")
 
-    l_value = lines.next_numbers(9)
-    pattern.ttheta_min, pattern.ttheta_step, pattern.ttheta_max = l_value[6:9]
 
-    if nba >= 2:
-        for _ in range(nba):
+def read_background_points_and_excluded(lines: PcrLines, pattern: FullProfPattern, nex: int):
+    """The background points (Nba >= 2) and the excluded regions."""
+    if pattern.nba >= 2:
+        for _ in range(pattern.nba):
             l_value = lines.next_numbers(2)
             pattern.background_points.append(
                 (l_value[0], l_value[1], l_value[2] if len(l_value) > 2 else 0.))
     for _ in range(nex):
         pattern.excluded.append(lines.next_numbers(2)[:2])
-    lines.next_numbers(1)  # number of refined parameters
 
+
+def read_zero_and_background(lines: PcrLines, pattern: FullProfPattern):
+    """The line 'Zero Code SyCos Code SySin Code Lambda Code MORE' and the
+    coefficients of the background (Nba = 0, -5, -1)."""
     l_value = lines.next_numbers(8)
     pattern.zero, pattern.zero_code = l_value[0], l_value[1]
     if abs(l_value[2]) > 1e-8:
@@ -555,17 +561,58 @@ def read_fullprof_pcr(file_pcr: str) -> FullProfPattern:  # noqa: C901, PLR0912,
     if len(l_value) > 8 and int(l_value[8]) == 1:
         lines.next_text()  # microabsorption
         warn_conversion("The microabsorption (MORE = 1) of FullProf is not converted.")
-    if nba == 0:
+    if pattern.nba == 0:
         pattern.background_polynomial = lines.next_numbers(6)[:6]
         pattern.background_codes = lines.next_numbers(6)[:6]
-    elif nba == -5:
+    elif pattern.nba == -5:
         # 24 Chebyshev coefficients: 4 lines of values, each followed by its codes
         for _ in range(4):
             pattern.background_polynomial.extend(lines.next_numbers(6)[:6])
             pattern.background_codes.extend(lines.next_numbers(6)[:6])
-    elif nba == -1:
+    elif pattern.nba == -1:
         for _ in range(6):
             lines.next_text()  # Debye-like and polynomial terms, taken from the .prf file
+
+
+def read_title(lines: PcrLines) -> str:
+    """The title of the line 'COMM title'."""
+    line = lines.next_text()
+    if not line.upper().startswith("COMM"):
+        raise FullProfFormatError(
+            "The .pcr file should start with the line 'COMM title' "
+            "(the old fixed format of FullProf is not converted).")
+    return line[4:].strip()
+
+
+def read_fullprof_pcr(file_pcr: str) -> FullProfPattern:
+    """Read a .pcr file of FullProf (one pattern, constant wavelength powder).
+
+    Raise FullProfFormatError for the options the conversion does not
+    take, warn about the values it cannot keep.
+    """
+    with open(file_pcr, "r", errors="replace") as fid:
+        text = fid.read()
+    pattern = FullProfPattern()
+    match = re.search(r"DAT-file:\s*([^,\s]+)", text)
+    if match is not None:
+        pattern.file_data = match.group(1)
+    lines = PcrLines(text)
+    pattern.title = read_title(lines)
+
+    l_job = lines.next_integers(15)
+    (job, _, nph, nba, nex, nsc, nor, _, _, _, _, res, _, nre, cry) = l_job[:15]
+    pattern.job, pattern.nba, pattern.nor = job, nba, nor
+    if cry != 0:
+        raise FullProfFormatError("Single crystal data (Cry != 0) of FullProf are not converted.")
+    check_pattern_options(job, nba, nsc, res)
+    pattern.ins = lines.next_integers(11)[10]
+    check_data_format(pattern.ins)
+    read_wavelength_line(lines, pattern)
+    l_value = lines.next_numbers(9)
+    pattern.ttheta_min, pattern.ttheta_step, pattern.ttheta_max = l_value[6:9]
+    read_background_points_and_excluded(lines, pattern, nex)
+    lines.next_numbers(1)  # number of refined parameters
+    read_zero_and_background(lines, pattern)
 
     l_used = []
     for _ in range(nph):
@@ -798,6 +845,9 @@ def load_fullprof(file_pcr: str, file_data: str = "") -> GlobalN:
     refined in CrysPy too. For a simulation (Job = 2, 3) the pattern has
     zero intensities.
 
+    A multi-pattern .pcr file (NPATT) gives one powder experiment for each
+    pattern with the common crystals.
+
     A single crystal (Cry = 1) with the integrated intensities of an .int
     file becomes a diffrn experiment: a nuclear phase, or a magnetic phase
     with a propagation vector (Jbt = 1, Isy = -2, basis functions) as a
@@ -819,8 +869,14 @@ def load_fullprof(file_pcr: str, file_data: str = "") -> GlobalN:
     GlobalN
         The object with the crystals and the powder experiment.
     """
+    from cryspy.H_functions_global.fullprof_multi_pattern import (
+        is_multi_pattern, load_fullprof_multi_pattern)
     from cryspy.H_functions_global.fullprof_single_crystal import (
         load_fullprof_single_crystal, take_cry)
+    if is_multi_pattern(file_pcr):
+        if file_data != "":
+            raise ValueError("The data files of a multi-pattern .pcr file are named in it.")
+        return load_fullprof_multi_pattern(file_pcr)
     if take_cry(file_pcr) != 0:
         return load_fullprof_single_crystal(file_pcr, file_data=file_data)
     pattern = read_fullprof_pcr(file_pcr)
@@ -853,8 +909,9 @@ def add_fullprof_files(rcif_object: GlobalN, file_pcr: str, file_data: str = "")
     and its data file to the object, to check a FullProf refinement in
     CrysPy.
 
-    The nuclear phases and the powder pattern at a constant wavelength
-    (neutrons or X-rays) are converted, and single crystals (Cry = 1) with
+    The nuclear phases and the powder patterns at a constant wavelength
+    (neutrons or X-rays, also several patterns of a multi-pattern file,
+    each as an experiment) are converted, and single crystals (Cry = 1) with
     the integrated intensities of an .int file, also magnetic phases with
     a propagation vector given by basis functions (Jbt = 1, Isy = -2).
     Options of FullProf that CrysPy does not calculate (magnetic phases
@@ -988,51 +1045,130 @@ def form_atom_lines(crystal, radiation: str, counter: CodeCounter) -> Tuple[List
     return ls_out, flag_special_refined
 
 
-def form_fullprof_pcr(pd, l_crystal: list, file_data_name: str,  # noqa: C901, PLR0912, PLR0915
-                      ttheta: numpy.ndarray) -> str:
-    """Text of a .pcr file for a powder experiment and its crystals."""
-    setup = pd.setup
-    radiation = str(getattr(setup, "radiation", "neutrons") or "neutrons")
-    job = 0 if radiation == "X-rays" else 1
-    counter = CodeCounter()
+class PatternPcr:
+    """What a powder experiment (pd) gives to a .pcr file: the background,
+    the excluded regions, the shifts, the asymmetry limit, the range and
+    the phases with their crystals."""
 
-    background = pd.pd_background
-    l_bkg = []
-    for item in background.items:
-        l_bkg.append((item.ttheta, item.intensity,
-                      counter.take(take_refined(item, "intensity"))))
-    if len(l_bkg) < 2:
-        raise ValueError("FullProf needs at least two background points.")
-    exclude = take_optional(pd, "exclude")
-    l_excluded = [] if exclude is None else [
-        (item.ttheta_min, item.ttheta_max) for item in exclude.items
-        if getattr(item, "ttheta_min", None) is not None]
-
-    code_zero = counter.take(take_refined(setup, "offset_ttheta"))
-    sysin = take_value(setup, "offset_sysin")
-    code_sysin = counter.take(take_refined(setup, "offset_sysin"))
-    if abs(take_value(setup, "offset_sycos")) > 1e-8:
-        warn_conversion(
-            "offset_SyCos of CrysPy (shift with cos(2theta)) is not written: "
-            "SyCos of FullProf multiplies cos(theta).")
-
-    resolution = pd.pd_instr_resolution
-    asymmetry = take_optional(pd, "pd_instr_reflex_asymmetry")
-    axial = take_optional(pd, "pd_instr_axial_divergence")
-    asylim = 180.
-    if axial is not None and getattr(axial, "ttheta_max", None) is not None:
-        asylim = float(axial.ttheta_max)
-        if asymmetry is not None and asylim < 180.:
+    def __init__(self, pd, l_crystal: list, ttheta: numpy.ndarray, counter: "CodeCounter"):
+        self.pd = pd
+        setup = pd.setup
+        self.radiation = str(getattr(setup, "radiation", "neutrons") or "neutrons")
+        self.job = 0 if self.radiation == "X-rays" else 1
+        self.l_bkg = [(item.ttheta, item.intensity, counter.take(take_refined(item, "intensity")))
+                      for item in pd.pd_background.items]
+        if len(self.l_bkg) < 2:
+            raise ValueError("FullProf needs at least two background points.")
+        exclude = take_optional(pd, "exclude")
+        self.l_excluded = [] if exclude is None else [
+            (item.ttheta_min, item.ttheta_max) for item in exclude.items
+            if getattr(item, "ttheta_min", None) is not None]
+        self.code_zero = counter.take(take_refined(setup, "offset_ttheta"))
+        self.code_sysin = counter.take(take_refined(setup, "offset_sysin"))
+        if abs(take_value(setup, "offset_sycos")) > 1e-8:
             warn_conversion(
-                "AsyLim of FullProf is the limit of the axial divergence "
-                f"({asylim:}); it limits the empirical asymmetry too.")
-    for name in ("texture", "texture_sh", "magnetic_broadening", "stacking_fault"):
-        if pd.is_attribute(name):
-            warn_conversion(f"The loop {name:} of CrysPy is not written to FullProf.")
+                "offset_SyCos of CrysPy (shift with cos(2theta)) is not written: "
+                "SyCos of FullProf multiplies cos(theta).")
+        self.asymmetry = take_optional(pd, "pd_instr_reflex_asymmetry")
+        self.axial = take_optional(pd, "pd_instr_axial_divergence")
+        self.asylim = 180.
+        if self.axial is not None and getattr(self.axial, "ttheta_max", None) is not None:
+            self.asylim = float(self.axial.ttheta_max)
+            if self.asymmetry is not None and self.asylim < 180.:
+                warn_conversion(
+                    "AsyLim of FullProf is the limit of the axial divergence "
+                    f"({self.asylim:}); it limits the empirical asymmetry too.")
+        for name in ("texture", "texture_sh", "magnetic_broadening", "stacking_fault"):
+            if pd.is_attribute(name):
+                warn_conversion(f"The loop {name:} of CrysPy is not written to FullProf.")
+        self.l_phase = take_phase_crystals(pd, l_crystal)
+        self.step = float(numpy.mean(numpy.diff(ttheta))) if ttheta.size > 1 else 0.
+        if ttheta.size > 2 and numpy.ptp(numpy.diff(ttheta)) > 1e-3 * abs(self.step):
+            warn_conversion("The 2theta step of the data is not constant; FullProf expects a constant step.")
+        l_range = take_optional(pd, "range")
+        self.ttheta_min = take_value(l_range, "ttheta_min", float(ttheta.min()))
+        self.ttheta_max = take_value(l_range, "ttheta_max", float(ttheta.max()))
 
+    def form_wavelength_lines(self, index: int) -> List[str]:
+        setup = self.pd.setup
+        return [
+            "! Lambda1  Lambda2    Ratio    Bkpos    Wdt    Cthm     muR   AsyLim   Rpolarz"
+            f"  2nd-muR -> Patt# {index:}",
+            f" {setup.wavelength:.6f} {setup.wavelength:.6f}  0.00000   90.000  8.0000"
+            f" {take_value(setup, 'cthm'):7.4f}  0.0000  {self.asylim:7.2f}    0.0000  0.0000",
+            "!"]
+
+    def form_range_numbers(self) -> str:
+        return f"{self.ttheta_min:10.4f} {self.step:10.6f} {self.ttheta_max:10.4f}   0.000   0.000"
+
+    def form_background_lines(self, index: int) -> List[str]:
+        ls_out = [f"!2Theta/TOF/E(Kev)   Background  for Pattern#  {index:}"]
+        for value_ttheta, value, code in self.l_bkg:
+            ls_out.append(f"{value_ttheta:15.4f}{value:15.4f}{code:10.2f}")
+        if len(self.l_excluded) > 0:
+            ls_out.append(f"! Excluded regions (LowT  HighT) for Pattern#  {index:}")
+            for low, high in self.l_excluded:
+                ls_out.append(f"{low:12.2f}{high:12.2f}")
+        return ls_out
+
+    def form_zero_lines(self, index: int) -> List[str]:
+        setup = self.pd.setup
+        return [
+            f"!  Zero    Code    SyCos    Code   SySin    Code  Lambda     Code MORE ->Patt# {index:}",
+            f" {take_value(setup, 'offset_ttheta'):8.5f} {self.code_zero:6.2f}  0.00000   0.00"
+            f" {take_value(setup, 'offset_sysin'):8.5f} {self.code_sysin:6.2f} 0.000000    0.00   0"]
+
+    def form_profile_lines(self, phase, crystal, counter: "CodeCounter", title: str) -> List[str]:
+        """Scale, U V W X Y, size, cell and asymmetry of a phase in this pattern."""
+        pd = self.pd
+        resolution = pd.pd_instr_resolution
+        scale = take_value(phase, "scale", 1.) / take_scale_factor(self.radiation)
+        ls = [
+            f"!-------> Profile Parameters for {title:}",
+            "!  Scale        Shape1      Bov      Str1      Str2      Str3   Strain-Model",
+            f"  {scale:.7e}   0.00000   0.00000   0.00000   0.00000   0.00000       0",
+            f"  {counter.take(take_refined(phase, 'scale')):10.2f}     0.000     0.000     0.000     0.000     0.000"]
+        l_uvwxy, l_code_uvwxy = [], []
+        for name in ("u", "v", "w", "x", "y"):
+            l_uvwxy.append(take_value(resolution, name) + take_value(phase, name))
+            # the instrument is one for all phases of the pattern: the same code number
+            if take_refined(resolution, name):
+                l_code_uvwxy.append(counter.take(True, f"{pd.data_name:}_resolution_{name:}"))
+            else:
+                l_code_uvwxy.append(counter.take(take_refined(phase, name)))
+        ls.extend([
+            "!       U         V          W           X          Y        GauSiz   LorSiz Size-Model",
+            form_numbers(l_uvwxy + [take_value(phase, "igsize"), 0.], 11, 6) + "    0",
+            form_numbers(l_code_uvwxy + [counter.take(take_refined(phase, "igsize")), 0.], 11, 3)])
+        cell = crystal.cell
+        l_cell_name = ("length_a", "length_b", "length_c", "angle_alpha", "angle_beta", "angle_gamma")
+        # one cell for all patterns: the same code numbers
+        ls.extend([
+            "!     a          b         c        alpha      beta       gamma      #Cell Info",
+            form_numbers([getattr(cell, name) for name in l_cell_name], 11, 6),
+            form_numbers([counter.take(take_refined(cell, name), f"{crystal.data_name:}_{name:}")
+                          for name in l_cell_name], 11, 5)])
+        l_asy, l_code_asy = [0.] * 4, [0.] * 4
+        if self.asymmetry is not None:
+            l_asy = [take_value(self.asymmetry, f"p{i:}") for i in range(1, 5)]
+            l_code_asy = [counter.take(take_refined(self.asymmetry, f"p{i:}"),
+                                       f"{pd.data_name:}_asymmetry_p{i:}") for i in range(1, 5)]
+        l_axial, l_code_axial = [0., 0.], [0., 0.]
+        if self.axial is not None:
+            l_axial = [take_value(self.axial, "s_l"), take_value(self.axial, "d_l")]
+            l_code_axial = [counter.take(take_refined(self.axial, name), f"{pd.data_name:}_axial_{name:}")
+                            for name in ("s_l", "d_l")]
+        ls.extend([
+            "!  Pref1    Pref2      Asy1     Asy2     Asy3     Asy4      S_L      D_L",
+            form_numbers([0., 0.] + l_asy + l_axial, 9, 5),
+            form_numbers([0., 0.] + l_code_asy + l_code_axial, 9, 2)])
+        return ls
+
+
+def take_phase_crystals(pd, l_crystal: list) -> list:
+    """(phase item, crystal) for each phase of a powder experiment."""
     d_crystal = {str(crystal.data_name).lower(): crystal for crystal in l_crystal}
     l_phase = []
-    flag_special = False
     for phase in pd.phase.items:
         crystal = d_crystal.get(str(phase.label).lower())
         if crystal is None:
@@ -1043,114 +1179,90 @@ def form_fullprof_pcr(pd, l_crystal: list, file_data_name: str,  # noqa: C901, P
                     f"The magnetic atoms ({name:}) of the crystal '{crystal.data_name:}' are not "
                     "written to FullProf: only the nuclear structure is compared.")
         l_phase.append((phase, crystal))
+    return l_phase
 
-    ls_phase = []
-    for index, (phase, crystal) in enumerate(l_phase):
-        l_atom_line, flag = form_atom_lines(crystal, radiation, counter)
-        flag_special = flag_special or flag
-        nat = len(crystal.atom_site.items)
-        ls = ["!-------------------------------------------------------------------------------",
-              f"!  Data for PHASE number: {index + 1:3}",
-              "!-------------------------------------------------------------------------------",
-              f"{crystal.data_name:}",
-              "!",
-              "!Nat Dis Ang Pr1 Pr2 Pr3 Jbt Irf Isy Str Furth       ATZ    Nvk Npr More",
-              f"{nat:4}   0   0 0.0 0.0 1.0   0   0   0   0   0         0.000   0   7   0",
-              "!",
-              f"{crystal.space_group.name_hm_alt:<24} <--Space group symbol",
-              "!Atom   Typ       X        Y        Z     Biso       Occ     In Fin N_t Spc /Codes"]
-        ls.extend(l_atom_line)
-        scale = take_value(phase, "scale", 1.) / take_scale_factor(radiation)
-        ls.extend([
-            f"!-------> Profile Parameters for Pattern #  1  ----> Phase # {index + 1:3}",
-            "!  Scale        Shape1      Bov      Str1      Str2      Str3   Strain-Model",
-            f"  {scale:.7e}   0.00000   0.00000   0.00000   0.00000   0.00000       0",
-            f"  {counter.take(take_refined(phase, 'scale')):10.2f}     0.000     0.000     0.000     0.000     0.000"])
-        l_uvwxy, l_code_uvwxy = [], []
-        for name in ("u", "v", "w", "x", "y"):
-            value = take_value(resolution, name) + take_value(phase, name)
-            l_uvwxy.append(value)
-            # the instrument is one for all phases: the same code number
-            flag_instr = take_refined(resolution, name)
-            flag_phase = take_refined(phase, name)
-            if flag_instr:
-                l_code_uvwxy.append(counter.take(True, f"resolution_{name:}"))
-            else:
-                l_code_uvwxy.append(counter.take(flag_phase))
-        igsize = take_value(phase, "igsize")
-        ls.extend([
-            "!       U         V          W           X          Y        GauSiz   LorSiz Size-Model",
-            form_numbers(l_uvwxy + [igsize, 0.], 11, 6) + "    0",
-            form_numbers(l_code_uvwxy + [counter.take(take_refined(phase, "igsize")), 0.], 11, 3)])
-        cell = crystal.cell
-        l_cell_name = ("length_a", "length_b", "length_c", "angle_alpha", "angle_beta", "angle_gamma")
-        ls.extend([
-            "!     a          b         c        alpha      beta       gamma      #Cell Info",
-            form_numbers([getattr(cell, name) for name in l_cell_name], 11, 6),
-            form_numbers([counter.take(take_refined(cell, name)) for name in l_cell_name], 11, 5)])
-        l_asy, l_code_asy = [0.] * 4, [0.] * 4
-        if asymmetry is not None:
-            l_asy = [take_value(asymmetry, f"p{i:}") for i in range(1, 5)]
-            l_code_asy = [counter.take(take_refined(asymmetry, f"p{i:}"), f"asymmetry_p{i:}")
-                          for i in range(1, 5)]
-        l_axial, l_code_axial = [0., 0.], [0., 0.]
-        if axial is not None:
-            l_axial = [take_value(axial, "s_l"), take_value(axial, "d_l")]
-            l_code_axial = [counter.take(take_refined(axial, name), f"axial_{name:}")
-                            for name in ("s_l", "d_l")]
-        ls.extend([
-            "!  Pref1    Pref2      Asy1     Asy2     Asy3     Asy4      S_L      D_L",
-            form_numbers([0., 0.] + l_asy + l_axial, 9, 5),
-            form_numbers([0., 0.] + l_code_asy + l_code_axial, 9, 2)])
-        ls_phase.extend(ls)
+
+def form_phase_head(crystal, index: int, ls_atom: List[str], ls_after_nat: List[str],
+                    nat_header: str, nat_numbers: str) -> List[str]:
+    """Title, the line of Nat, the lines after it, the space group and the atoms."""
+    return [
+        "!-------------------------------------------------------------------------------",
+        f"!  Data for PHASE number: {index:3}",
+        "!-------------------------------------------------------------------------------",
+        f"{crystal.data_name:}", "!", nat_header, nat_numbers, *ls_after_nat, "!",
+        f"{crystal.space_group.name_hm_alt:<24} <--Space group symbol",
+        "!Atom   Typ       X        Y        Z     Biso       Occ     In Fin N_t Spc /Codes",
+        *ls_atom]
+
+
+def warn_special_positions(flag_special: bool):
+    """Warn that FullProf gets independent codes for atoms on special positions."""
     if flag_special:
         warn_conversion(
             "Refined coordinates or betas of atoms on special positions are written "
             "with independent codes: check the codes of FullProf for these atoms.")
 
-    step = float(numpy.mean(numpy.diff(ttheta))) if ttheta.size > 1 else 0.
-    if ttheta.size > 2 and numpy.ptp(numpy.diff(ttheta)) > 1e-3 * abs(step):
-        warn_conversion("The 2theta step of the data is not constant; FullProf expects a constant step.")
-    l_range = take_optional(pd, "range")
-    ttheta_min = take_value(l_range, "ttheta_min", float(ttheta.min()))
-    ttheta_max = take_value(l_range, "ttheta_max", float(ttheta.max()))
 
-    nba = len(l_bkg)
+def form_fullprof_pcr(pd, l_crystal: list, file_data_name: str, ttheta: numpy.ndarray) -> str:
+    """Text of a .pcr file for a powder experiment and its crystals."""
+    counter = CodeCounter()
+    pattern = PatternPcr(pd, l_crystal, ttheta, counter)
+    ls_phase, flag_special = [], False
+    for index, (phase, crystal) in enumerate(pattern.l_phase):
+        ls_atom, flag = form_atom_lines(crystal, pattern.radiation, counter)
+        flag_special = flag_special or flag
+        ls_phase.extend(form_phase_head(
+            crystal, index + 1, ls_atom, [],
+            "!Nat Dis Ang Pr1 Pr2 Pr3 Jbt Irf Isy Str Furth       ATZ    Nvk Npr More",
+            f"{len(crystal.atom_site.items):4}   0   0 0.0 0.0 1.0   0   0   0   0   0"
+            "         0.000   0   7   0"))
+        ls_phase.extend(pattern.form_profile_lines(
+            phase, crystal, counter, f"Pattern #  1  ----> Phase # {index + 1:3}"))
+    warn_special_positions(flag_special)
     ls_out = [
         f"COMM {pd.data_name:} (written by CrysPy)",
         f"! Files => DAT-file: {file_data_name:},  PCR-file: {file_data_name:}",
         "!Job Npr Nph Nba Nex Nsc Nor Dum Iwg Ilo Ias Res Ste Nre Cry Uni Cor Opt Aut",
-        f"{job:4}   7{len(l_phase):4}{nba:4}{len(l_excluded):4}   0   0   0   0   0   0   0   0   0   0   0   0   0   1",
+        f"{pattern.job:4}   7{len(pattern.l_phase):4}{len(pattern.l_bkg):4}{len(pattern.l_excluded):4}"
+        "   0   0   0   0   0   0   0   0   0   0   0   0   0   1",
         "!",
         "!Ipr Ppl Ioc Mat Pcr Ls1 Ls2 Ls3 NLI Prf Ins Rpa Sym Hkl Fou Sho Ana",
         "   0   0   1   0   1   0   4   0   0   3  10   0   0   0   0   0   0",
-        "!",
-        "! Lambda1  Lambda2    Ratio    Bkpos    Wdt    Cthm     muR   AsyLim   Rpolarz  2nd-muR -> Patt# 1",
-        f" {setup.wavelength:.6f} {setup.wavelength:.6f}  0.00000   90.000  8.0000"
-        f" {take_value(setup, 'cthm'):7.4f}  0.0000  {asylim:7.2f}    0.0000  0.0000",
-        "!",
+        "!", *pattern.form_wavelength_lines(1),
         "!NCY  Eps  R_at  R_an  R_pr  R_gl     Thmin       Step       Thmax    PSD    Sent0",
-        f" 10  0.10  1.00  1.00  1.00  1.00  {ttheta_min:10.4f} {step:10.6f} {ttheta_max:10.4f}   0.000   0.000",
-        "!",
-        "!2Theta/TOF/E(Kev)   Background  for Pattern#  1"]
-    for value_ttheta, value, code in l_bkg:
-        ls_out.append(f"{value_ttheta:15.4f}{value:15.4f}{code:10.2f}")
-    if len(l_excluded) > 0:
-        ls_out.append("! Excluded regions (LowT  HighT) for Pattern#  1")
-        for low, high in l_excluded:
-            ls_out.append(f"{low:12.2f}{high:12.2f}")
-    ls_out.extend([
-        "!",
-        "NREFINED",  # known when all codes are given
-        "!",
-        "!  Zero    Code    SyCos    Code   SySin    Code  Lambda     Code MORE ->Patt# 1",
-        f" {take_value(setup, 'offset_ttheta'):8.5f} {code_zero:6.2f}  0.00000   0.00"
-        f" {sysin:8.5f} {code_sysin:6.2f} 0.000000    0.00   0"])
-    ls_out.extend(ls_phase)
-    ls_out.extend(["!  2Th1/TOF1    2Th2/TOF2  Pattern to plot",
-                   f"{ttheta_min:12.3f}{ttheta_max:12.3f}       1"])
+        f" 10  0.10  1.00  1.00  1.00  1.00  {pattern.form_range_numbers():}",
+        "!", *pattern.form_background_lines(1),
+        "!", "NREFINED", "!", *pattern.form_zero_lines(1), *ls_phase,
+        "!  2Th1/TOF1    2Th2/TOF2  Pattern to plot",
+        f"{pattern.ttheta_min:12.3f}{pattern.ttheta_max:12.3f}       1"]
     text = "\n".join(ls_out) + "\n"
     return text.replace("NREFINED", f"{counter.number:8}    !Number of refined parameters")
+
+
+def take_pd_data(pd) -> Tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
+    """2theta, intensity and sigma of a powder experiment; up + down for
+    polarized data."""
+    ttheta = numpy.array(pd.pd_meas.ttheta, dtype=float)
+    if pd.pd_meas.is_attribute("intensity") and getattr(pd.pd_meas, "intensity", None) is not None:
+        return (ttheta, numpy.array(pd.pd_meas.intensity, dtype=float),
+                numpy.array(pd.pd_meas.intensity_sigma, dtype=float))
+    intensity = numpy.array(pd.pd_meas.intensity_plus, dtype=float) + numpy.array(
+        pd.pd_meas.intensity_minus, dtype=float)
+    sigma = numpy.sqrt(numpy.square(numpy.array(pd.pd_meas.intensity_plus_sigma, dtype=float))
+                       + numpy.square(numpy.array(pd.pd_meas.intensity_minus_sigma, dtype=float)))
+    warn_conversion(
+        f"Experiment '{pd.data_name:}' is polarized: FullProf gets the sum of the "
+        "intensities up and down, the magnetic part is not converted.")
+    return ttheta, intensity, sigma
+
+
+def write_xydata(file_data: str, name: str, ttheta: numpy.ndarray, intensity: numpy.ndarray,
+                 sigma: numpy.ndarray):
+    """A data file of FullProf with Ins = 10."""
+    with open(file_data, "w") as fid:
+        fid.write(f"XYDATA {name:} (written by CrysPy)\n")
+        for value_ttheta, value, value_sigma in zip(ttheta, intensity, sigma):
+            fid.write(f"{value_ttheta:12.4f}{value:14.4f}{value_sigma:12.4f}\n")
 
 
 def save_fullprof_files(rcif_object: GlobalN, file_pcr: str):
@@ -1158,12 +1270,16 @@ def save_fullprof_files(rcif_object: GlobalN, file_pcr: str):
     object as FullProf files (.pcr and the data file: .dat, Ins = 10, for a
     powder, .int for a single crystal), to check the calculation in FullProf.
 
-    One .pcr file is written for each powder experiment at a constant
-    wavelength and for each unpolarized single crystal experiment (diffrn,
-    Cry = 1; a crystal with a propagation vector becomes a magnetic phase
-    Jbt = 1 in P1 with the satellites only); with several experiments the
-    name of the experiment is added to the file name. Refined parameters get codes of FullProf, the
-    resolution of the instrument has the same code in every phase.
+    Several powder experiments at a constant wavelength are written as one
+    multi-pattern .pcr file (NPATT) with a data file for each experiment
+    (the name of the experiment is added to the file name): FullProf
+    refines the common crystals with all patterns, as CrysPy does. One
+    .pcr file is written for each unpolarized single crystal experiment
+    (diffrn, Cry = 1; a crystal with a propagation vector becomes a
+    magnetic phase Jbt = 1 in P1 with the satellites only). Refined
+    parameters get codes of FullProf, the resolution of the instrument
+    has the same code in every phase of a pattern, the cell the same code
+    in every pattern.
     Categories that FullProf does not calculate in the same way (texture,
     polarized neutrons, magnetic structures) are not written, with a
     warning.
@@ -1204,30 +1320,18 @@ def save_fullprof_files(rcif_object: GlobalN, file_pcr: str):
     for diffrn in l_diffrn:
         file_base = base if n_experiment == 1 else f"{base:}_{diffrn.data_name:}"
         l_file.append(save_fullprof_single_crystal(diffrn, l_crystal, file_base))
-    for pd in l_pd:
+    if len(l_pd) > 1:
+        from cryspy.H_functions_global.fullprof_multi_pattern import save_fullprof_multi_pattern
+        l_file.append(save_fullprof_multi_pattern(l_pd, l_crystal, base))
+    elif len(l_pd) == 1:
+        pd = l_pd[0]
         file_base = base if n_experiment == 1 else f"{base:}_{pd.data_name:}"
-        ttheta = numpy.array(pd.pd_meas.ttheta, dtype=float)
-        if pd.pd_meas.is_attribute("intensity") and getattr(pd.pd_meas, "intensity", None) is not None:
-            intensity = numpy.array(pd.pd_meas.intensity, dtype=float)
-            sigma = numpy.array(pd.pd_meas.intensity_sigma, dtype=float)
-        else:
-            intensity = numpy.array(pd.pd_meas.intensity_plus, dtype=float) + numpy.array(
-                pd.pd_meas.intensity_minus, dtype=float)
-            sigma = numpy.sqrt(numpy.square(numpy.array(pd.pd_meas.intensity_plus_sigma, dtype=float))
-                               + numpy.square(numpy.array(pd.pd_meas.intensity_minus_sigma, dtype=float)))
-            warn_conversion(
-                f"Experiment '{pd.data_name:}' is polarized: FullProf gets the sum of the "
-                "intensities up and down, the magnetic part is not converted.")
-        name_data = os.path.basename(file_base)
-        text_pcr = form_fullprof_pcr(pd, l_crystal, name_data, ttheta)
-        directory = os.path.dirname(os.path.abspath(file_base))
-        os.makedirs(directory, exist_ok=True)
+        ttheta, intensity, sigma = take_pd_data(pd)
+        text_pcr = form_fullprof_pcr(pd, l_crystal, os.path.basename(file_base), ttheta)
+        os.makedirs(os.path.dirname(os.path.abspath(file_base)), exist_ok=True)
         with open(file_base + ".pcr", "w") as fid:
             fid.write(text_pcr)
-        with open(file_base + ".dat", "w") as fid:
-            fid.write(f"XYDATA {pd.data_name:} (written by CrysPy)\n")
-            for value_ttheta, value, value_sigma in zip(ttheta, intensity, sigma):
-                fid.write(f"{value_ttheta:12.4f}{value:14.4f}{value_sigma:12.4f}\n")
+        write_xydata(file_base + ".dat", pd.data_name, ttheta, intensity, sigma)
         l_file.append(file_base + ".pcr")
         logger.info("FullProf files %s.pcr and %s.dat are written.", file_base, file_base)
     return l_file
