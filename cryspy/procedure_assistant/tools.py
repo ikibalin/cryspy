@@ -91,7 +91,9 @@ from cryspy.procedure_assistant.tools_model import (
     tool_report_distances_and_angles,
     tool_convert_to_p1,
     tool_report_ellipsoids,
-    tool_add_crystal_from_cod)
+    tool_add_crystal_from_cod,
+    tool_add_fullprof_files,
+    tool_save_fullprof_files)
 
 CORRELATION_LIMIT = 0.7
 MISSING_KEYS = ("type", "items", "minItems", "maxItems", "enum", "aliases",
@@ -1914,6 +1916,24 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
                   "description": "Name of the new data block; by default "
                                  "the formula."}},
         flag_object_changed=True),
+    AssistantTool(
+        "add_fullprof_files",
+        "Convert FullProf files (.pcr and the data file) to CrysPy: add the "
+        "crystals and the powder pattern of the .pcr file to the object, to "
+        "cross-check a FullProf refinement in CrysPy (nuclear phases, constant "
+        "wavelength neutrons or X-rays).",
+        tool_add_fullprof_files,
+        {"file_pcr": {"type": "string", "description": "The .pcr file of FullProf."},
+         "file_data": {"type": "string",
+                       "description": "The data file; by default the one named in the .pcr file."}},
+        flag_object_changed=True),
+    AssistantTool(
+        "save_fullprof_files",
+        "Convert the object to FullProf: export the crystals and the powder "
+        "experiments as FullProf files (.pcr and .dat), to cross-check the "
+        "calculation of CrysPy in FullProf.",
+        tool_save_fullprof_files,
+        {"file_pcr": {"type": "string", "description": "The .pcr file to write."}}),
     AssistantTool(
         "list_methods",
         "List the methods of the data blocks, loops and items of the object (e.g. "
