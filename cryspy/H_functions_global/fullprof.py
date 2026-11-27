@@ -73,7 +73,9 @@ class PcrLines:
     def __init__(self, text: str):
         self.lines = [
             line.rstrip() for line in text.splitlines()
-            if line.strip() != "" and not line.lstrip().startswith("!")]
+            if line.strip() != "" and not line.lstrip().startswith("!")
+            # VARY and FIX commands of FullProf change the codes of the next run
+            and line.split()[0].upper() not in ("VARY", "FIX")]
         self.position = 0
 
     def next_text(self) -> str:
@@ -151,6 +153,17 @@ def calc_fullprof_polynomial_background(
                for power, coefficient in enumerate(coefficients))
 
 
+def calc_fullprof_chebyshev_background(
+        ttheta: numpy.ndarray, coefficients: List[float], ttheta_min: float,
+        ttheta_max: float) -> numpy.ndarray:
+    """Background of FullProf for Nba = -5, sum_m B_m T_m(x) with the
+    Chebyshev polynomials T_m and x = 2 (2theta - Thmin)/(Thmax - Thmin) - 1
+    from -1 to 1 over the range of the pattern (Thmin, Thmax of the .pcr
+    file, degrees)."""
+    x = 2. * (numpy.asarray(ttheta, dtype=float) - ttheta_min) / (ttheta_max - ttheta_min) - 1.
+    return numpy.polynomial.chebyshev.chebval(x, coefficients)
+
+
 def read_prf_columns(file_prf: str) -> Tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
     """2theta, Ycal and the background of a .prf file of FullProf written
     with Prf = 3 or -3 (columns 2Theta, Yobs, Ycal, Yobs-Ycal, Backg)."""
@@ -196,19 +209,55 @@ def read_xydata(file_data: str, l_line: List[str]) -> Tuple[numpy.ndarray, numpy
     if all(len(row) >= 3 for row in l_row):
         sigma = numpy.array([row[2] for row in l_row], dtype=float)
     else:
-        sigma = numpy.sqrt(numpy.abs(intensity))
+        sigma = calc_counting_sigma(intensity)
     return ttheta, intensity, sigma
 
 
+def take_space_group_symbol(name: str) -> str:
+    """Hermann-Mauguin symbol of a .pcr file in the form of CrysPy: FullProf
+    accepts the old cubic symbols without the bar ('F m 3 m', 'I a 3'),
+    CrysPy needs 'F m -3 m', 'I a -3'."""
+    from cryspy.A_functions_base.function_2_space_group import get_it_number_by_name_hm_short
+    if get_it_number_by_name_hm_short(name) is not None:
+        return name
+    l_word = name.split()
+    l_new = [("-3" if word == "3" and index > 0 and l_word[index - 1].isalpha() else word)
+             for index, word in enumerate(l_word)]
+    name_new = " ".join(l_new)
+    return name_new if get_it_number_by_name_hm_short(name_new) is not None else name
+
+
+def is_number_line(line: str) -> bool:
+    l_word = line.split()
+    if len(l_word) == 0:
+        return False
+    try:
+        float(l_word[0])
+    except ValueError:
+        return False
+    return True
+
+
+def calc_counting_sigma(intensity: numpy.ndarray) -> numpy.ndarray:
+    """Counting statistics for data without sigma: sqrt(I), and 1 for zero
+    counts (as FullProf), which would otherwise give an infinite weight."""
+    return numpy.sqrt(numpy.maximum(numpy.abs(intensity), 1.))
+
+
 def read_start_step_end(l_line: List[str]) -> Tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
-    """Ins = 0: '2theta_start step 2theta_end' then the intensities."""
+    """Ins = 0: '2theta_start step 2theta_end' then the intensities; the
+    lines before them that are not numbers (title, '!' and '#' comments)
+    are skipped."""
+    l_line = list(l_line)
+    while len(l_line) > 0 and not is_number_line(l_line[0]):
+        l_line.pop(0)
     l_number = " ".join(l_line).split()
     start, step, end = [float(word) for word in l_number[:3]]
     intensity = numpy.array([float(word) for word in l_number[3:]], dtype=float)
     ttheta = start + step * numpy.arange(intensity.size)
     flag_range = ttheta <= end + 0.5 * step
     intensity = intensity[flag_range]
-    return ttheta[flag_range], intensity, numpy.sqrt(numpy.abs(intensity))
+    return ttheta[flag_range], intensity, calc_counting_sigma(intensity)
 
 
 def read_d1a(l_line: List[str]) -> Tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
@@ -296,7 +345,8 @@ def read_more_lines(lines: PcrLines, label: str):
             raise FullProfFormatError(
                 f"Phase '{label:}' has {name:} = {value:}: this option "
                 "of FullProf is not converted.")
-    if jdi in (1, 2, 3, 4):
+    # the line of distances, angles (and BVS) is optional for |Jdi| = 1, 2
+    if jdi in (1, 2, 3, 4) and is_number_line(lines.lines[lines.position]):
         line = lines.next_text()  # distances, angles, BVS
         if "BVS" in line.upper():
             n_cation, n_anion = lines.next_integers(2)[:2]
@@ -356,7 +406,7 @@ def read_fullprof_phase(lines: PcrLines, nor: int, l_used: List[str]) -> FullPro
             "Thompson-Cox-Hastings pseudo-Voigt (Npr = 7) is converted.")
     if more == 1:
         read_more_lines(lines, phase.label)
-    phase.space_group = lines.next_text().split("<--")[0].strip()
+    phase.space_group = take_space_group_symbol(lines.next_text().split("<--")[0].strip())
 
     phase.atoms = read_atom_lines(lines, nat)
 
@@ -377,8 +427,9 @@ def read_fullprof_phase(lines: PcrLines, nor: int, l_used: List[str]) -> FullPro
         warn_conversion(f"Phase '{phase.label:}': LorSiz of FullProf is not converted.")
     phase.cell = lines.next_numbers(6)[:6]
     phase.cell_codes = lines.next_numbers(6)[:6]
-    l_value = lines.next_numbers(8)
-    l_code = lines.next_numbers(8)
+    # older .pcr files have no S_L, D_L: 6 numbers
+    l_value = (lines.next_numbers(6) + [0., 0.])[:8]
+    l_code = (lines.next_numbers(6) + [0., 0.])[:8]
     phase.pref, phase.pref_codes = l_value[0:2], l_code[0:2]
     phase.asymmetry, phase.asymmetry_codes = l_value[2:6], l_code[2:6]
     phase.axial, phase.axial_codes = l_value[6:8], l_code[6:8]
@@ -452,12 +503,20 @@ def read_fullprof_pcr(file_pcr: str) -> FullProfPattern:  # noqa: C901, PLR0912,
     if nsc != 0:
         raise FullProfFormatError(
             "User scattering factors (Nsc != 0) of FullProf are not converted.")
-    if nba not in (0, -1) and nba < 2:
+    if nba not in (0, -1, -5) and nba < 2:
         raise FullProfFormatError(
-            f"The background Nba = {nba:} of FullProf is not converted "
-            "(points Nba >= 2 or the polynomial Nba = 0 are).")
+            f"The background Nba = {nba:} of FullProf is not converted (points "
+            "Nba >= 2, the polynomial Nba = 0 or the Chebyshev polynomials Nba = -5 are).")
+    if l_job[11] != 0:
+        raise FullProfFormatError(
+            f"Res = {l_job[11]:}: the resolution file of FullProf (.irf) is not converted; "
+            "write U V W X Y of the instrument in the phase (Res = 0).")
     l_ipr = lines.next_integers(11)
     pattern.ins = l_ipr[10]
+    if pattern.ins not in (0, 6, 10):
+        raise FullProfFormatError(
+            f"Ins = {pattern.ins:}: only the data files Ins = 0, 6 (D1A/D2B) and 10 "
+            "(XYDATA) of FullProf are converted.")
 
     l_value = lines.next_numbers(6)
     lambda_1, lambda_2, ratio = l_value[0:3]
@@ -499,6 +558,11 @@ def read_fullprof_pcr(file_pcr: str) -> FullProfPattern:  # noqa: C901, PLR0912,
     if nba == 0:
         pattern.background_polynomial = lines.next_numbers(6)[:6]
         pattern.background_codes = lines.next_numbers(6)[:6]
+    elif nba == -5:
+        # 24 Chebyshev coefficients: 4 lines of values, each followed by its codes
+        for _ in range(4):
+            pattern.background_polynomial.extend(lines.next_numbers(6)[:6])
+            pattern.background_codes.extend(lines.next_numbers(6)[:6])
     elif nba == -1:
         for _ in range(6):
             lines.next_text()  # Debye-like and polynomial terms, taken from the .prf file
@@ -666,6 +730,11 @@ def take_background(pattern: FullProfPattern, file_pcr: str
             raise FullProfFormatError("Bkpos of the polynomial background should be positive.")
         intensity = calc_fullprof_polynomial_background(
             ttheta, pattern.background_polynomial, pattern.bkpos)
+        flag_refined = any(is_refined(code) for code in pattern.background_codes)
+        return ttheta, intensity, numpy.full(ttheta.shape, flag_refined)
+    if pattern.nba == -5:
+        intensity = calc_fullprof_chebyshev_background(
+            ttheta, pattern.background_polynomial, pattern.ttheta_min, pattern.ttheta_max)
         flag_refined = any(is_refined(code) for code in pattern.background_codes)
         return ttheta, intensity, numpy.full(ttheta.shape, flag_refined)
     file_prf = os.path.splitext(file_pcr)[0] + ".prf"

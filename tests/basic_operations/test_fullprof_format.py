@@ -96,3 +96,53 @@ def test_unknown_data_format(tmp_path):
     file_data.write_text("1 2 3\n")
     with pytest.raises(FullProfFormatError):
         read_fullprof_data(str(file_data), 3)
+
+
+def test_old_cubic_symbols():
+    """FullProf accepts 'F m 3 m', CrysPy needs 'F m -3 m'; 'P 2 3' has no bar."""
+    from cryspy.H_functions_global.fullprof import take_space_group_symbol
+    assert take_space_group_symbol("F m 3 m") == "F m -3 m"
+    assert take_space_group_symbol("I a 3") == "I a -3"
+    assert take_space_group_symbol("P 2 3") == "P 2 3"
+    assert take_space_group_symbol("P n m a") == "P n m a"
+
+
+def test_chebyshev_background():
+    """Nba = -5: sum B_m T_m(x), x from -1 at Thmin to 1 at Thmax."""
+    from cryspy.H_functions_global.fullprof import calc_fullprof_chebyshev_background
+    ttheta = numpy.array([10., 60., 110.])
+    background = calc_fullprof_chebyshev_background(ttheta, [5., 2., 1.], 10., 110.)
+    x = numpy.array([-1., 0., 1.])
+    assert numpy.allclose(background, 5. + 2. * x + (2. * x * x - 1.))
+
+
+def test_zero_counts_have_unit_sigma(tmp_path):
+    """Data without sigma: sqrt(I), 1 for zero counts (no infinite weight)."""
+    file_data = tmp_path / "x.dat"
+    file_data.write_text("XYDATA\n10.0 0.0\n10.1 4.0\n")
+    _, _, sigma = read_fullprof_data(str(file_data), 10)
+    assert numpy.allclose(sigma, [1., 2.])
+
+
+def test_read_ins0_with_title(tmp_path):
+    """Ins = 0 files may start with a title and comment lines."""
+    file_data = tmp_path / "x.dat"
+    file_data.write_text("\n! Diffraction pattern\n#\n 10.0 0.5 11.0\n 100 400 900\n")
+    ttheta, intensity, _ = read_fullprof_data(str(file_data), 0)
+    assert numpy.allclose(ttheta, [10., 10.5, 11.])
+    assert numpy.allclose(intensity, [100., 400., 900.])
+
+
+def test_pcr_lines_skip_vary():
+    """VARY and FIX commands of FullProf are not lines of parameters."""
+    lines = PcrLines("VARY ratio\nFIX all\n 1.0 2.0\n")
+    assert lines.next_numbers(2) == [1., 2.]
+
+
+def test_more_lines_without_distances():
+    """Jdi = 1 with no line of distances before the space group (dy.pcr of
+    the examples of FullProf)."""
+    from cryspy.H_functions_global.fullprof import read_more_lines
+    lines = PcrLines("   3   1   0   0   0   0  1.0000  0.0000  0.0000  0.0000    1\nP 6/m m m\n")
+    read_more_lines(lines, "phase")
+    assert lines.next_text() == "P 6/m m m"
