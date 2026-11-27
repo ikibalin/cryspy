@@ -188,3 +188,22 @@ def test_calc_vt_m_v():
     print("o_ij: ", o_ij)
     assert math.isclose(o_ij, o_np)
 
+
+
+def test_transpose_m_and_det_m_derivatives():
+    """Analytical derivatives of transpose_m and calc_det_m against finite
+    differences (both were zero or wrong before)."""
+    from cryspy.A_functions_base.matrix_operations import transpose_m
+    m = numpy.array([[m_11, m_12, m_13, m_21, m_22, m_23, m_31, m_32, m_33],
+                     [m2_11, m2_12, m2_13, m2_21, m2_22, m2_23, m2_31, m2_32, m2_33]],
+                    dtype=float).T
+    delta = 1e-6
+    for func in (transpose_m, calc_det_m):
+        value, dder = func(m, flag_m=True)
+        for i_m in range(9):
+            m_plus, m_minus = m.copy(), m.copy()
+            m_plus[i_m] += delta
+            m_minus[i_m] -= delta
+            numerical = (func(m_plus)[0] - func(m_minus)[0]) / (2. * delta)
+            analytical = dder["m"][..., i_m, :] if func is transpose_m else dder["m"][i_m]
+            assert numpy.allclose(analytical, numerical, atol=1e-6), (func.__name__, i_m)

@@ -483,7 +483,6 @@ class DataN(object):
         flag = True
         n_mandatory = len(cls.CLASSES_MANDATORY)
 
-        # FIXME: if ItemN is not defined in data class it will be loosed. It should be fixed.        
         flag = len(cls.CLASSES) >= n_mandatory
         for cls_ in cls.CLASSES:
             if issubclass(cls_, ItemN):

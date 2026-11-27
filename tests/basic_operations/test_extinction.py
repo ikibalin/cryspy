@@ -84,3 +84,18 @@ def test_calc_extinction_sphere_secondary_lorentz():
     assert numpy.all(numpy.isclose(res, y_s_s_l))
 
 
+
+
+def test_extinction_qani_derivative_over_cos_2theta():
+    """d y / d cos 2theta of the anisotropic extinction against a finite difference."""
+    from cryspy.A_functions_base.extinction import calc_extinction_qani
+    np_hkl = numpy.array([[1, 2], [0, -1], [3, 1]], dtype=float)
+    args = dict(f_sq=numpy.array([40., 15.]), q_hh=2., q_kk=1., q_ll=0.5,
+                q_hk=0.1, q_hl=-0.2, q_kl=0.05, wavelength=1.4)
+    cos_2theta = numpy.array([0.4, -0.3])
+    delta = 1e-7
+    y, dder = calc_extinction_qani(np_hkl, cos_2theta=cos_2theta, flag_cos_2theta=True, **args)
+    numerical = (calc_extinction_qani(np_hkl, cos_2theta=cos_2theta + delta, **args)[0] -
+                 calc_extinction_qani(np_hkl, cos_2theta=cos_2theta - delta, **args)[0]) / (2. * delta)
+    assert numpy.allclose(dder["cos_2theta"], numerical, rtol=1e-5)
+    assert numpy.all(numpy.abs(numerical) > 1e-6)

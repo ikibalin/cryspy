@@ -334,8 +334,10 @@ def calc_moment_by_sym_elem(sym_elems, moment):
     theta = sym_elems[13]
 
     n_a = numpy.newaxis
-    # FIXME: multiplication on det(R) is probably incorrect for hexagonal
-    # structures
+    # A moment is an axial vector: m' = det(R) theta R m. R is written in the
+    # crystal axes and moments are given along the same axes (in muB per unit
+    # vector); for hexagonal cells R only mixes a and b, whose lengths are
+    # equal, so the same R holds and det(R) = +-1 in any basis.
     det_r = calc_determinant_matrix_ij((r_11, r_12, r_13, r_21, r_22, r_23,
                                         r_31, r_32, r_33))
 
